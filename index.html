@@ -289,7 +289,7 @@ body.showing { overflow: hidden; }
 .menu-weeks .fsbtn { display: flex; flex-direction: column; align-items: flex-start; gap: 0; line-height: 1.25; }
 .menu-weeks .fsbtn small { font-size: 11px; font-weight: 500; color: var(--muted); }
 .menu-note { font-size: 13px; color: var(--muted); margin: 4px 0 10px; }
-.menu-days { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.menu-days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 @media (max-width: 900px) { .menu-days { grid-template-columns: minmax(0, 1fr); } }
 .mday { background: var(--surface-2); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .mday.today { background: var(--surface); box-shadow: 0 0 0 2px var(--accent); }
@@ -337,6 +337,11 @@ label.fsbtn.busy { opacity: 0.5; pointer-events: none; }
 .wo-pm .vt { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); }
 .mo-sub { margin-top: 0; }
 .wo-days { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+.wo-days .mday { gap: 5px; padding: 10px 12px; }
+.wo-days .mday ul { gap: 2px; }
+.wo-days .mday li { line-height: 1.22; }
+.wo-pm { gap: 1px !important; padding-top: 6px !important; }
+.wo-pm > div { line-height: 1.22; }
 @media (max-width: 700px) { .wo-days { grid-template-columns: minmax(0, 1fr) !important; } }
 .mday.past { opacity: 0.55; }
 .mo-h { margin: 14px 0 8px; font-family: var(--font-display); font-size: 20px; }
@@ -379,7 +384,7 @@ label.fsbtn.busy { opacity: 0.5; pointer-events: none; }
 .legend.ro .legbtn { pointer-events: none; text-decoration: none !important; color: var(--ink) !important; }
 .legend.ro .legbtn .dot { opacity: 1 !important; }
 .panel#p-admin:not([hidden]) { display: flex; flex-direction: column; gap: 18px; }
-.ad-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.ad-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
 @media (max-width: 900px) { .ad-pair { grid-template-columns: minmax(0, 1fr); } }
 .ad-rows { display: flex; flex-direction: column; gap: 10px; max-width: 520px; }
 .ad-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 15px; padding: 8px 0; border-bottom: 1px solid var(--line); }
@@ -939,8 +944,9 @@ footer { font-size: 12px; color: var(--muted); }
     var F = window.__fd;
     Promise.all(Array.prototype.map.call(boards, function (el) {
       var id = el.getAttribute("data-id");
-      var p = F.remoteOn() ? F.api("abf", {id: id, n: 16}) : F.fetchJson("https://start.vag.de/dm/api/v1/abfahrten/VGN/" + id + "?timespan=90&limitcount=16", 20000);
-      return p.then(function (j) { draw(el, rowsOf(j)); }, function (e) { fail(el, e && e.code === "no_config" ? "Abfahrten laden: Link zum Script fehlt (Optionen)." : "Abfahrten konnten nicht geladen werden (" + ((e && e.message) || "unbekannt") + ")."); });
+      var direct = function () { return F.fetchJson("https://start.vag.de/dm/api/v1/abfahrten/VGN/" + id + "?timespan=90&limitcount=16", 20000); };
+      var p = F.remoteOn() ? F.api("abf", {id: id, n: 16}).catch(function (e) { return direct().catch(function () { throw e; }); }) : direct();
+      return p.then(function (j) { draw(el, rowsOf(j)); }, function (e) { var m = (e && e.message) || "unbekannt"; fail(el, e && e.code === "no_config" ? "Abfahrten laden: Link zum Script fehlt (Optionen)." : /Berechtigung|permission|script\.ext/i.test(m) ? "Das Script darf noch nicht ins Internet. Im Script die Funktion „berechtigungen“ ausführen und neu bereitstellen (siehe Anleitung)." : "Abfahrten konnten nicht geladen werden (" + m + ")."); });
     })).then(function () { busy = false; });
   }
   setInterval(function () { if (panel && !panel.hidden && !document.hidden && Date.now() - last > 45000) load(); }, 2000);
