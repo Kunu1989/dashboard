@@ -922,7 +922,7 @@ footer { font-size: 12px; color: var(--muted); }
   function rowsOf(j) {
     var arr = Array.isArray(j) ? j : (j && (j.Abfahrten || j.abfahrten || j.departures)) || [], now = Date.now(), out = [];
     arr.forEach(function (x) {
-      var plan = Date.parse(pick(x, ["AbfahrtSollzeit", "SollAbfahrt", "planned"]) || ""), prog = Date.parse(pick(x, ["AbfahrtPrognose", "Abfahrtszeit", "AbfahrtIstzeit", "prognose"]) || ""), t = isFinite(prog) ? prog : plan;
+      var plan = Date.parse(pick(x, ["AbfahrtszeitSoll", "AbfahrtSollzeit", "SollAbfahrt", "planned"]) || ""), prog = Date.parse(pick(x, ["AbfahrtszeitIst", "AbfahrtPrognose", "Abfahrtszeit", "AbfahrtIstzeit", "prognose"]) || ""), t = isFinite(prog) ? prog : plan;
       if (!isFinite(t) || t < now - 60000) return;
       out.push({t: t, late: isFinite(plan) && isFinite(prog) ? Math.round((prog - plan) / 60000) : 0, l: String(pick(x, ["Linienname", "Linie", "line"]) || "?"), r: String(pick(x, ["Richtungstext", "Richtung", "direction"]) || ""), p: String(pick(x, ["Produkt"]) || "")});
     });
