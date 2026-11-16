@@ -951,7 +951,7 @@ footer { font-size: 12px; color: var(--muted); }
       if (!filter || filter(o)) out.push(o);
     });
     out.sort(function (a, b) { return a.ist - b.ist; });
-    return out.slice(0, 14);
+    return out.slice(0, 10);
   }
   function listHtml(j, filter) {
     var rows = rowsOf(j, filter);
