@@ -289,7 +289,7 @@ body.showing { overflow: hidden; }
 .menu-weeks .fsbtn { display: flex; flex-direction: column; align-items: flex-start; gap: 0; line-height: 1.25; }
 .menu-weeks .fsbtn small { font-size: 11px; font-weight: 500; color: var(--muted); }
 .menu-note { font-size: 13px; color: var(--muted); margin: 4px 0 10px; }
-.menu-days { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.menu-days { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 @media (max-width: 900px) { .menu-days { grid-template-columns: minmax(0, 1fr); } }
 .mday { background: var(--surface-2); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .mday.today { background: var(--surface); box-shadow: 0 0 0 2px var(--accent); }
@@ -540,6 +540,10 @@ footer { font-size: 12px; color: var(--muted); }
       <div id="adBakStatus" class="kita-status" role="status"></div>
     </section>
     </div>
+    <section class="card" aria-labelledby="adTc">
+      <div class="card-head"><h2 id="adTc">Kalenderfarben</h2></div>
+      <div class="legend" id="adColors"></div>
+    </section>
     <section class="card" aria-labelledby="adTl">
       <div class="card-head"><h2 id="adTl">Verbindung zum Google-Script</h2></div>
       <p class="muted ad-note" style="margin:0 0 12px">Das Script liefert Kalender, gemeinsame Einstellungen, Kita-Textumwandlung und Abfahrten. Link und Schlüssel stehen in der Anleitung. Die Eingabe gilt nur auf diesem Gerät. Wetter braucht nichts.</p>
@@ -549,10 +553,6 @@ footer { font-size: 12px; color: var(--muted); }
       </div>
       <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
       <div id="calMsg" class="kita-status" role="status"></div>
-    </section>
-    <section class="card" aria-labelledby="adTc">
-      <div class="card-head"><h2 id="adTc">Kalenderfarben</h2></div>
-      <div class="legend" id="adColors"></div>
     </section>
   </div>
 
@@ -2150,19 +2150,6 @@ var MENUS = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pfanne
     });
     document.addEventListener("fullscreenchange", label);
     label();
-    /* Browser erlauben Vollbild nur nach einer Berührung: der erste Tipp irgendwo auf der Seite startet es automatisch (einmal pro Seitenaufruf). */
-    function autoFs() {
-      if (document.fullscreenElement) { off(); return; }
-      try { var p = document.documentElement.requestFullscreen(); if (p && p.then) p.then(off, function () {}); else off(); } catch (e) {}
-    }
-    function off() { document.removeEventListener("pointerup", autoFs, true); document.removeEventListener("keydown", autoFs, true); }
-    document.addEventListener("pointerup", autoFs, true);
-    document.addEventListener("keydown", autoFs, true);
-    /* Jede Berührung eines Reiters startet das Vollbild erneut, falls es gerade nicht aktiv ist. */
-    document.addEventListener("pointerup", function (e) {
-      if (document.fullscreenElement || !e.target || !e.target.closest || !e.target.closest(".tab")) return;
-      try { var p = document.documentElement.requestFullscreen(); if (p && p.catch) p.catch(function () {}); } catch (err) {}
-    }, true);
   })();
 
   /* ---------- Bilder: lokaler Ordner und Diashow ---------- */
