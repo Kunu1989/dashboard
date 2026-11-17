@@ -1052,15 +1052,16 @@ footer { font-size: 12px; color: var(--muted); }
     return limit === 0 ? out : out.slice(0, limit || 10);
   }
   var REDS = ["#7a0f1f", "#d6001c", "#ee5a24", "#b5174f"];
-  var LC = {bus: REDS.slice(), tram: "#8e2b86", sbahn: "#408335"};
+  var LC = {l43: "#d6001c", l44: "#7a0f1f", l45: "#ee5a24", l65: "#b5174f", bus: ["#a63d40", "#d94f70"], tram: "#8e2b86", sbahn: "#408335"};
+  var FIX = {"43": "l43", "44": "l44", "45": "l45", "65": "l65"};
   function busColors(ck, rows) {
-    var known = [], key = "abLines:" + ck;
+    var known = [], key = "abLines2:" + ck;
     try { known = JSON.parse(localStorage.getItem(key) || "[]") || []; } catch (e) { known = []; }
     var add = false;
-    rows.forEach(function (r) { if (r.p === "Bus" && known.indexOf(r.l) < 0) { known.push(r.l); add = true; } });
+    rows.forEach(function (r) { if (r.p === "Bus" && !FIX[r.l] && known.indexOf(r.l) < 0) { known.push(r.l); add = true; } });
     known.sort(function (a, b) { return String(a).localeCompare(String(b), "de", {numeric: true}); });
     if (add) { try { localStorage.setItem(key, JSON.stringify(known)); } catch (e) {} }
-    return function (l) { var i = known.indexOf(l); return LC.bus[(i < 0 ? 0 : i) % LC.bus.length]; };
+    return function (l) { if (FIX[l]) return LC[FIX[l]]; var i = known.indexOf(l); return LC.bus[(i < 0 ? 0 : i) % LC.bus.length]; };
   }
   function listHtml(j, col, ck) {
     var rows = rowsOf(j, col.filter, col.mins, col.limit), colorOf = busColors(ck, rows);
@@ -1122,7 +1123,7 @@ footer { font-size: 12px; color: var(--muted); }
   select(cur);
   setInterval(function () { if (panel && !panel.hidden && !document.hidden) { var id = B[cur].id; if (!at[id] || Date.now() - at[id] > 45000) load(); else draw(); } }, 2000);
   /* ---------- Linienfarben: bearbeitbar in Optionen und per Excel (Blatt „Farben“) ---------- */
-  var LNAMES = [["bus0", "Bus 1"], ["bus1", "Bus 2"], ["bus2", "Bus 3"], ["bus3", "Bus 4"], ["tram", "Straßenbahn"], ["sbahn", "S-Bahn"]];
+  var LNAMES = [["l43", "Linie 43"], ["l44", "Linie 44"], ["l45", "Linie 45"], ["l65", "Linie 65"], ["bus0", "Bus 1"], ["bus1", "Bus 2"], ["tram", "Straßenbahn"], ["sbahn", "S-Bahn"]];
   var HEXC = /^#[0-9a-f]{6}$/i, lcDb = null, lcTimer = null, lcHost = null;
   function lcGet(k) { return k.indexOf("bus") === 0 ? LC.bus[+k.slice(3)] : LC[k]; }
   function lcSet(k, v) { v = v.toLowerCase(); if (k.indexOf("bus") === 0) LC.bus[+k.slice(3)] = v; else LC[k] = v; }
@@ -1150,7 +1151,7 @@ footer { font-size: 12px; color: var(--muted); }
   var cal = document.getElementById("adColors");
   if (cal && cal.parentNode) {
     var box = document.createElement("div");
-    box.innerHTML = '<h3 class="lc-h">Linienfarben (Abfahrten)</h3><div class="legend" id="adLineColors"></div><p class="muted lc-n">Bus 1 bis 4: Die Linien in einem Kasten bekommen der Reihe nach diese Farben, sortiert nach Liniennummer.</p>';
+    box.innerHTML = '<h3 class="lc-h">Linienfarben (Abfahrten)</h3><div class="legend" id="adLineColors"></div><p class="muted lc-n">Die Linien 43, 44, 45 und 65 haben feste Farben. Bus 1 und Bus 2 sind die Reserve: Andere Buslinien in einem Kasten bekommen der Reihe nach diese beiden Farben, sortiert nach Liniennummer.</p>';
     cal.parentNode.insertBefore(box, cal.nextSibling);
     lcHost = box.querySelector("#adLineColors");
     LNAMES.forEach(function (n) {
