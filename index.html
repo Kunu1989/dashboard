@@ -228,6 +228,8 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .ab-lst { max-height: 470px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 4px; }
 .ab-lst .ab-hd { position: sticky; top: 0; z-index: 1; background: var(--surface-2); }
 .mday.past { opacity: 0.55; }
+.lc-h { margin: 16px 0 8px; font-size: 16px; }
+.lc-n { font-size: 13px; margin: 8px 0 0; }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -1050,6 +1052,7 @@ footer { font-size: 12px; color: var(--muted); }
     return limit === 0 ? out : out.slice(0, limit || 10);
   }
   var REDS = ["#7a0f1f", "#d6001c", "#ee5a24", "#b5174f"];
+  var LC = {bus: REDS.slice(), tram: "#8e2b86", sbahn: "#408335"};
   function busColors(ck, rows) {
     var known = [], key = "abLines:" + ck;
     try { known = JSON.parse(localStorage.getItem(key) || "[]") || []; } catch (e) { known = []; }
@@ -1057,7 +1060,7 @@ footer { font-size: 12px; color: var(--muted); }
     rows.forEach(function (r) { if (r.p === "Bus" && known.indexOf(r.l) < 0) { known.push(r.l); add = true; } });
     known.sort(function (a, b) { return String(a).localeCompare(String(b), "de", {numeric: true}); });
     if (add) { try { localStorage.setItem(key, JSON.stringify(known)); } catch (e) {} }
-    return function (l) { var i = known.indexOf(l); return REDS[(i < 0 ? 0 : i) % REDS.length]; };
+    return function (l) { var i = known.indexOf(l); return LC.bus[(i < 0 ? 0 : i) % LC.bus.length]; };
   }
   function listHtml(j, col, ck) {
     var rows = rowsOf(j, col.filter, col.mins, col.limit), colorOf = busColors(ck, rows);
@@ -1066,7 +1069,7 @@ footer { font-size: 12px; color: var(--muted); }
     return head + rows.map(function (r) {
       var delay = Math.round((r.ist - r.plan) / 60000), cls = r.p === "Bus" ? " bus" : r.p === "SBahn" ? " sb" : /tram|stra/i.test(r.p) ? " tram" : "";
       var min = Math.round((r.ist - Date.now()) / 60000);
-      return '<div class="ab-r"><span class="ab-l' + cls + '"' + (r.p === "Bus" ? ' style="background:' + colorOf(r.l) + '"' : "") + '>' + esc(r.l) + '</span><span class="ab-dir">' + esc(r.r) + '</span>' +
+      return '<div class="ab-r"><span class="ab-l' + cls + '"' + ' style="background:' + (r.p === "Bus" ? colorOf(r.l) : r.p === "SBahn" ? LC.sbahn : /tram|stra/i.test(r.p) ? LC.tram : "") + '"' + '>' + esc(r.l) + '</span><span class="ab-dir">' + esc(r.r) + '</span>' +
         '<span class="ab-c"><b class="num">' + hm(r.plan) + '</b>' + (delay > 0 ? '<span class="ab-dl"> (+' + delay + ')</span>' : "") + '</span>' +
         '<span class="ab-c"><b class="num' + (delay > 0 ? " late" : "") + '">' + hm(r.ist) + '</b></span>' +
         '<span class="ab-c ab-rt ab-min' + (min <= 10 ? " soon" : "") + '">' + (min <= 0 ? "jetzt" : "in " + min + " Min.") + '</span></div>';
@@ -1118,6 +1121,68 @@ footer { font-size: 12px; color: var(--muted); }
   Array.prototype.forEach.call(btns, function (b) { b.addEventListener("click", function () { select(b.getAttribute("data-b")); }); });
   select(cur);
   setInterval(function () { if (panel && !panel.hidden && !document.hidden) { var id = B[cur].id; if (!at[id] || Date.now() - at[id] > 45000) load(); else draw(); } }, 2000);
+  /* ---------- Linienfarben: bearbeitbar in Optionen und per Excel (Blatt „Farben“) ---------- */
+  var LNAMES = [["bus0", "Bus 1"], ["bus1", "Bus 2"], ["bus2", "Bus 3"], ["bus3", "Bus 4"], ["tram", "Straßenbahn"], ["sbahn", "S-Bahn"]];
+  var HEXC = /^#[0-9a-f]{6}$/i, lcDb = null, lcTimer = null, lcHost = null;
+  function lcGet(k) { return k.indexOf("bus") === 0 ? LC.bus[+k.slice(3)] : LC[k]; }
+  function lcSet(k, v) { v = v.toLowerCase(); if (k.indexOf("bus") === 0) LC.bus[+k.slice(3)] = v; else LC[k] = v; }
+  function lcData() { var o = {}; LNAMES.forEach(function (n) { o[n[0]] = lcGet(n[0]); }); return o; }
+  function lcApply(o) {
+    var ch = false;
+    if (o && typeof o === "object") LNAMES.forEach(function (n) { if (HEXC.test(o[n[0]] || "") && lcGet(n[0]) !== o[n[0]].toLowerCase()) { lcSet(n[0], o[n[0]]); ch = true; } });
+    return ch;
+  }
+  function lcUi() {
+    if (!lcHost) return;
+    LNAMES.forEach(function (n) {
+      var inp = document.getElementById("lc-" + n[0]);
+      if (inp && inp !== document.activeElement) inp.value = lcGet(n[0]);
+      var d = document.getElementById("lcd-" + n[0]); if (d) d.style.background = lcGet(n[0]);
+    });
+  }
+  function lcSave() {
+    try { localStorage.setItem("fd:lc", JSON.stringify(lcData())); } catch (e) {}
+    clearTimeout(lcTimer);
+    lcTimer = setTimeout(function () { lcTimer = null; if (lcDb) lcDb.doc("settings/linecolors").set({colors: lcData()}).catch(function () {}); }, 800);
+  }
+  function lcChanged() { lcUi(); try { draw(); } catch (e) {} }
+  try { lcApply(JSON.parse(localStorage.getItem("fd:lc") || "null")); } catch (e) {}
+  var cal = document.getElementById("adColors");
+  if (cal && cal.parentNode) {
+    var box = document.createElement("div");
+    box.innerHTML = '<h3 class="lc-h">Linienfarben (Abfahrten)</h3><div class="legend" id="adLineColors"></div><p class="muted lc-n">Bus 1 bis 4: Die Linien in einem Kasten bekommen der Reihe nach diese Farben, sortiert nach Liniennummer.</p>';
+    cal.parentNode.insertBefore(box, cal.nextSibling);
+    lcHost = box.querySelector("#adLineColors");
+    LNAMES.forEach(function (n) {
+      var row = document.createElement("label"), lab = document.createElement("span"), dot = document.createElement("span"), inp = document.createElement("input");
+      row.className = "leg"; lab.className = "legbtn"; lab.style.pointerEvents = "none";
+      dot.className = "dot"; dot.id = "lcd-" + n[0]; lab.appendChild(dot); lab.appendChild(document.createTextNode(n[1]));
+      inp.type = "color"; inp.id = "lc-" + n[0]; inp.setAttribute("aria-label", "Farbe für " + n[1]);
+      row.appendChild(lab); row.appendChild(inp); lcHost.appendChild(row);
+      inp.addEventListener("input", function () { if (HEXC.test(inp.value)) { lcSet(n[0], inp.value); lcChanged(); lcSave(); } });
+    });
+    lcUi();
+  }
+  window.__lineColors = {
+    rows: function () { return LNAMES.map(function (n) { return [n[1], lcGet(n[0])]; }); },
+    importRows: function (rows) {
+      var c = 0;
+      rows.forEach(function (r) {
+        var nm = String(r[0]).trim().toLowerCase(), hx = String(r[1]).trim();
+        LNAMES.forEach(function (n) { if (n[1].toLowerCase() === nm && HEXC.test(hx)) { lcSet(n[0], hx); c++; } });
+      });
+      if (c) { lcChanged(); lcSave(); }
+      return c;
+    }
+  };
+  if (window.claude && window.claude.use) window.claude.use("db").then(function (d) {
+    lcDb = d; if (!d) return;
+    d.doc("settings/linecolors").onSnapshot(function (sn) {
+      if (lcTimer || !sn || !sn.exists) return;
+      var v = sn.data() || {}; if (lcApply(v.colors)) { try { localStorage.setItem("fd:lc", JSON.stringify(lcData())); } catch (e) {} lcChanged(); }
+    });
+  });
+
   window.addEventListener("fd-config", function () { at = {}; });
   window.addEventListener("hashchange", function () { if (location.hash === "#abfahrten") select("dz"); });
 })();
@@ -2784,7 +2849,7 @@ var MENUS = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pfanne
         add("Orte", ["Kürzel", "Gesprochener Name"], Object.keys(STATIONS).sort().map(function (c) { return [c, STATIONS[c]]; }), [14, 44]);
         add("Ignorieren", ["Terminanfang (wird nicht vorgelesen)"], IGN_ALL.map(function (t) { return [t]; }), [50]);
         add("Sonderwörter", ["Wort im Kalender", "Wird gelesen als", "Art"], SPEC, [22, 44, 16]);
-        add("Farben", ["Kalender", "Farbe"], ORDER.map(function (k) { return [CALS[k].name, calColor(k)]; }), [24, 14]);
+        add("Farben", ["Kalender", "Farbe"], ORDER.map(function (k) { return [CALS[k].name, calColor(k)]; }).concat(window.__lineColors ? window.__lineColors.rows() : []), [24, 14]);
         var d = new Date(), pad = function (n) { return (n < 10 ? "0" : "") + n; };
         var name = "Familien-Dashboard-Sicherung-" + d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + ".xlsx";
         return dl.save({filename: name, data: new Uint8Array(X.write(wb, {type: "array", bookType: "xlsx"}))}).then(function () { bmsg("Sicherung gespeichert.", "ok"); }, function (e) { bmsg(e && e.code === "declined" ? "Abgebrochen." : "Die Sicherung konnte nicht gespeichert werden.", "err"); });
@@ -2850,6 +2915,7 @@ var MENUS = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pfanne
         if (far !== null) {
           var nf = 0;
           far.forEach(function (r) { var nm = String(r[0]).trim().toLowerCase(), hx = String(r[1]).trim(); ORDER.forEach(function (k) { if (CALS[k].name.toLowerCase() === nm && HEX.test(hx)) { settings.colors[k] = hx.toLowerCase(); nf++; } }); });
+          if (window.__lineColors) nf += window.__lineColors.importRows(far);
           if (nf) { saveSettings(); renderLegend(); renderTwoDays(); renderCal(); scheduleColorSave(); doneP.push(nf + " Farben"); }
         }
         if (orte !== null || ign !== null || sond !== null) {
