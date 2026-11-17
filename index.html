@@ -137,7 +137,6 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .ab-tabbtn[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent) inset; }
 .ab-l.bus { background: #d6001c; color: #fff; }
 .ab-l.sb { background: #408335; color: #fff; }
-.ab-tm i.late.num { color: #e0222d; font-weight: 700; font-size: 18px; }
 .ab-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
 .ab-cols.one { grid-template-columns: minmax(0, 1fr); }
 @media (max-width: 900px) { .ab-cols { grid-template-columns: minmax(0, 1fr); } }
@@ -148,8 +147,17 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .ab-bh .ab-ic { margin: 0; padding: 0; gap: 8px; }
 .ab-bh .ab-ic svg { width: 30px; height: 30px; }
 .ab-rows { flex: 1; min-height: 0; }
-.ab-r { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
-.ab-r:first-child { border-top: 0; }
+.ab-r { display: grid; grid-template-columns: 50px minmax(0, 1fr) 112px 92px 98px; column-gap: 12px; align-items: center; padding: 7px 0; border-top: 1px solid var(--line); }
+.ab-c { white-space: nowrap; padding-left: 10px; }
+.ab-rt { text-align: right; padding-left: 0; }
+.ab-hd { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 4px 0; border-top: 0; border-bottom: 1px solid var(--line); }
+.ab-r:not(.ab-hd) .ab-c b { font-size: 17px; }
+.ab-dl { font-size: 14px; font-weight: 700; color: #e0222d; }
+.ab-r b.late { color: #e0222d; }
+.ab-r .ab-min { font-size: 15px; font-weight: 600; color: var(--muted); }
+.ab-r .ab-min.soon { color: #e0222d; font-weight: 700; }
+.ab-sub { font-size: 13px; font-weight: 500; color: var(--muted); }
+.ab-cols h3 + .ab-r.ab-hd { margin-top: 0; }
 .ab-l { justify-self: start; min-width: 44px; text-align: center; font-weight: 700; padding: 3px 8px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); }
 .ab-dir { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ab-tm { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; }
@@ -516,7 +524,7 @@ footer { font-size: 12px; color: var(--muted); }
 
   <div class="panel" id="p-abfahrten" hidden>
     <section class="card" aria-labelledby="abTitle">
-      <div class="card-head"><h2 id="abTitle">Abfahrten</h2></div>
+      <div class="card-head"><h2 id="abTitle">Abfahrten</h2><span class="stamp" id="abStamp"></span></div>
       <div class="ab-tabs" role="group" aria-label="Haltestelle wählen"><button type="button" class="ab-tabbtn" data-b="dz" aria-pressed="true"><span class="ab-ic"><span role="img" aria-label="S-Bahn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M9 14.5h.01M15 14.5h.01M8 21l2-4M16 21l-2-4"/></svg></span><span role="img" aria-label="Bus"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="12" rx="2.5"/><path d="M2.5 11h19M8 5v6M14 5v6"/><circle cx="7" cy="17.5" r="1.8" fill="var(--surface-2)"/><circle cx="17" cy="17.5" r="1.8" fill="var(--surface-2)"/></svg></span></span><span class="ab-tl">Nür-Dutzendteich</span></button><button type="button" class="ab-tabbtn" data-b="ko" aria-pressed="false"><span class="ab-ic"><span role="img" aria-label="Bus"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="12" rx="2.5"/><path d="M2.5 11h19M8 5v6M14 5v6"/><circle cx="7" cy="17.5" r="1.8" fill="var(--surface-2)"/><circle cx="17" cy="17.5" r="1.8" fill="var(--surface-2)"/></svg></span></span><span class="ab-tl">Komotauer Str.</span></button></div>
       <section class="ab-board" id="abView" aria-live="polite"><div class="ab-cols"><div><p class="muted ab-none">Wird geladen …</p></div></div><div class="ab-links"></div></section>
     </section>
@@ -921,12 +929,12 @@ footer { font-size: 12px; color: var(--muted); }
   "use strict";
   var view = document.getElementById("abView"), btns = document.querySelectorAll(".ab-tabbtn");
   if (!view || !btns.length || !window.__fd) return;
-  var panel = document.getElementById("p-abfahrten"), cols = view.querySelector(".ab-cols"), links = view.querySelector(".ab-links");
+  var stamp = document.getElementById("abStamp"), panel = document.getElementById("p-abfahrten"), cols = view.querySelector(".ab-cols"), links = view.querySelector(".ab-links");
   var DBF = "https://dbf.finalrewind.org/N%C3%BCrnberg-Dutzendteich?via=N%C3%BCrnberg+Hbf&mode=infoscreen";
   var B = {
     dz: {id: 1510, cols: [
       {title: "S-Bahn Richtung Hbf", filter: function (x) { return x.p === "SBahn" && /Hbf|Hauptbahnhof|Schwabach|^Roth\b/.test(x.r); }},
-      {title: "Nür-Dutzendteich", filter: null}],
+      {title: "Nür-Dutzendteich", sub: "nur Bus", filter: function (x) { return x.p === "Bus"; }}],
       links: [["VGN-Abfahrten im neuen Tab", "https://www.vgn.de/abfahrten/?dm=de%3A09564%3A1510&excl="], ["DB-Tafel im neuen Tab", DBF]]},
     ko: {id: 455, cols: [{title: "Komotauer Str.", filter: null}], links: [["VGN-Abfahrten im neuen Tab", "https://www.vgn.de/abfahrten/?dm=de%3A09564%3A455&excl="]]}
   };
@@ -956,17 +964,31 @@ footer { font-size: 12px; color: var(--muted); }
   function listHtml(j, filter) {
     var rows = rowsOf(j, filter);
     if (!rows.length) return '<p class="muted ab-none">Keine Abfahrten in den nächsten 90 Minuten.</p>';
-    return rows.map(function (r) {
-      var dev = Math.round((r.ist - r.plan) / 60000) !== 0, cls = r.p === "Bus" ? " bus" : r.p === "SBahn" ? " sb" : "";
-      return '<div class="ab-r"><span class="ab-l' + cls + '">' + esc(r.l) + '</span><span class="ab-dir">' + esc(r.r) + '</span><span class="ab-tm"><b class="num">' + hm(r.plan) + "</b>" + (dev ? '<i class="late num">' + hm(r.ist) + "</i>" : "") + "</span></div>";
+    var head = '<div class="ab-r ab-hd"><span>Linie</span><span>Richtung</span><span class="ab-c">Abfahrt</span><span class="ab-c">Tatsächlich</span><span class="ab-c ab-rt">In Minuten</span></div>';
+    return head + rows.map(function (r) {
+      var delay = Math.round((r.ist - r.plan) / 60000), cls = r.p === "Bus" ? " bus" : r.p === "SBahn" ? " sb" : "";
+      var min = Math.round((r.ist - Date.now()) / 60000);
+      return '<div class="ab-r"><span class="ab-l' + cls + '">' + esc(r.l) + '</span><span class="ab-dir">' + esc(r.r) + '</span>' +
+        '<span class="ab-c"><b class="num">' + hm(r.plan) + '</b>' + (delay > 0 ? '<span class="ab-dl"> (+' + delay + ')</span>' : "") + '</span>' +
+        '<span class="ab-c"><b class="num' + (delay > 0 ? " late" : "") + '">' + hm(r.ist) + '</b></span>' +
+        '<span class="ab-c ab-rt ab-min' + (min <= 10 ? " soon" : "") + '">' + (min <= 0 ? "jetzt" : "in " + min + " Min.") + '</span></div>';
     }).join("");
   }
   function draw() {
     var b = B[cur], j = data[b.id];
     if (!j) return;
     cols.className = "ab-cols" + (b.cols.length === 1 ? " one" : "");
-    cols.innerHTML = b.cols.map(function (c) { return "<div><h3>" + esc(c.title) + "</h3>" + listHtml(j, c.filter) + "</div>"; }).join("");
+    cols.innerHTML = b.cols.map(function (c) { return "<div><h3>" + esc(c.title) + (c.sub ? ' <small class="ab-sub">' + esc(c.sub) + "</small>" : "") + "</h3>" + listHtml(j, c.filter) + "</div>"; }).join("");
+    showStamp();
     links.innerHTML = b.links.map(function (l) { return '<a class="ab-open" href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + "</a>"; }).join("");
+  }
+  function showStamp() {
+    if (!stamp) return;
+    var a = at[B[cur].id];
+    if (!a) { stamp.textContent = ""; return; }
+    var m = Math.floor((Date.now() - a) / 60000);
+    stamp.textContent = m < 1 ? "Aktualisiert gerade eben" : "Aktualisiert vor " + m + (m === 1 ? " Minute" : " Minuten");
+    stamp.classList.toggle("old", Date.now() - a > 180000);
   }
   function fail(t) { cols.className = "ab-cols one"; cols.innerHTML = '<div><p class="muted ab-none">' + esc(t) + "</p></div>"; }
   function load() {
@@ -984,7 +1006,7 @@ footer { font-size: 12px; color: var(--muted); }
     cur = k; try { localStorage.setItem("abSel", k); } catch (e) {}
     Array.prototype.forEach.call(btns, function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-b") === k)); });
     var id = B[k].id;
-    if (data[id]) draw(); else { cols.className = "ab-cols one"; cols.innerHTML = '<div><p class="muted ab-none">Wird geladen …</p></div>'; links.innerHTML = ""; }
+    if (data[id]) draw(); else { cols.className = "ab-cols one"; cols.innerHTML = '<div><p class="muted ab-none">Wird geladen …</p></div>'; links.innerHTML = ""; showStamp(); }
     if (!at[id] || Date.now() - at[id] > 20000) load();
   }
   Array.prototype.forEach.call(btns, function (b) { b.addEventListener("click", function () { select(b.getAttribute("data-b")); }); });
@@ -2038,9 +2060,14 @@ var MENUS = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pfanne
   function stampText(ms, maxAgeMin, fallback) {
     if (!ms) return {t: fallback, old: false};
     var d = new Date(ms), now = new Date(), same = ymd(d) === ymd(now);
-    var t = "aktualisiert " + (same ? "" : fShort(d) + ", ") + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " Uhr";
+    var mi = Math.floor((now.getTime() - ms) / 60000), t;
+    if (mi < 1) t = "aktualisiert gerade eben";
+    else if (mi < 60) t = "aktualisiert vor " + mi + (mi === 1 ? " Minute" : " Minuten");
+    else if (same) t = "aktualisiert vor " + Math.floor(mi / 60) + " Std. " + (mi % 60) + " Min.";
+    else t = "aktualisiert " + fShort(d) + ", " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " Uhr";
     return {t: t, old: (now.getTime() - ms) / 60000 > maxAgeMin};
   }
+  setInterval(function () { try { renderStamps(); } catch (e) {} }, 30000);
   function renderStamps() {
     var m = {
       cal: stampText(liveAtMs, 15, mcp ? "wird geladen …" : "nicht verfügbar"),
