@@ -178,13 +178,8 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .wb-side b { font-size: 20px; }
 .wb-sum { font-size: 14px; opacity: .9; line-height: 1.35; margin-bottom: 6px; }
 .wb-h { margin: 14px 0 8px; font-family: var(--font-body); font-size: 17px; font-weight: 700; color: var(--w-blue); display: inline-block; border-bottom: 3px solid #f5a800; padding-bottom: 3px; }
-.wb-hrwrap { display: flex; background: var(--surface-2); border-radius: 12px; padding: 8px 8px 8px 12px; }
+.wb-hrwrap { display: flex; background: var(--surface-2); border-radius: 12px; padding: 4px 8px; }
 .wb-hrs { display: flex; flex: 1; min-width: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.wb-lab { flex: 0 0 108px; display: flex; flex-direction: column; gap: 6px; padding: 12px 0; }
-.wb-lab .s { display: block; font-size: 12px; font-weight: 700; line-height: 1.15; hyphens: manual; }
-.wb-lab .tm { height: 18px; } .wb-lab .ic { height: 34px; } .wb-lab .tp { height: 26px; }
-.wb-lab .lp { height: 76px; display: flex; align-items: flex-end; padding-bottom: 14px; color: #5b95d1; }
-.wb-lab .lm { height: 70px; display: flex; align-items: flex-end; padding-bottom: 14px; color: #1a6fc4; }
 .wb-hr { flex: 0 0 80px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 0; border-right: 1px solid var(--w-grid); }
 .wb-hr:last-child { border-right: 0; }
 .wb-hr.now { background: var(--w-now); border-radius: 10px; box-shadow: 0 0 0 1px var(--w-blue) inset; }
@@ -219,6 +214,11 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .wb-d .tr i.p { background: #7fb4ea; } .wb-d .tr i.m { background: #1a6fc4; }
 @media (max-width: 900px) { .wb-d { grid-template-columns: 100px repeat(3, minmax(0, 1fr)); } }
 .wb-dh small { display: block; text-transform: none; letter-spacing: 0; font-weight: 500; font-size: 12px; }
+.wb-stk { position: sticky; left: 0; flex: 0 0 0; width: 0; z-index: 2; }
+.wb-stk .lb { position: absolute; left: 4px; white-space: nowrap; font-size: 12px; font-weight: 700; line-height: 16px; padding: 0 6px; border-radius: 6px; background: var(--surface-2); }
+.wb-stk .lp { top: 108px; color: #4d8bc8; } .wb-stk .lm { top: 212px; color: #1a6fc4; }
+.wb-hr .gp { display: block; height: 16px; flex: 0 0 16px; }
+.wb-d .pt2 { font-size: 13px; font-weight: 700; } .wb-d .pt2 .tl { color: #3a82cf; } .wb-d .pt2 .th { color: #d9531e; }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -908,14 +908,14 @@ footer { font-size: 12px; color: var(--muted); }
       var pp = h.precipitation_probability[i] || 0;
       d.p = Math.max(d.p, pp); d.mm += h.precipitation[i] || 0;
       var idx = hr >= 6 && hr < 12 ? 0 : hr >= 12 && hr < 18 ? 1 : hr >= 18 && hr < 22 ? 2 : -1;
-      if (idx >= 0) d.parts[idx].push({c: h.weather_code[i], p: pp, mm: h.precipitation[i] || 0, day: h.is_day[i] === 1});
+      if (idx >= 0) d.parts[idx].push({c: h.weather_code[i], p: pp, mm: h.precipitation[i] || 0, t: h.temperature_2m[i], day: h.is_day[i] === 1});
     }
     Object.keys(days).forEach(function (key) {
       var d = days[key];
       out[key] = {p: d.p, mm: Math.round(d.mm * 10) / 10, parts: d.parts.map(function (a) {
         if (!a.length) return null;
         var code = pickCode(a.map(function (x) { return x.c; })), dayN = a.filter(function (x) { return x.day; }).length * 2 >= a.length, w = wmo(code, dayN);
-        return {ic: w[0], ph: w[1], p: Math.max.apply(null, a.map(function (x) { return x.p; })), mm: Math.round(a.reduce(function (s, x) { return s + x.mm; }, 0) * 10) / 10};
+        return {ic: w[0], ph: w[1], p: Math.max.apply(null, a.map(function (x) { return x.p; })), mm: Math.round(a.reduce(function (s, x) { return s + x.mm; }, 0) * 10) / 10, lo: Math.round(Math.min.apply(null, a.map(function (x) { return x.t; }))), hi: Math.round(Math.max.apply(null, a.map(function (x) { return x.t; })))};
       })};
     });
     window.__wxParts = out;
@@ -1520,11 +1520,11 @@ footer { font-size: 12px; color: var(--muted); }
     if (hrs.length) {
       var mmMax = 1;
       hrs.forEach(function (x) { if (x.mm > mmMax) mmMax = x.mm; });
-      hh = '<div class="wb-hrwrap"><div class="wb-lab"><span class="s tm"></span><span class="s ic"></span><span class="s tp"></span><span class="s lp">Regenwahr&shy;scheinlichkeit</span><span class="s lm">Niederschlags&shy;menge</span></div><div class="wb-hrs">' + hrs.map(function (x) {
+      hh = '<div class="wb-hrwrap"><div class="wb-hrs"><div class="wb-stk"><span class="lb lp">Regenwahrscheinlichkeit</span><span class="lb lm">Niederschlagsmenge</span></div>' + hrs.map(function (x) {
         var nd = x.day && x.day !== key;
         return '<div class="wb-hr' + (nowH === x.h && !nd ? " now" : "") + '"><span class="tm num">' + (nd && x.wd ? esc(x.wd) + " " : "") + pad(x.h) + ' Uhr</span>' + wxIcon(iconKind(x.ic, x.p, x.h, x.ph), x.ph) + '<b class="num">' + x.t + '°</b>' +
-          '<span class="pr"><i style="height:' + Math.max(2, Math.round(x.p * 0.58)) + 'px"></i><span class="num">' + x.p + ' %</span></span>' +
-          '<span class="pm"><i style="height:' + (x.mm > 0 ? Math.max(3, Math.round(x.mm / mmMax * 52)) : 2) + 'px"></i><span class="mm num' + (x.mm > 0 ? " wet" : "") + '">' + (x.mm != null ? comma(x.mm) + " mm" : "") + '</span></span></div>';
+          '<span class="gp"></span><span class="pr"><i style="height:' + Math.max(2, Math.round(x.p * 0.58)) + 'px"></i><span class="num">' + x.p + ' %</span></span>' +
+          '<span class="gp"></span><span class="pm"><i style="height:' + (x.mm > 0 ? Math.max(3, Math.round(x.mm / mmMax * 52)) : 2) + 'px"></i><span class="mm num' + (x.mm > 0 ? " wet" : "") + '">' + (x.mm != null ? comma(x.mm) + " mm" : "") + '</span></span></div>';
       }).join("") + '</div></div>' + (HOURLY.src ? '<div class="wt-note">Stundenwerte: ' + esc(HOURLY.src) + '.</div>' : "");
     } else hh = '<div class="wt-note">Für heute gibt es keine Stundenwerte mehr.</div>';
     var rows = DAYS.slice(o.base, o.base + 7), PA = window.__wxParts || {};
@@ -1533,12 +1533,12 @@ footer { font-size: 12px; color: var(--muted); }
       var cells = [0, 1, 2].map(function (k) {
         var c = q && q.parts[k];
         if (!c) return '<span class="pt none">–</span>';
-        return '<span class="pt">' + wxIcon(iconKind(c.ic, c.p, null, c.ph), c.ph) + '<span class="pq"><span class="ptx">' + esc(c.ph) + '</span><span class="pp num">' + c.p + ' % · ' + comma(c.mm) + ' mm</span></span></span>';
+        return '<span class="pt">' + wxIcon(iconKind(c.ic, c.p, null, c.ph), c.ph) + '<span class="pq"><span class="ptx">' + esc(c.ph) + '</span><span class="pp num">' + c.p + ' % · ' + comma(c.mm) + ' mm</span>' + (c.lo != null ? '<span class="pt2 num"><span class="tl">↓ ' + c.lo + '°</span> <span class="th">↑ ' + c.hi + '°</span></span>' : "") + '</span></span>';
       }).join("");
-      return '<div class="wb-d"><div class="dn"><strong>' + esc(label) + '</strong><small class="num">' + esc(fShort(dt)) + ' · ' + Math.round(w.lo) + '° / ' + Math.round(w.hi) + '°</small></div>' + cells + '</div>';
+      return '<div class="wb-d"><div class="dn"><strong>' + esc(label) + '</strong><small class="num">' + esc(fShort(dt)) + '</small></div>' + cells + '</div>';
     }).join("") + '</div>';
     var tabs = '<div class="wb-tabs" role="group" aria-label="Ansicht"><button type="button" class="fsbtn" data-wv="h" aria-pressed="' + (wbView === "h") + '">24 Std</button><button type="button" class="fsbtn" data-wv="d" aria-pressed="' + (wbView === "d") + '">7 Tage</button></div>';
-    return tabs + hero + (wbView === "d" ? dd : hh);
+    return tabs + (wbView === "d" ? dd : hero + hh);
   }
   function weatherView(big) {
     var key = ymd(today), sfx = big ? "Big" : "";
