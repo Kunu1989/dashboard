@@ -168,6 +168,39 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .ab-open { align-self: flex-start; font-size: 13px; color: var(--accent); }
 .ab-board iframe { display: block; width: 100%; height: 360px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
 .ad-in { flex: 1 1 260px; min-width: 0; font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); }
+
+.wb-hero { display: grid; grid-template-columns: auto 1fr auto; gap: 26px; align-items: center; padding: 18px 26px; border-radius: 14px; color: #fff; background: linear-gradient(135deg, #0d3b78, #1a6fc4); margin-bottom: 16px; }
+.wb-ico { width: 104px; height: 104px; border-radius: 50%; background: rgba(255,255,255,.93); display: grid; place-items: center; }
+.wb-ico svg { width: 82px; height: 60px; }
+.wb-lbl { font-size: 15px; opacity: .9; }
+.wb-t { font-size: 84px; font-weight: 700; line-height: 1; }
+.wb-side { text-align: right; line-height: 1.6; max-width: 420px; }
+.wb-side b { font-size: 20px; }
+.wb-sum { font-size: 14px; opacity: .9; line-height: 1.35; margin-bottom: 6px; }
+.wb-h { margin: 14px 0 8px; font-family: var(--font-body); font-size: 17px; font-weight: 700; color: var(--w-blue); display: inline-block; border-bottom: 3px solid #f5a800; padding-bottom: 3px; }
+.wb-hrs { display: flex; overflow-x: auto; background: var(--surface-2); border-radius: 12px; padding: 8px; -webkit-overflow-scrolling: touch; }
+.wb-hr { flex: 0 0 80px; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 0; border-right: 1px solid var(--w-grid); }
+.wb-hr:last-child { border-right: 0; }
+.wb-hr.now { background: var(--w-now); border-radius: 10px; box-shadow: 0 0 0 1px var(--w-blue) inset; }
+.wb-hr .tm { font-size: 13px; color: var(--muted); }
+.wb-hr svg { width: 46px; height: 34px; }
+.wb-hr b { font-size: 20px; }
+.wb-hr .pr { height: 52px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 2px; color: var(--w-blue); font-size: 12px; font-weight: 600; }
+.wb-hr .pr i { width: 16px; background: #7fb4ea; border-radius: 3px 3px 0 0; }
+.wb-hr .mm { font-size: 12px; color: var(--muted); }
+.wb-hr .mm.wet { color: var(--w-blue); font-weight: 700; }
+.wb-days { display: block; }
+.wb-d { display: grid; grid-template-columns: 150px 44px minmax(0, 1fr) 56px 34px minmax(80px, 1fr) 34px; gap: 12px; align-items: center; padding: 8px 4px; border-bottom: 1px solid var(--line); }
+.wb-d:last-child { border-bottom: 0; }
+.wb-d .dn small { display: block; color: var(--muted); font-size: 12px; }
+.wb-d svg { width: 44px; height: 32px; }
+.wb-d .tx { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wb-d .rn { color: var(--w-blue); font-size: 14px; font-weight: 600; }
+.wb-d .mn { color: var(--w-blue); text-align: right; font-weight: 600; font-size: 17px; }
+.wb-d .mx { font-weight: 700; font-size: 17px; color: #d9531e; }
+.wb-d .bar2 { position: relative; height: 6px; border-radius: 3px; background: var(--w-grid); }
+.wb-d .bar2 i { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: linear-gradient(90deg, #4f9be3, #f5a800); }
+@media (max-width: 900px) { .wb-d .tx { display: none; } .wb-d { grid-template-columns: 110px 44px 50px 34px minmax(60px, 1fr) 34px; } .wb-hero { grid-template-columns: auto 1fr; } .wb-side { grid-column: 1 / -1; text-align: left; } }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -935,8 +968,8 @@ footer { font-size: 12px; color: var(--muted); }
     dz: {id: 1510, cols: [
       {title: "S-Bahn Richtung Hbf", filter: function (x) { return x.p === "SBahn" && /Hbf|Hauptbahnhof|Schwabach|^Roth\b/.test(x.r); }},
       {title: "Nür-Dutzendteich", sub: "nur Bus", filter: function (x) { return x.p === "Bus"; }}],
-      links: [["VGN-Abfahrten im neuen Tab", "https://www.vgn.de/abfahrten/?dm=de%3A09564%3A1510&excl="], ["DB-Tafel im neuen Tab", DBF]]},
-    ko: {id: 455, cols: [{title: "Komotauer Str.", filter: null}], links: [["VGN-Abfahrten im neuen Tab", "https://www.vgn.de/abfahrten/?dm=de%3A09564%3A455&excl="]]}
+      links: []},
+    ko: {id: 455, cols: [{title: "Komotauer Str.", filter: null}], links: []}
   };
   var cur = "dz", data = {}, at = {}, busy = false;
   try { var sv = localStorage.getItem("abSel"); if (B[sv]) cur = sv; } catch (e) {}
@@ -963,7 +996,7 @@ footer { font-size: 12px; color: var(--muted); }
   }
   function listHtml(j, filter) {
     var rows = rowsOf(j, filter);
-    if (!rows.length) return '<p class="muted ab-none">Keine Abfahrten in den nächsten 90 Minuten.</p>';
+    if (!rows.length) return '<p class="muted ab-none">Keine Abfahrten gefunden.</p>';
     var head = '<div class="ab-r ab-hd"><span>Linie</span><span>Richtung</span><span class="ab-c">Abfahrt</span><span class="ab-c">Tatsächlich</span><span class="ab-c ab-rt">In Minuten</span></div>';
     return head + rows.map(function (r) {
       var delay = Math.round((r.ist - r.plan) / 60000), cls = r.p === "Bus" ? " bus" : r.p === "SBahn" ? " sb" : "";
@@ -994,8 +1027,8 @@ footer { font-size: 12px; color: var(--muted); }
   function load() {
     if (busy) return; busy = true;
     var F = window.__fd, id = B[cur].id, key = cur;
-    var direct = function () { return F.fetchJson("https://start.vag.de/dm/api/v1/abfahrten/VGN/" + id + "?timespan=90&limitcount=30", 20000); };
-    var p = F.remoteOn() ? F.api("abf", {id: id, n: 30}).catch(function (e) { return direct().catch(function () { throw e; }); }) : direct();
+    var direct = function () { return F.fetchJson("https://start.vag.de/dm/api/v1/abfahrten/VGN/" + id + "?timespan=360&limitcount=300", 20000); };
+    var p = F.remoteOn() ? F.api("abf", {id: id, n: 300, t: 360}).catch(function (e) { return direct().catch(function () { throw e; }); }) : direct();
     p.then(function (j) { data[id] = j; at[id] = Date.now(); if (key === cur) draw(); }, function (e) {
       var m = (e && e.message) || "unbekannt";
       if (key !== cur) return;
@@ -1430,6 +1463,33 @@ footer { font-size: 12px; color: var(--muted); }
   function wxIcon(kind, label) {
     return '<svg class="wi" viewBox="0 0 48 48" role="img" aria-label="' + esc(label || "") + '">' + (WI[kind] || WI.cloud) + '</svg>';
   }
+
+  function wbHtml(o) {
+    var t = o.t, key = o.key, hrs = o.hrs, nowH = new Date().getHours();
+    var ph = (o.curH && o.curH.ph) || (o.cur && o.cur.ph) || "";
+    var hero = '<div class="wb-hero"><div class="wb-ico">' + wxIcon(o.kind, o.sum) + '</div><div class="wb-main"><div class="wb-lbl">' + (o.stale ? esc(fWdLong(o.tdt)) : o.cur ? "Jetzt" : "Heute") + (ph ? " · " + esc(ph) : "") + '</div><div class="wb-t num">' + (o.cur ? o.cur.t : Math.round(t.hi)) + '°</div></div>' +
+      '<div class="wb-side"><div class="wb-sum">' + esc(o.sum) + '</div><b class="num">Heute ↑ ' + Math.round(t.hi) + '° &nbsp;↓ ' + Math.round(t.lo) + '°</b><div>' + (o.pP < 5 ? "Kein Regen erwartet" : "Regen bis " + o.pP + " %") + '</div></div></div>';
+    var hh = "";
+    if (hrs.length) {
+      hh = '<h3 class="wb-h">Stündlich</h3><div class="wb-hrs">' + hrs.map(function (x) {
+        var nd = x.day && x.day !== key;
+        return '<div class="wb-hr' + (nowH === x.h && !nd ? " now" : "") + '"><span class="tm num">' + (nd && x.wd ? esc(x.wd) + " " : "") + pad(x.h) + ' Uhr</span>' + wxIcon(iconKind(x.ic, x.p, x.h, x.ph), x.ph) + '<b class="num">' + x.t + '°</b>' +
+          '<span class="pr"><i style="height:' + Math.max(2, Math.round(x.p * 0.4)) + 'px"></i><span class="num">' + x.p + ' %</span></span>' +
+          '<span class="mm num' + (x.mm > 0 ? " wet" : "") + '">' + (x.mm != null ? comma(x.mm) + " mm" : "") + '</span></div>';
+      }).join("") + '</div>' + (HOURLY.src ? '<div class="wt-note">Stundenwerte: ' + esc(HOURLY.src) + '.</div>' : "");
+    } else hh = '<div class="wt-note">Für heute gibt es keine Stundenwerte mehr.</div>';
+    var rows = DAYS.slice(o.base, o.base + 7), lo = 99, hi = -99;
+    rows.forEach(function (w) { lo = Math.min(lo, w.lo); hi = Math.max(hi, w.hi); });
+    var span = Math.max(1, hi - lo);
+    var dd = '<h3 class="wb-h">Nächste Tage</h3><div class="wb-days">' + rows.map(function (w) {
+      var dt = parse(w.d), n = diffDays(dt, today), label = n === 0 ? "Heute" : n === 1 ? "Morgen" : fWdLong(dt);
+      var pt = w.type || (w.p === 0 ? "trocken" : "Niederschlag");
+      return '<div class="wb-d"><div class="dn"><strong>' + esc(label) + '</strong><small class="num">' + esc(fShort(dt)) + '</small></div>' + wxIcon(iconKind(w.ic, w.p, null, w.type), w.type || "") +
+        '<span class="tx">' + esc(pt) + '</span><span class="rn num">' + w.p + ' %</span><span class="mn num">' + Math.round(w.lo) + '°</span>' +
+        '<span class="bar2"><i style="left:' + Math.round((w.lo - lo) / span * 100) + '%;right:' + Math.round(100 - (w.hi - lo) / span * 100) + '%"></i></span><span class="mx num">' + Math.round(w.hi) + '°</span></div>';
+    }).join("") + '</div>';
+    return hero + hh + dd;
+  }
   function weatherView(big) {
     var key = ymd(today), sfx = big ? "Big" : "";
     if (!DAYS.length) return {note: "", html: '<p class="none">' + (wxTry && !wxBusy ? "Das Wetter ist gerade nicht verfügbar." : "Wetter wird geladen …") + '</p>'};
@@ -1495,6 +1555,7 @@ footer { font-size: 12px; color: var(--muted); }
         (w.lo < 0 ? '<div><span class="pill">Nachts Frost</span></div>' : '') + '</div>';
     }).join("");
 
+    if (big) return {note: note, html: wbHtml({t: t, key: key, hrs: useHourly ? hrs : [], curH: curH, cur: cur, kind: headKind, sum: sumTxt, pP: pP, stale: stale, tdt: tdt, base: base})};
     return {note: note, html: head + tl + (big ? '<div class="days3 days7">' + next + '</div>' : '')};
   }
 
@@ -2156,7 +2217,7 @@ var MENUS = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pfanne
       var hh = new Date();
       wxAt = pad(hh.getHours()) + ":" + pad(hh.getMinutes());
       DAYS = days;
-      HOURLY = {date: hrs.length ? tk : "", hours: hrs, live: true, src: "AccuWeather®, aktualisiert " + wxAt + " Uhr"};
+      HOURLY = {date: hrs.length ? tk : "", hours: hrs, live: true, src: "Open-Meteo, aktualisiert " + wxAt + " Uhr"};
       wxOkKey = key; wxAtMs = Date.now();
       setWx("", false); renderStamps();
       renderWeather();
