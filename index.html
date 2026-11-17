@@ -219,6 +219,7 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .wb-stk .lp { top: 108px; color: #4d8bc8; } .wb-stk .lm { top: 212px; color: #1a6fc4; }
 .wb-hr .gp { display: block; height: 16px; flex: 0 0 16px; }
 .wb-d .pt2 { font-size: 13px; font-weight: 700; } .wb-d .pt2 .tl { color: #3a82cf; } .wb-d .pt2 .th { color: #d9531e; }
+.fsbtn.tabhide, .tabhide { display: none !important; }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -1092,6 +1093,7 @@ footer { font-size: 12px; color: var(--muted); }
   select(cur);
   setInterval(function () { if (panel && !panel.hidden && !document.hidden) { var id = B[cur].id; if (!at[id] || Date.now() - at[id] > 45000) load(); else draw(); } }, 2000);
   window.addEventListener("fd-config", function () { at = {}; });
+  window.addEventListener("hashchange", function () { if (location.hash === "#abfahrten") select("dz"); });
 })();
 </script>
 <script>
@@ -1635,6 +1637,11 @@ footer { font-size: 12px; color: var(--muted); }
       if (k === t) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
     });
     if (t !== "kita") menuSel = null;
+    var fsb = document.getElementById("fsBtn"), fsh = document.getElementById("fsHint");
+    if (fsb) fsb.classList.toggle("tabhide", t !== "uebersicht");
+    if (fsh) fsh.classList.toggle("tabhide", t !== "uebersicht");
+    if (t === "wetter" && wbView !== "h") { wbView = "h"; try { renderWeather(); } catch (e) {} }
+    if (t === "kita" && typeof kita !== "undefined" && kita && kita.kind !== "plan" && !busy) { kita.kind = "plan"; try { setMsg(""); kitaView(); } catch (e) {} }
     var lg = document.getElementById("legend"), slot = document.getElementById("legSlot"), bar = document.querySelector(".bottombar");
     if (t === "kalender" && lg.parentNode !== slot) slot.appendChild(lg);
     else if (t !== "kalender" && lg.parentNode !== bar) bar.insertBefore(lg, bar.firstChild);
