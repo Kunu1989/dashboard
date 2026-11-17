@@ -137,6 +137,7 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .ab-tabbtn[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent) inset; }
 .ab-l.bus { background: #d6001c; color: #fff; }
 .ab-l.sb { background: #408335; color: #fff; }
+.ab-l.tram { background: #8e2b86; color: #fff; }
 .ab-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
 .ab-cols.one { grid-template-columns: minmax(0, 1fr); }
 @media (max-width: 900px) { .ab-cols { grid-template-columns: minmax(0, 1fr); } }
@@ -1014,7 +1015,7 @@ footer { font-size: 12px; color: var(--muted); }
   var B = {
     dz: {id: 1510, cols: [
       {title: "S-Bahn Richtung Hbf", filter: function (x) { return x.p === "SBahn" && /Hbf|Hauptbahnhof|Schwabach|^Roth\b/.test(x.r); }},
-      {title: "Nür-Dutzendteich", sub: "nur Bus", filter: function (x) { return x.p === "Bus"; }}],
+      {title: "Nür-Dutzendteich", sub: "Bus und Straßenbahn", filter: function (x) { return x.p === "Bus" || /tram|stra/i.test(x.p); }}],
       links: []},
     ko: {id: 455, cols: [{title: "Komotauer Str.", filter: null}], links: []}
   };
@@ -1041,14 +1042,24 @@ footer { font-size: 12px; color: var(--muted); }
     out.sort(function (a, b) { return a.ist - b.ist; });
     return out.slice(0, 10);
   }
-  function listHtml(j, filter) {
-    var rows = rowsOf(j, filter);
+  var REDS = ["#7a0f1f", "#d6001c", "#ee5a24", "#b5174f"];
+  function busColors(ck, rows) {
+    var known = [], key = "abLines:" + ck;
+    try { known = JSON.parse(localStorage.getItem(key) || "[]") || []; } catch (e) { known = []; }
+    var add = false;
+    rows.forEach(function (r) { if (r.p === "Bus" && known.indexOf(r.l) < 0) { known.push(r.l); add = true; } });
+    known.sort(function (a, b) { return String(a).localeCompare(String(b), "de", {numeric: true}); });
+    if (add) { try { localStorage.setItem(key, JSON.stringify(known)); } catch (e) {} }
+    return function (l) { var i = known.indexOf(l); return REDS[(i < 0 ? 0 : i) % REDS.length]; };
+  }
+  function listHtml(j, filter, ck) {
+    var rows = rowsOf(j, filter), colorOf = busColors(ck, rows);
     if (!rows.length) return '<p class="muted ab-none">Keine Abfahrten gefunden.</p>';
     var head = '<div class="ab-r ab-hd"><span>Linie</span><span>Richtung</span><span class="ab-c">Abfahrt</span><span class="ab-c">Tatsächlich</span><span class="ab-c ab-rt">In Minuten</span></div>';
     return head + rows.map(function (r) {
-      var delay = Math.round((r.ist - r.plan) / 60000), cls = r.p === "Bus" ? " bus" : r.p === "SBahn" ? " sb" : "";
+      var delay = Math.round((r.ist - r.plan) / 60000), cls = r.p === "Bus" ? " bus" : r.p === "SBahn" ? " sb" : /tram|stra/i.test(r.p) ? " tram" : "";
       var min = Math.round((r.ist - Date.now()) / 60000);
-      return '<div class="ab-r"><span class="ab-l' + cls + '">' + esc(r.l) + '</span><span class="ab-dir">' + esc(r.r) + '</span>' +
+      return '<div class="ab-r"><span class="ab-l' + cls + '"' + (r.p === "Bus" ? ' style="background:' + colorOf(r.l) + '"' : "") + '>' + esc(r.l) + '</span><span class="ab-dir">' + esc(r.r) + '</span>' +
         '<span class="ab-c"><b class="num">' + hm(r.plan) + '</b>' + (delay > 0 ? '<span class="ab-dl"> (+' + delay + ')</span>' : "") + '</span>' +
         '<span class="ab-c"><b class="num' + (delay > 0 ? " late" : "") + '">' + hm(r.ist) + '</b></span>' +
         '<span class="ab-c ab-rt ab-min' + (min <= 10 ? " soon" : "") + '">' + (min <= 0 ? "jetzt" : "in " + min + " Min.") + '</span></div>';
@@ -1058,7 +1069,7 @@ footer { font-size: 12px; color: var(--muted); }
     var b = B[cur], j = data[b.id];
     if (!j) return;
     cols.className = "ab-cols" + (b.cols.length === 1 ? " one" : "");
-    cols.innerHTML = b.cols.map(function (c) { return "<div><h3>" + esc(c.title) + (c.sub ? ' <small class="ab-sub">' + esc(c.sub) + "</small>" : "") + "</h3>" + listHtml(j, c.filter) + "</div>"; }).join("");
+    cols.innerHTML = b.cols.map(function (c, ci) { return "<div><h3>" + esc(c.title) + (c.sub ? ' <small class="ab-sub">' + esc(c.sub) + "</small>" : "") + "</h3>" + listHtml(j, c.filter, b.id + "-" + ci) + "</div>"; }).join("");
     showStamp();
     links.innerHTML = b.links.map(function (l) { return '<a class="ab-open" href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + "</a>"; }).join("");
   }
