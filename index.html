@@ -1013,7 +1013,7 @@ footer { font-size: 12px; color: var(--muted); }
   var stamp = document.getElementById("abStamp"), panel = document.getElementById("p-abfahrten"), cols = view.querySelector(".ab-cols"), links = view.querySelector(".ab-links");
   var DBF = "https://dbf.finalrewind.org/N%C3%BCrnberg-Dutzendteich?via=N%C3%BCrnberg+Hbf&mode=infoscreen";
   var B = {
-    dz: {id: 1510, cols: [
+    dz: {id: 1510, extra: 441, cols: [
       {title: "S-Bahn Richtung Hbf", filter: function (x) { return x.p === "SBahn" && /Hbf|Hauptbahnhof|Schwabach|^Roth\b/.test(x.r); }},
       {title: "Nür-Dutzendteich", sub: "Bus und Straßenbahn", filter: function (x) { return x.p === "Bus" || /tram|stra/i.test(x.p); }}],
       links: []},
@@ -1085,8 +1085,16 @@ footer { font-size: 12px; color: var(--muted); }
   function load() {
     if (busy) return; busy = true;
     var F = window.__fd, id = B[cur].id, key = cur;
-    var direct = function () { return F.fetchJson("https://start.vag.de/dm/api/v1/abfahrten/VGN/" + id + "?timespan=360&limitcount=300", 20000); };
-    var p = F.remoteOn() ? F.api("abf", {id: id, n: 300, t: 360}).catch(function (e) { return direct().catch(function () { throw e; }); }) : direct();
+    var one = function (sid) {
+      var direct = function () { return F.fetchJson("https://start.vag.de/dm/api/v1/abfahrten/VGN/" + sid + "?timespan=360&limitcount=300", 20000); };
+      return F.remoteOn() ? F.api("abf", {id: sid, n: 300, t: 360}).catch(function (e) { return direct().catch(function () { throw e; }); }) : direct();
+    };
+    var arr = function (j) { return Array.isArray(j) ? j : (j && (j.Abfahrten || j.abfahrten)) || []; };
+    var p = one(id);
+    if (B[cur].extra) p = Promise.all([p, one(B[cur].extra).catch(function () { return null; })]).then(function (r) {
+      var tr = r[1] ? arr(r[1]).filter(function (x) { return /tram|stra/i.test(String(pick(x, ["Produkt"]) || "")); }) : [];
+      return {Abfahrten: arr(r[0]).concat(tr)};
+    });
     p.then(function (j) { data[id] = j; at[id] = Date.now(); if (key === cur) draw(); }, function (e) {
       var m = (e && e.message) || "unbekannt";
       if (key !== cur) return;
