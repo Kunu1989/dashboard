@@ -1060,8 +1060,8 @@ footer { font-size: 12px; color: var(--muted); }
     return limit === 0 ? out : out.slice(0, limit || 10);
   }
   var REDS = ["#7a0f1f", "#d6001c", "#ee5a24", "#b5174f"];
-  var LC = {l43: "#d6001c", l44: "#7a0f1f", l45: "#ee5a24", l65: "#b5174f", bus: ["#a63d40", "#d94f70"], tram: "#8e2b86", sbahn: "#408335"};
-  var FIX = {"43": "l43", "44": "l44", "45": "l45", "65": "l65"};
+  var LC = {l43: "#d6001c", l44: "#7a0f1f", bus: ["#a63d40", "#d94f70"], tram: "#8e2b86", sbahn: "#408335"};
+  var FIX = {"43": "l43", "65": "l43", "44": "l44", "45": "l44"};
   function busColors(ck, rows) {
     var known = [], key = "abLines2:" + ck;
     try { known = JSON.parse(localStorage.getItem(key) || "[]") || []; } catch (e) { known = []; }
@@ -1172,7 +1172,7 @@ footer { font-size: 12px; color: var(--muted); }
   })();
   setInterval(function () { if (panel && !panel.hidden && !document.hidden) { var id = B[cur].id; if (!at[id] || Date.now() - at[id] > 45000) load(); else draw(); } }, 2000);
   /* ---------- Linienfarben: bearbeitbar in Optionen und per Excel (Blatt „Farben“) ---------- */
-  var LNAMES = [["l43", "Linie 43"], ["l44", "Linie 44"], ["l45", "Linie 45"], ["l65", "Linie 65"], ["bus0", "Bus 1"], ["bus1", "Bus 2"], ["tram", "Straßenbahn"], ["sbahn", "S-Bahn"]];
+  var LNAMES = [["l43", "Linie 43 und 65"], ["l44", "Linie 44 und 45"], ["bus0", "Bus 1"], ["bus1", "Bus 2"], ["tram", "Straßenbahn"], ["sbahn", "S-Bahn"]];
   var HEXC = /^#[0-9a-f]{6}$/i, lcDb = null, lcTimer = null, lcHost = null;
   function lcGet(k) { return k.indexOf("bus") === 0 ? LC.bus[+k.slice(3)] : LC[k]; }
   function lcSet(k, v) { v = v.toLowerCase(); if (k.indexOf("bus") === 0) LC.bus[+k.slice(3)] = v; else LC[k] = v; }
@@ -1200,7 +1200,7 @@ footer { font-size: 12px; color: var(--muted); }
   var cal = document.getElementById("adColors");
   if (cal && cal.parentNode) {
     var box = document.createElement("div");
-    box.innerHTML = '<h3 class="lc-h">Linienfarben</h3><div class="legend" id="adLineColors"></div><p class="muted lc-n">Die Linien 43, 44, 45 und 65 haben feste Farben. Bus 1 und Bus 2 sind die Reserve: Andere Buslinien in einem Kasten bekommen der Reihe nach diese beiden Farben, sortiert nach Liniennummer.</p>';
+    box.innerHTML = '<h3 class="lc-h">Linienfarben</h3><div class="legend" id="adLineColors"></div><p class="muted lc-n">Die Linien 43 und 65 teilen sich eine Farbe, ebenso 44 und 45. Bus 1 und Bus 2 sind die Reserve: Andere Buslinien in einem Kasten bekommen der Reihe nach diese beiden Farben, sortiert nach Liniennummer.</p>';
     cal.parentNode.insertBefore(box, cal.nextSibling);
     lcHost = box.querySelector("#adLineColors");
     LNAMES.forEach(function (n) {
@@ -1219,7 +1219,7 @@ footer { font-size: 12px; color: var(--muted); }
       var c = 0;
       rows.forEach(function (r) {
         var nm = String(r[0]).trim().toLowerCase(), hx = String(r[1]).trim();
-        LNAMES.forEach(function (n) { if (n[1].toLowerCase() === nm && HEXC.test(hx)) { lcSet(n[0], hx); c++; } });
+        LNAMES.forEach(function (n) { if ((n[1].toLowerCase() === nm || (n[0] === "l43" && (nm === "linie 43" || nm === "linie 65")) || (n[0] === "l44" && (nm === "linie 44" || nm === "linie 45"))) && HEXC.test(hx)) { lcSet(n[0], hx); c++; } });
       });
       if (c) { lcChanged(); lcSave(); }
       return c;
