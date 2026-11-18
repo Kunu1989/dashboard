@@ -232,6 +232,7 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .lc-n { font-size: 13px; margin: 8px 0 0; }
 
 .wo-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative; padding: 4px; margin: -4px; }
+.panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-start; }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -1092,6 +1093,7 @@ footer { font-size: 12px; color: var(--muted); }
     cols.innerHTML = html; cols.__html = html; cols.__key = key;
     if (same) [].forEach.call(cols.querySelectorAll(".ab-lst"), function (e, k) { e.scrollTop = tops[k] || 0; });
     showStamp();
+    if (window.__pageFit) window.__pageFit();
     links.innerHTML = b.links.map(function (l) { return '<a class="ab-open" href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + "</a>"; }).join("");
   }
   cols.addEventListener("scroll", function () { cols.__sc = Date.now(); }, true);
@@ -1133,6 +1135,34 @@ footer { font-size: 12px; color: var(--muted); }
   }
   Array.prototype.forEach.call(btns, function (b) { b.addEventListener("click", function () { select(b.getAttribute("data-b")); }); });
   select(cur);
+
+  /* Seite soll nicht scrollen: Listen in Kästen schrumpfen, bis alles ins Fenster passt */
+  (function () {
+    var doc = document.documentElement, busy = false;
+    function fit() {
+      if (busy) return; busy = true;
+      try {
+        var els = [].slice.call(document.querySelectorAll(".panel:not([hidden]) .ab-lst, .panel:not([hidden]) #woScroll")).filter(function (e) { return e.offsetParent !== null; });
+        if (els.length) {
+          var tops = els.map(function (e) { return e.scrollTop; });
+          els.forEach(function (e) { e.style.maxHeight = "none"; });
+          var o = doc.scrollHeight - window.innerHeight;
+          if (o > 0) {
+            var h = Math.max.apply(null, els.map(function (e) { return e.offsetHeight; }));
+            var v = Math.max(200, h - o - 2) + "px";
+            els.forEach(function (e) { e.style.maxHeight = v; });
+          }
+          els.forEach(function (e, i) { e.scrollTop = tops[i]; });
+        }
+      } catch (e) {}
+      busy = false;
+    }
+    window.__pageFit = fit;
+    window.addEventListener("resize", fit);
+    window.addEventListener("hashchange", function () { setTimeout(fit, 60); });
+    document.addEventListener("click", function () { setTimeout(fit, 120); }, true);
+    setInterval(function () { if (doc.scrollHeight > window.innerHeight + 1 || document.querySelector(".ab-lst:not([style*=max-height]), #woScroll:not([style*=max-height])")) fit(); }, 1500);
+  })();
   setInterval(function () { if (panel && !panel.hidden && !document.hidden) { var id = B[cur].id; if (!at[id] || Date.now() - at[id] > 45000) load(); else draw(); } }, 2000);
   /* ---------- Linienfarben: bearbeitbar in Optionen und per Excel (Blatt „Farben“) ---------- */
   var LNAMES = [["l43", "Linie 43"], ["l44", "Linie 44"], ["l45", "Linie 45"], ["l65", "Linie 65"], ["bus0", "Bus 1"], ["bus1", "Bus 2"], ["tram", "Straßenbahn"], ["sbahn", "S-Bahn"]];
@@ -1886,10 +1916,10 @@ var MENUS = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pfanne
     var sc = document.getElementById("woScroll"), box = $("kitaWoche");
     if (!sc || !box.offsetHeight) return;
     var top = box.getBoundingClientRect().top - box.parentNode.getBoundingClientRect().top;
-    sc.style.maxHeight = Math.max(260, window.innerHeight - sc.getBoundingClientRect().top - 24) + "px";
     var t = sc.querySelector(".mday.today");
     if (woNeed && t) { sc.scrollTop = Math.max(0, t.offsetTop - 4); woNeed = false; }
     else if (!woNeed) sc.scrollTop = woOld;
+    if (window.__pageFit) window.__pageFit();
   }
   window.addEventListener("resize", function () { woFit(); });
   document.addEventListener("scroll", function (e) { if (e.target && e.target.id === "woScroll") woOld = e.target.scrollTop; }, true);
