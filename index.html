@@ -250,6 +250,30 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
   .kita-view { display: grid !important; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; }
   .kita-view .fsbtn { min-width: 0; padding: 9px 4px; font-size: 14px; text-align: center; }
 }
+
+.wb-d .plb { display: none; }
+@media (max-width: 700px) {
+  .wb-hero { grid-template-columns: auto 1fr; gap: 10px 16px; padding: 16px; }
+  .wb-ico { width: 72px; height: 72px; }
+  .wb-ico svg { width: 54px; height: 40px; }
+  .wb-t { font-size: 64px; }
+  .wb-lbl { font-size: 14px; }
+  .wb-side { grid-column: 1 / -1; text-align: left; max-width: none; line-height: 1.5; }
+  .wb-side b { font-size: 17px; }
+  .wb-hr { flex-basis: 72px; }
+  .wb-tabs .fsbtn { flex: 1; min-width: 0; }
+  .wb-dh { display: none !important; }
+  .wb-d { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 14px 2px; }
+  .wb-d .dn { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .wb-d .dn strong { font-size: 18px; }
+  .wb-d .dn small { display: inline; font-size: 13px; }
+  .wb-d .pt { display: grid; grid-template-columns: 76px 38px minmax(0, 1fr); gap: 8px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--surface-2); }
+  .wb-d .pt.none { grid-template-columns: 76px minmax(0, 1fr); }
+  .wb-d .plb { display: flex; flex-direction: column; line-height: 1.25; }
+  .wb-d .plb b { font-size: 14px; }
+  .wb-d .plb small { display: block; font-size: 12px; color: var(--muted); font-weight: 500; }
+  .wb-d .ptx { font-size: 13px; }
+}
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -1729,8 +1753,9 @@ footer { font-size: 12px; color: var(--muted); }
       var dt = parse(w.d), n = diffDays(dt, today), label = n === 0 ? "Heute" : n === 1 ? "Morgen" : fWdLong(dt), q = PA[w.d];
       var cells = [0, 1, 2].map(function (k) {
         var c = q && q.parts[k];
-        if (!c) return '<span class="pt none">–</span>';
-        return '<span class="pt">' + wxIcon(iconKind(c.ic, c.p, null, c.ph), c.ph) + '<span class="pq"><span class="ptx">' + esc(c.ph) + '</span><span class="pp num">' + c.p + ' % · ' + comma(c.mm) + ' mm</span>' + (c.lo != null ? '<span class="pt2 num"><span class="tl">↓ ' + c.lo + '°</span> <span class="th">↑ ' + c.hi + '°</span></span>' : "") + '</span></span>';
+        var lb = '<span class="plb"><b>' + ["Morgens", "Mittags", "Abends"][k] + '</b><small>' + ["6–12 Uhr", "12–18 Uhr", "18–22 Uhr"][k] + '</small></span>';
+        if (!c) return '<span class="pt none">' + lb + '<span>–</span></span>';
+        return '<span class="pt">' + lb + wxIcon(iconKind(c.ic, c.p, null, c.ph), c.ph) + '<span class="pq"><span class="ptx">' + esc(c.ph) + '</span><span class="pp num">' + c.p + ' % · ' + comma(c.mm) + ' mm</span>' + (c.lo != null ? '<span class="pt2 num"><span class="tl">↓ ' + c.lo + '°</span> <span class="th">↑ ' + c.hi + '°</span></span>' : "") + '</span></span>';
       }).join("");
       return '<div class="wb-d"><div class="dn"><strong>' + esc(label) + '</strong><small class="num">' + esc(fShort(dt)) + '</small></div>' + cells + '</div>';
     }).join("") + '</div>';
