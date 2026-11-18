@@ -983,7 +983,7 @@ footer { font-size: 12px; color: var(--muted); }
       "&current=temperature_2m,apparent_temperature,weather_code,is_day" +
       "&hourly=temperature_2m,precipitation_probability,precipitation,weather_code,is_day" +
       "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max" +
-      "&timezone=Europe%2FBerlin&timeformat=unixtime&forecast_days=7";
+      "&timezone=Europe%2FBerlin&timeformat=unixtime&forecast_days=8";
     var p = fetchJson(u, 20000).then(function (j) { if (!j || !j.hourly || !j.daily) throw {code: "bad_payload"}; try { buildParts(j); } catch (e) {} return j; });
     wxCache = p; wxCacheAt = Date.now();
     p.catch(function () { if (wxCache === p) wxCache = null; });
@@ -1748,7 +1748,7 @@ footer { font-size: 12px; color: var(--muted); }
           '<span class="gp"></span><span class="pm"><i style="height:' + (x.mm > 0 ? Math.max(3, Math.round(x.mm / mmMax * 52)) : 2) + 'px"></i><span class="mm num' + (x.mm > 0 ? " wet" : "") + '">' + (x.mm != null ? comma(x.mm) + " mm" : "") + '</span></span></div>';
       }).join("") + '</div></div>' + (HOURLY.src ? '<div class="wt-note">Stundenwerte: ' + esc(HOURLY.src) + '.</div>' : "");
     } else hh = '<div class="wt-note">Für heute gibt es keine Stundenwerte mehr.</div>';
-    var rows = DAYS.slice(o.base, o.base + 7), PA = window.__wxParts || {};
+    var rows = DAYS.slice(o.base, o.base + 8).filter(function (w) { return diffDays(parse(w.d), today) > 0; }).slice(0, 7), PA = window.__wxParts || {};
     var dd = '<div class="wb-days"><div class="wb-d wb-dh"><span>Tag</span><span>Morgens <small>6–12 Uhr</small></span><span>Mittags <small>12–18 Uhr</small></span><span>Abends <small>18–22 Uhr</small></span></div>' + rows.map(function (w) {
       var dt = parse(w.d), n = diffDays(dt, today), label = n === 0 ? "Heute" : n === 1 ? "Morgen" : fWdLong(dt), q = PA[w.d];
       var cells = [0, 1, 2].map(function (k) {
