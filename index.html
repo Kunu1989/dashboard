@@ -242,6 +242,14 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ad-fold[open] > summary { margin-bottom: 12px; }
 .ad-chev { width: 10px; height: 10px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); margin: 0 6px 4px 0; transition: transform .15s; }
 .ad-fold[open] .ad-chev { transform: rotate(-135deg); margin-bottom: -4px; }
+
+/* Nur Handy-Ansicht (schmale Fenster); Tablet und Notebook bleiben unverändert */
+@media (max-width: 700px) {
+  #tab-bilder { display: none !important; }
+  #bigcal, #woScroll { max-height: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; }
+  .kita-view { display: grid !important; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; }
+  .kita-view .fsbtn { min-width: 0; padding: 9px 4px; font-size: 14px; text-align: center; }
+}
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
