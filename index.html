@@ -232,8 +232,9 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .lc-n { font-size: 13px; margin: 8px 0 0; }
 
 .wo-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative; padding: 4px; margin: -4px; }
-.panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-start; }
+html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-start; }
 #abView .ab-cols > div { padding-bottom: 8px; }
+.ab-r { grid-template-columns: 46px minmax(0, 1fr) 98px 88px 130px; }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -1030,7 +1031,9 @@ footer { font-size: 12px; color: var(--muted); }
       {title: "S-Bahn Richtung Hbf", filter: function (x) { return x.p === "SBahn" && /Hbf|Hauptbahnhof|Schwabach|^Roth\b/.test(x.r); }},
       {title: "Nür-Dutzendteich", sub: "Bus und Straßenbahn", mins: 120, limit: 0, filter: function (x) { return x.p === "Bus" || /tram|stra/i.test(x.p); }}],
       links: []},
-    ko: {id: 455, cols: [{title: "Komotauer Str.", filter: null}], links: []}
+    ko: {id: 455, cols: [
+      {title: "Richtung Hbf", filter: function (x) { return /Hbf|Hauptbahnhof/i.test(x.r); }},
+      {title: "Andere Richtungen", filter: function (x) { return !/Hbf|Hauptbahnhof/i.test(x.r); }}], links: []}
   };
   var cur = "dz", data = {}, at = {}, busy = false;
   try { var sv = localStorage.getItem("abSel"); if (B[sv]) cur = sv; } catch (e) {}
@@ -1078,7 +1081,7 @@ footer { font-size: 12px; color: var(--muted); }
       return '<div class="ab-r"><span class="ab-l' + cls + '"' + ' style="background:' + (r.p === "Bus" ? colorOf(r.l) : r.p === "SBahn" ? LC.sbahn : /tram|stra/i.test(r.p) ? LC.tram : "") + '"' + '>' + esc(r.l) + '</span><span class="ab-dir">' + esc(r.r) + '</span>' +
         '<span class="ab-c"><b class="num">' + hm(r.plan) + '</b>' + (delay > 0 ? '<span class="ab-dl"> (+' + delay + ')</span>' : "") + '</span>' +
         '<span class="ab-c"><b class="num' + (delay > 0 ? " late" : "") + '">' + hm(r.ist) + '</b></span>' +
-        '<span class="ab-c ab-rt ab-min' + (min <= 10 ? " soon" : "") + '">' + (min <= 0 ? "jetzt" : "in " + min + " Min.") + '</span></div>';
+        '<span class="ab-c ab-rt ab-min' + (min <= 10 ? " soon" : "") + '">' + (min <= 0 ? "jetzt" : "in " + (min >= 60 ? Math.floor(min / 60) + " Std " + (min % 60) + " Min." : min + " Min.")) + '</span></div>';
     }).join("");
   }
   function draw() {
@@ -1915,19 +1918,23 @@ var MENUS = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pfanne
     }).join("") + '</div></div>';
     woFit();
   }
-  var woNeed = true, woOld = 0;
+  var woNeed = true, woOld = 0, woTry = 0;
   function woFit() {
     var sc = document.getElementById("woScroll"), box = $("kitaWoche");
     if (!sc || !box.offsetHeight) return;
     var top = box.getBoundingClientRect().top - box.parentNode.getBoundingClientRect().top;
-    var t = sc.querySelector(".mday.today");
-    if (woNeed && t) { sc.scrollTop = Math.max(0, t.offsetTop - 4); woNeed = false; }
-    else if (!woNeed) sc.scrollTop = woOld;
     if (window.__pageFit) window.__pageFit();
+    var t = sc.querySelector(".mday.today");
+    if (woNeed && t) {
+      sc.scrollTop = Math.max(0, t.offsetTop - 4);
+      if (sc.scrollHeight > sc.clientHeight + 2 && sc.scrollTop > 0) { woNeed = false; woOld = sc.scrollTop; }
+      if (woNeed && ++woTry < 6) setTimeout(woFit, 250); else woNeed = false;
+    }
+    else if (!woNeed) sc.scrollTop = woOld;
   }
   window.addEventListener("resize", function () { woFit(); });
   document.addEventListener("scroll", function (e) { if (e.target && e.target.id === "woScroll") woOld = e.target.scrollTop; }, true);
-  if (window.ResizeObserver) new ResizeObserver(function () { var h = $("kitaWoche").offsetHeight; if (!h) woNeed = true; else woFit(); }).observe($("kitaWoche"));
+  if (window.ResizeObserver) new ResizeObserver(function () { var h = $("kitaWoche").offsetHeight; if (!h) { woNeed = true; woTry = 0; } else woFit(); }).observe($("kitaWoche"));
   function renderMonat(M) {
     var tk = ymd(today);
     $("kitaMonat").innerHTML = !M ? "" : '<h3 class="mo-h">Monatsplan' + (M.title ? " " + esc(M.title) : "") + '</h3><ul class="mo-list">' + M.items.map(function (x) {
