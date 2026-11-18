@@ -225,11 +225,13 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 #abView .ab-cols { gap: 18px; align-items: stretch; }
 #abView .ab-cols > div { min-width: 0; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(20, 40, 60, .08); }
 #abView .ab-links:empty { display: none; }
-.ab-lst { max-height: 470px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 4px; }
+.ab-lst { max-height: max(300px, calc(100vh - 400px)); overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 4px; }
 .ab-lst .ab-hd { position: sticky; top: 0; z-index: 1; background: var(--surface-2); }
 .mday.past { opacity: 0.55; }
 .lc-h { margin: 16px 0 8px; font-size: 16px; }
 .lc-n { font-size: 13px; margin: 8px 0 0; }
+
+.wo-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative; padding-right: 4px; }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -1870,13 +1872,27 @@ var MENUS = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pfanne
   }
   function renderWoche(W) {
     var tk = ymd(today);
-    $("kitaWoche").innerHTML = !W ? "" : '<h3 class="mo-h">Wochenplan' + (W.title ? " " + esc(W.title) : "") + '</h3>' + (W.theme ? '<h3 class="mo-h mo-sub">Wochenthema: ' + esc(W.theme) + '</h3>' : "") + (W.note ? '<h3 class="mo-h mo-sub">' + esc(W.note) + '</h3>' : "") + '<div class="menu-days wo-days">' + W.days.map(function (d, idx) {
+    $("kitaWoche").innerHTML = !W ? "" : '<h3 class="mo-h">Wochenplan' + (W.title ? " " + esc(W.title) : "") + '</h3>' + (W.theme ? '<h3 class="mo-h mo-sub">Wochenthema: ' + esc(W.theme) + '</h3>' : "") + (W.note ? '<h3 class="mo-h mo-sub">' + esc(W.note) + '</h3>' : "") + '<div class="wo-scroll" id="woScroll"><div class="menu-days wo-days">' + W.days.map(function (d, idx) {
       var dt = addDays(parse(W.mon), typeof d.i === "number" ? d.i : idx), k = ymd(dt);
       return '<div class="mday' + (k === tk ? " today" : k < tk ? " past" : "") + '"><h3>' + esc(d.n) + '<small>' + dt.getDate() + '.' + (dt.getMonth() + 1) + '.</small></h3>' +
         '<ul>' + d.am.map(function (x) { var hl = x.charAt(0) === "*"; return '<li' + (hl ? ' class="veg"' : '') + '>' + esc(hl ? x.slice(1) : x) + '</li>'; }).join("") + '</ul>' +
         (d.pm.length ? '<div class="wo-pm"><span class="vt">Nachmittag</span>' + d.pm.map(function (x) { return '<div>' + esc(x) + '</div>'; }).join("") + '</div>' : '') + '</div>';
-    }).join("") + '</div>';
+    }).join("") + '</div></div>';
+    woFit();
   }
+  var woNeed = true, woOld = 0;
+  function woFit() {
+    var sc = document.getElementById("woScroll"), box = $("kitaWoche");
+    if (!sc || !box.offsetHeight) return;
+    var top = box.getBoundingClientRect().top - box.parentNode.getBoundingClientRect().top;
+    sc.style.maxHeight = Math.max(260, window.innerHeight - sc.getBoundingClientRect().top - 24) + "px";
+    var t = sc.querySelector(".mday.today");
+    if (woNeed && t) { sc.scrollTop = Math.max(0, t.offsetTop - 4); woNeed = false; }
+    else if (!woNeed) sc.scrollTop = woOld;
+  }
+  window.addEventListener("resize", function () { woFit(); });
+  document.addEventListener("scroll", function (e) { if (e.target && e.target.id === "woScroll") woOld = e.target.scrollTop; }, true);
+  if (window.ResizeObserver) new ResizeObserver(function () { var h = $("kitaWoche").offsetHeight; if (!h) woNeed = true; else woFit(); }).observe($("kitaWoche"));
   function renderMonat(M) {
     var tk = ymd(today);
     $("kitaMonat").innerHTML = !M ? "" : '<h3 class="mo-h">Monatsplan' + (M.title ? " " + esc(M.title) : "") + '</h3><ul class="mo-list">' + M.items.map(function (x) {
