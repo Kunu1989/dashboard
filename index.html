@@ -231,7 +231,7 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .lc-h { margin: 16px 0 8px; font-size: 16px; }
 .lc-n { font-size: 13px; margin: 8px 0 0; }
 
-.wo-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative; padding-right: 4px; }
+.wo-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative; padding: 4px; margin: -4px; }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -627,7 +627,8 @@ footer { font-size: 12px; color: var(--muted); }
     </section>
     </div>
     <section class="card" aria-labelledby="adTc">
-      <div class="card-head"><h2 id="adTc">Kalenderfarben</h2></div>
+      <div class="card-head"><h2 id="adTc">Farben</h2></div>
+      <h3 class="lc-h" style="margin-top:0">Kalenderfarben</h3>
       <div class="legend" id="adColors"></div>
     </section>
     <section class="card" aria-labelledby="adTl">
@@ -1162,7 +1163,7 @@ footer { font-size: 12px; color: var(--muted); }
   var cal = document.getElementById("adColors");
   if (cal && cal.parentNode) {
     var box = document.createElement("div");
-    box.innerHTML = '<h3 class="lc-h">Linienfarben (Abfahrten)</h3><div class="legend" id="adLineColors"></div><p class="muted lc-n">Die Linien 43, 44, 45 und 65 haben feste Farben. Bus 1 und Bus 2 sind die Reserve: Andere Buslinien in einem Kasten bekommen der Reihe nach diese beiden Farben, sortiert nach Liniennummer.</p>';
+    box.innerHTML = '<h3 class="lc-h">Linienfarben</h3><div class="legend" id="adLineColors"></div><p class="muted lc-n">Die Linien 43, 44, 45 und 65 haben feste Farben. Bus 1 und Bus 2 sind die Reserve: Andere Buslinien in einem Kasten bekommen der Reihe nach diese beiden Farben, sortiert nach Liniennummer.</p>';
     cal.parentNode.insertBefore(box, cal.nextSibling);
     lcHost = box.querySelector("#adLineColors");
     LNAMES.forEach(function (n) {
