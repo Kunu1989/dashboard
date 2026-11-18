@@ -1080,10 +1080,19 @@ footer { font-size: 12px; color: var(--muted); }
     var b = B[cur], j = data[b.id];
     if (!j) return;
     cols.className = "ab-cols" + (b.cols.length === 1 ? " one" : "");
-    cols.innerHTML = b.cols.map(function (c, ci) { return "<div><h3>" + esc(c.title) + (c.sub ? ' <small class="ab-sub">' + esc(c.sub) + "</small>" : "") + "</h3>" + '<div class="ab-lst">' + listHtml(j, c, b.id + "-" + ci) + "</div>" + "</div>"; }).join("");
+    if (Date.now() - (cols.__sc || 0) < 4000 && cols.__key === cur + "|" + cols.className) { showStamp(); return; }
+    var html = b.cols.map(function (c, ci) { return "<div><h3>" + esc(c.title) + (c.sub ? ' <small class="ab-sub">' + esc(c.sub) + "</small>" : "") + "</h3>" + '<div class="ab-lst">' + listHtml(j, c, b.id + "-" + ci) + "</div>" + "</div>"; }).join("");
+    var key = cur + "|" + cols.className;
+    if (cols.__html === html && cols.__key === key) { showStamp(); return; }
+    var tops = [].map.call(cols.querySelectorAll(".ab-lst"), function (e) { return e.scrollTop; });
+    var same = cols.__key === key;
+    cols.innerHTML = html; cols.__html = html; cols.__key = key;
+    if (same) [].forEach.call(cols.querySelectorAll(".ab-lst"), function (e, k) { e.scrollTop = tops[k] || 0; });
     showStamp();
     links.innerHTML = b.links.map(function (l) { return '<a class="ab-open" href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + "</a>"; }).join("");
   }
+  cols.addEventListener("scroll", function () { cols.__sc = Date.now(); }, true);
+  cols.addEventListener("touchstart", function () { cols.__sc = Date.now(); }, true);
   function showStamp() {
     if (!stamp) return;
     var a = at[B[cur].id];
