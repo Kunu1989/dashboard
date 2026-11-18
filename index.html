@@ -612,11 +612,12 @@ footer { font-size: 12px; color: var(--muted); }
       <div id="adKitaStatus" class="kita-status" role="status"></div>
     </section>
     <section class="card" aria-labelledby="adT1">
-      <div class="card-head"><h2 id="adT1">Einstellungen</h2></div>
+      <div class="card-head"><h2 id="adT1">Zeiten</h2></div>
       <div class="ad-rows">
         <label class="ad-row"><span>Diashow: Wechsel alle</span><select id="adSec" aria-label="Sekunden pro Bild"></select></label>
+        <label class="ad-row"><span>Zurück zur Übersicht nach</span><select id="adIdle" aria-label="Minuten bis zur Übersicht"></select></label>
       </div>
-      <p class="muted ad-note">Diese Einstellung gilt nur auf diesem Gerät.</p>
+      <p class="muted ad-note">Diese Zeiten gelten für alle Geräte.</p>
     </section>
     </div>
     <div class="ad-pair">
@@ -1243,6 +1244,41 @@ footer { font-size: 12px; color: var(--muted); }
   window.addEventListener("fd-config", function () { at = {}; });
   window.addEventListener("hashchange", function () { if (location.hash === "#abfahrten") select("dz"); });
 })();
+
+/* Zeiten (Diashow, Rücksprung zur Übersicht): global über db, lokal zwischengespeichert */
+(function () {
+  var KEY = "fd:times", t = {bilder: 15, idle: 5}, db = null, tm = null;
+  var BS = [5, 10, 15, 20, 30, 60], IS = [0, 1, 2, 5, 10, 15, 30];
+  function apply(o) {
+    var ch = false; if (!o) return false;
+    var b = Number(o.bilder), i = Number(o.idle);
+    if (BS.indexOf(b) >= 0 && b !== t.bilder) { t.bilder = b; ch = true; }
+    if (o.idle !== undefined && o.idle !== null && IS.indexOf(i) >= 0 && i !== t.idle) { t.idle = i; ch = true; }
+    return ch;
+  }
+  function store() { try { localStorage.setItem(KEY, JSON.stringify(t)); localStorage.setItem("bilderSek", String(t.bilder)); } catch (e) {} }
+  try { var sv = JSON.parse(localStorage.getItem(KEY) || "null"); if (sv) apply(sv); } catch (e) {}
+  store();
+  function save() { store(); clearTimeout(tm); tm = setTimeout(function () { tm = null; if (db) db.doc("settings/times").set({bilder: t.bilder, idle: t.idle}).catch(function () {}); }, 600); }
+  window.__times = {
+    get: function () { return {bilder: t.bilder, idle: t.idle}; },
+    set: function (o) { if (apply(o)) save(); }
+  };
+  window.__idleMs = function () { return t.idle * 60000; };
+  window.addEventListener("bilder-sek", function (e) { var n = Number(e.detail); if (n !== t.bilder && apply({bilder: n})) save(); });
+  if (window.claude && window.claude.use) window.claude.use("db").then(function (d) {
+    db = d; if (!d) return;
+    d.doc("settings/times").onSnapshot(function (sn) {
+      if (tm || !sn || !sn.exists) return;
+      var before = t.bilder;
+      if (apply(sn.data() || {})) {
+        store();
+        if (t.bilder !== before) { try { window.dispatchEvent(new CustomEvent("bilder-sek", {detail: t.bilder})); } catch (e) {} }
+        try { window.dispatchEvent(new Event("fd-times")); } catch (e) {}
+      }
+    });
+  });
+})();
 </script>
 <script>
 (function () {
@@ -1805,8 +1841,9 @@ footer { font-size: 12px; color: var(--muted); }
   var idleT = null;
   function bump() {
     clearTimeout(idleT);
-    if (curTab() === "uebersicht") return;
-    idleT = setTimeout(function () { if (!busy && curTab() !== "uebersicht") location.hash = "uebersicht"; else bump(); }, 300000);
+    var ms = window.__idleMs ? window.__idleMs() : 300000;
+    if (curTab() === "uebersicht" || !ms) return;
+    idleT = setTimeout(function () { if (!busy && curTab() !== "uebersicht") location.hash = "uebersicht"; else bump(); }, ms);
   }
   ["pointerdown", "keydown", "touchstart", "scroll"].forEach(function (ev) { window.addEventListener(ev, bump, {passive: true}); });
   window.addEventListener("hashchange", function () { showTab(); bump(); });
@@ -2861,8 +2898,7 @@ var MENUS = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pfanne
     var KINDS = [["plan", "Wochenplan"], ["monat", "Monatsplan"], ["speise", "Speiseplan"]];
     var SECS = [5, 10, 15, 20, 30, 60];
     /* Einstellungen */
-    var sel = $("adSec"), cur = 10;
-    try { var sv = Number(localStorage.getItem("bilderSek")); if (SECS.indexOf(sv) >= 0) cur = sv; } catch (e) {}
+    var sel = $("adSec"), cur = window.__times ? window.__times.get().bilder : 15;
     SECS.forEach(function (n) { var o = document.createElement("option"); o.value = n; o.textContent = n + " Sekunden"; if (n === cur) o.selected = true; sel.appendChild(o); });
     sel.addEventListener("change", function () {
       var n = Number(sel.value) || 10;
@@ -2870,6 +2906,12 @@ var MENUS = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pfanne
       try { window.dispatchEvent(new CustomEvent("bilder-sek", {detail: n})); } catch (e) {}
     });
     window.addEventListener("bilder-sek", function (e) { var n = Number(e.detail); if (SECS.indexOf(n) >= 0) sel.value = String(n); });
+    var si = $("adIdle"), IDLES = [[1, "1 Minute"], [2, "2 Minuten"], [5, "5 Minuten"], [10, "10 Minuten"], [15, "15 Minuten"], [30, "30 Minuten"], [0, "Nie"]];
+    IDLES.forEach(function (x) { var o = document.createElement("option"); o.value = x[0]; o.textContent = x[1]; si.appendChild(o); });
+    function syncT() { if (!window.__times) return; var t = window.__times.get(); si.value = String(t.idle); sel.value = String(t.bilder); }
+    syncT();
+    si.addEventListener("change", function () { if (window.__times) window.__times.set({idle: Number(si.value)}); bump(); });
+    window.addEventListener("fd-times", function () { syncT(); bump(); });
 
     /* Kita-Pläne hochladen */
     var host = $("adKita");
