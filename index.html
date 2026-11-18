@@ -85,7 +85,7 @@ body {
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.4;
-  padding-block: 20px 36px;
+  padding-block: 20px 12px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
@@ -233,6 +233,7 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 
 .wo-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative; padding: 4px; margin: -4px; }
 .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-start; }
+#abView .ab-cols > div { padding-bottom: 8px; }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -1149,7 +1150,10 @@ footer { font-size: 12px; color: var(--muted); }
           var o = doc.scrollHeight - window.innerHeight;
           if (o > 0) {
             var h = Math.max.apply(null, els.map(function (e) { return e.offsetHeight; }));
-            var v = Math.max(200, h - o - 2) + "px";
+            var hv = Math.max(200, h - o - 2);
+            var r0 = document.querySelector(".ab-lst .ab-r:not(.ab-hd)"), hd0 = document.querySelector(".ab-lst .ab-hd");
+            if (r0 && hd0 && r0.offsetHeight > 20) { var n = Math.floor((hv - hd0.offsetHeight - 4) / r0.offsetHeight); if (n >= 3) hv = hd0.offsetHeight + 4 + n * r0.offsetHeight; }
+            var v = hv + "px";
             els.forEach(function (e) { e.style.maxHeight = v; });
           }
           els.forEach(function (e, i) { e.scrollTop = tops[i]; });
