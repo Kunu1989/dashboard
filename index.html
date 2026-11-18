@@ -235,6 +235,13 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-start; }
 #abView .ab-cols > div { padding-bottom: 8px; }
 .ab-r { grid-template-columns: 46px minmax(0, 1fr) 98px 88px 130px; }
+
+#bigcal { overflow-y: auto; align-content: start; padding: 3px; margin: -3px; -webkit-overflow-scrolling: touch; }
+.ad-fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; margin: 0; }
+.ad-fold > summary::-webkit-details-marker { display: none; }
+.ad-fold[open] > summary { margin-bottom: 12px; }
+.ad-chev { width: 10px; height: 10px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); margin: 0 6px 4px 0; transition: transform .15s; }
+.ad-fold[open] .ad-chev { transform: rotate(-135deg); margin-bottom: -4px; }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -634,8 +641,8 @@ footer { font-size: 12px; color: var(--muted); }
       <h3 class="lc-h" style="margin-top:0">Kalenderfarben</h3>
       <div class="legend" id="adColors"></div>
     </section>
-    <section class="card" aria-labelledby="adTl">
-      <div class="card-head"><h2 id="adTl">Verbindung zum Google-Script</h2></div>
+    <details class="card ad-fold" aria-labelledby="adTl">
+      <summary class="card-head"><h2 id="adTl">Verbindung zum Google-Script</h2><span class="ad-chev" aria-hidden="true"></span></summary>
       <p class="muted ad-note" style="margin:0 0 12px">Das Script liefert Kalender, gemeinsame Einstellungen, Kita-Textumwandlung und Abfahrten. Link und Schlüssel stehen in der Anleitung. Die Eingabe gilt nur auf diesem Gerät. Wetter braucht nichts.</p>
       <div class="ad-rows">
         <label class="ad-row"><span>Link</span><input type="url" id="calUrl" class="ad-in" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>
@@ -643,7 +650,7 @@ footer { font-size: 12px; color: var(--muted); }
       </div>
       <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
       <div id="calMsg" class="kita-status" role="status"></div>
-    </section>
+    </details>
   </div>
 
   <div class="panel" id="p-bilder" hidden>
@@ -1146,7 +1153,7 @@ footer { font-size: 12px; color: var(--muted); }
     function fit() {
       if (busy) return; busy = true;
       try {
-        var els = [].slice.call(document.querySelectorAll(".panel:not([hidden]) .ab-lst, .panel:not([hidden]) #woScroll")).filter(function (e) { return e.offsetParent !== null; });
+        var els = [].slice.call(document.querySelectorAll(".panel:not([hidden]) .ab-lst, .panel:not([hidden]) #woScroll, .panel:not([hidden]) #bigcal")).filter(function (e) { return e.offsetParent !== null; });
         if (els.length) {
           var tops = els.map(function (e) { return e.scrollTop; });
           els.forEach(function (e) { e.style.maxHeight = "none"; });
@@ -1168,7 +1175,7 @@ footer { font-size: 12px; color: var(--muted); }
     window.addEventListener("resize", fit);
     window.addEventListener("hashchange", function () { setTimeout(fit, 60); });
     document.addEventListener("click", function () { setTimeout(fit, 120); }, true);
-    setInterval(function () { if (doc.scrollHeight > window.innerHeight + 1 || document.querySelector(".ab-lst:not([style*=max-height]), #woScroll:not([style*=max-height])")) fit(); }, 1500);
+    setInterval(function () { if (doc.scrollHeight > window.innerHeight + 1 || document.querySelector(".ab-lst:not([style*=max-height]), #woScroll:not([style*=max-height]), #bigcal:not([style*=max-height])")) fit(); }, 1500);
   })();
   setInterval(function () { if (panel && !panel.hidden && !document.hidden) { var id = B[cur].id; if (!at[id] || Date.now() - at[id] > 45000) load(); else draw(); } }, 2000);
   /* ---------- Linienfarben: bearbeitbar in Optionen und per Excel (Blatt „Farben“) ---------- */
