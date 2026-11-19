@@ -274,6 +274,11 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
   .wb-d .plb small { display: block; font-size: 12px; color: var(--muted); font-weight: 500; }
   .wb-d .ptx { font-size: 13px; }
 }
+
+.clk { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.devstat { display: flex; gap: 14px; align-items: center; font-size: 13px; font-weight: 600; color: var(--muted); }
+.devstat .ds { display: inline-flex; align-items: center; gap: 6px; }
+.devstat .ds.off { color: #c62828; }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -557,7 +562,7 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="greet" id="greet"></div>
       <h1 id="todayTitle">Heute</h1>
     </div>
-    <div class="clock num" id="clock" aria-live="off"></div>
+    <div class="clk"><div class="clock num" id="clock" aria-live="off"></div><div id="devStat" class="devstat" hidden></div></div>
   </header>
 
   <div class="panel" id="p-uebersicht">
@@ -1310,6 +1315,43 @@ footer { font-size: 12px; color: var(--muted); }
       }
     });
   });
+})();
+
+/* Akku- und WLAN-Anzeige neben der Uhr */
+(function () {
+  var box = null, bat = null;
+  function svgBat(p, chg) {
+    var col = (p <= 20 && !chg) ? "#c62828" : "currentColor", w = Math.max(0, Math.min(100, p)) * 0.17;
+    return '<svg viewBox="0 0 28 14" width="28" height="14" aria-hidden="true"><rect x="1" y="1" width="21" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="23.5" y="4.5" width="3" height="5" rx="1" fill="currentColor"/><rect x="3" y="3" width="' + w.toFixed(1) + '" height="8" rx="1.5" fill="' + col + '"/></svg>';
+  }
+  function svgWifi(on) {
+    var c = on ? "currentColor" : "#c62828";
+    return '<svg viewBox="0 0 24 18" width="22" height="16" aria-hidden="true"><g fill="none" stroke="' + c + '" stroke-width="2" stroke-linecap="round"><path d="M2 6.5a14 14 0 0 1 20 0"/><path d="M5.5 10.2a9 9 0 0 1 13 0"/><path d="M9 13.8a4 4 0 0 1 6 0"/></g><circle cx="12" cy="16" r="1.6" fill="' + c + '"/>' + (on ? "" : '<path d="M3 2l18 15" stroke="#c62828" stroke-width="2" stroke-linecap="round"/>') + '</svg>';
+  }
+  function draw() {
+    if (!box) return;
+    var parts = [], c = navigator.connection || null;
+    if (bat) {
+      var p = Math.round(bat.level * 100);
+      parts.push('<span class="ds" title="Akku">' + svgBat(p, bat.charging) + '<span class="num">' + p + ' %' + (bat.charging ? " ⚡" : "") + '</span></span>');
+    }
+    var on = navigator.onLine !== false;
+    var typ = c && c.type ? c.type : "";
+    var txt = !on ? "Offline" : typ === "cellular" ? "Mobil" : typ === "wifi" || !typ ? "WLAN" : "Online";
+    if (on || navigator.onLine === false) parts.push('<span class="ds' + (on ? "" : " off") + '" title="Netzwerk">' + svgWifi(on) + '<span>' + txt + '</span></span>');
+    box.innerHTML = parts.join("");
+    box.hidden = !parts.length;
+  }
+  function start() {
+    box = document.getElementById("devStat"); if (!box) return;
+    window.addEventListener("online", draw); window.addEventListener("offline", draw);
+    if (navigator.connection && navigator.connection.addEventListener) navigator.connection.addEventListener("change", draw);
+    draw();
+    if (navigator.getBattery) navigator.getBattery().then(function (b) {
+      bat = b; ["levelchange", "chargingchange"].forEach(function (ev) { b.addEventListener(ev, draw); }); draw();
+    }).catch(function () {});
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
 </script>
 <script>
