@@ -693,6 +693,7 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="ad-rows">
         <label class="ad-row"><span>Diashow: Wechsel alle</span><select id="adSec" aria-label="Sekunden pro Bild"></select></label>
         <label class="ad-row"><span>Zurück zur Übersicht nach</span><select id="adIdle" aria-label="Minuten bis zur Übersicht"></select></label>
+        <label class="ad-row"><span>Nachtmodus</span><select id="adNight" aria-label="Nachtmodus"><option value="0">Aus</option><option value="1">Von Sonnenuntergang bis Sonnenaufgang</option></select></label>
       </div>
       <p class="muted ad-note">Diese Zeiten gelten für alle Geräte.</p>
     </section>
@@ -729,7 +730,7 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
       <div id="calMsg" class="kita-status" role="status"></div>
     </details>
-    <p class="ad-ver" id="adVer">Version 2.9 &middot; vom 19.11.2026, 22:32 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 3.0 &middot; vom 19.11.2026, 22:43 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -1356,21 +1357,22 @@ footer { font-size: 12px; color: var(--muted); }
 
 /* Zeiten (Diashow, Rücksprung zur Übersicht): global über db, lokal zwischengespeichert */
 (function () {
-  var KEY = "fd:times", t = {bilder: 15, idle: 5}, db = null, tm = null;
+  var KEY = "fd:times", t = {bilder: 15, idle: 5, night: 0}, db = null, tm = null;
   var BS = [5, 10, 15, 20, 30, 60], IS = [0, 1, 2, 5, 10, 15, 30];
   function apply(o) {
     var ch = false; if (!o) return false;
     var b = Number(o.bilder), i = Number(o.idle);
     if (BS.indexOf(b) >= 0 && b !== t.bilder) { t.bilder = b; ch = true; }
     if (o.idle !== undefined && o.idle !== null && IS.indexOf(i) >= 0 && i !== t.idle) { t.idle = i; ch = true; }
+    if (o.night !== undefined && o.night !== null && (Number(o.night) === 0 || Number(o.night) === 1) && Number(o.night) !== t.night) { t.night = Number(o.night); ch = true; }
     return ch;
   }
   function store() { try { localStorage.setItem(KEY, JSON.stringify(t)); localStorage.setItem("bilderSek", String(t.bilder)); } catch (e) {} }
   try { var sv = JSON.parse(localStorage.getItem(KEY) || "null"); if (sv) apply(sv); } catch (e) {}
   store();
-  function save() { store(); clearTimeout(tm); tm = setTimeout(function () { tm = null; if (db) db.doc("settings/times").set({bilder: t.bilder, idle: t.idle}).catch(function () {}); }, 600); }
+  function save() { store(); clearTimeout(tm); tm = setTimeout(function () { tm = null; if (db) db.doc("settings/times").set({bilder: t.bilder, idle: t.idle, night: t.night}).catch(function () {}); }, 600); }
   window.__times = {
-    get: function () { return {bilder: t.bilder, idle: t.idle}; },
+    get: function () { return {bilder: t.bilder, idle: t.idle, night: t.night}; },
     set: function (o) { if (apply(o)) save(); }
   };
   window.__idleMs = function () { return t.idle * 60000; };
@@ -1443,6 +1445,42 @@ footer { font-size: 12px; color: var(--muted); }
     setInterval(function () { getBat(); draw(); }, 60000);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
+</script>
+
+<script>
+/* Nachtmodus von Sonnenuntergang bis Sonnenaufgang (Nürnberg, ohne Internet berechnet) und nächtlicher Neustart */
+(function () {
+  var LAT = 49.4539, LON = 11.0775, R = Math.PI / 180;
+  function sunTimes(d) {
+    var y = d.getFullYear(), m = d.getMonth(), day = d.getDate();
+    var N = Math.round((Date.UTC(y, m, day) - Date.UTC(y, 0, 0)) / 86400000), g = 2 * Math.PI / 365 * (N - 1);
+    var eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+    var de = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+    var c = Math.cos(90.833 * R) / (Math.cos(LAT * R) * Math.cos(de)) - Math.tan(LAT * R) * Math.tan(de);
+    c = Math.max(-1, Math.min(1, c));
+    var ha = Math.acos(c) / R, base = Date.UTC(y, m, day);
+    return {rise: base + (720 - 4 * (LON + ha) - eq) * 60000, set: base + (720 - 4 * (LON - ha) - eq) * 60000};
+  }
+  window.__sunTimes = sunTimes;
+  function night() { var n = Date.now(), s = sunTimes(new Date()); return n < s.rise || n >= s.set; }
+  function theme() {
+    var on = window.__times && window.__times.get().night === 1, r = document.documentElement;
+    if (on) { var v = night() ? "dark" : "light"; if (r.getAttribute("data-theme") !== v) r.setAttribute("data-theme", v); }
+    else if (r.hasAttribute("data-theme")) r.removeAttribute("data-theme");
+  }
+  window.addEventListener("fd-times", theme);
+  window.addEventListener("fd-night", theme);
+  setInterval(theme, 30000); setTimeout(theme, 0); setTimeout(theme, 1500);
+  /* Einmal pro Nacht um 3 Uhr die Seite neu laden: frischt alles auf und holt neue Versionen */
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  setInterval(function () {
+    var d = new Date();
+    if (d.getHours() !== 3) return;
+    var k = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    try { if (localStorage.getItem("fd:rl") === k) return; localStorage.setItem("fd:rl", k); } catch (e) { return; }
+    location.reload();
+  }, 30000);
 })();
 </script>
 <script>
@@ -3077,7 +3115,9 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     window.addEventListener("bilder-sek", function (e) { var n = Number(e.detail); if (SECS.indexOf(n) >= 0) sel.value = String(n); });
     var si = $("adIdle"), IDLES = [[1, "1 Minute"], [2, "2 Minuten"], [5, "5 Minuten"], [10, "10 Minuten"], [15, "15 Minuten"], [30, "30 Minuten"], [0, "Nie"]];
     IDLES.forEach(function (x) { var o = document.createElement("option"); o.value = x[0]; o.textContent = x[1]; si.appendChild(o); });
-    function syncT() { if (!window.__times) return; var t = window.__times.get(); si.value = String(t.idle); sel.value = String(t.bilder); }
+    var sn = $("adNight");
+    function syncT() { if (!window.__times) return; var t = window.__times.get(); si.value = String(t.idle); sel.value = String(t.bilder); sn.value = String(t.night); }
+    sn.addEventListener("change", function () { if (window.__times) window.__times.set({night: Number(sn.value)}); window.dispatchEvent(new Event("fd-night")); });
     syncT();
     si.addEventListener("change", function () { if (window.__times) window.__times.set({idle: Number(si.value)}); bump(); });
     window.addEventListener("fd-times", function () { syncT(); bump(); });
