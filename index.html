@@ -279,6 +279,7 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .devstat { display: flex; gap: 14px; align-items: center; font-size: 13px; font-weight: 600; color: var(--muted); }
 .devstat .ds { display: inline-flex; align-items: center; gap: 6px; }
 .devstat .ds.off { color: #c62828; }
+.ad-ver { margin: 14px 4px 0; font-size: 12px; color: var(--muted); text-align: center; }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -689,6 +690,7 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
       <div id="calMsg" class="kita-status" role="status"></div>
     </details>
+    <p class="ad-ver" id="adVer">Version 1.0 &middot; vom 19.11.2026, 12:06 Uhr</p>
   </div>
 
   <div class="panel" id="p-bilder" hidden>
@@ -775,6 +777,7 @@ footer { font-size: 12px; color: var(--muted); }
   function api(action, params, ms) {
     var c = cfg();
     if (!c.calUrl) return Promise.reject({code: "no_config"});
+    if (!/^https:\/\/script\.google(usercontent)?\.com\//i.test(c.calUrl)) return Promise.reject({code: "upstream_error", message: "der eingetragene Link ist keine Google-Script-Adresse; sie muss mit https://script.google.com/macros/s/ beginnen und auf /exec enden"});
     var u = c.calUrl + (c.calUrl.indexOf("?") < 0 ? "?" : "&") + "key=" + enc(c.calKey) + "&action=" + action;
     Object.keys(params || {}).forEach(function (q) { u += "&" + q + "=" + enc(params[q]); });
     u += "&_=" + Date.now();
