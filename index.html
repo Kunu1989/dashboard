@@ -281,6 +281,22 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .devstat .ds { display: inline-flex; align-items: center; gap: 6px; }
 .devstat .ds.off { color: #c62828; }
 .ad-ver { margin: 14px 4px 0; font-size: 12px; color: var(--muted); text-align: center; }
+
+/* Abfahrten: Handy-Zeile (Zeiten gestapelt), am Tablet/Notebook versteckt */
+.ab-z { display: none; }
+@media (max-width: 700px) {
+  #abView .ab-hd { display: none; }
+  #abView .ab-r:not(.ab-hd) { grid-template-columns: 50px minmax(0, 1fr) auto; grid-template-areas: "l d z" "l m z"; column-gap: 12px; row-gap: 2px; padding: 10px 0; }
+  #abView .ab-r .ab-l { grid-area: l; align-self: center; font-size: 17px; padding: 5px 8px; border-radius: 9px; }
+  #abView .ab-r .ab-dir { grid-area: d; font-weight: 700; font-size: 17px; }
+  #abView .ab-r .ab-c:not(.ab-rt) { display: none; }
+  #abView .ab-r .ab-rt { grid-area: m; text-align: left; font-size: 14px; }
+  #abView .ab-r .ab-z { grid-area: z; display: grid; grid-template-columns: auto auto; gap: 2px 8px; align-items: baseline; justify-items: end; align-self: center; }
+  #abView .ab-z i { font-style: normal; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  #abView .ab-z b { font-size: 19px; font-weight: 800; }
+  #abView .ab-z b.one { grid-column: 1 / -1; }
+  #abView .ab-z b.late { color: #e0222d; }
+}
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -691,7 +707,7 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
       <div id="calMsg" class="kita-status" role="status"></div>
     </details>
-    <p class="ad-ver" id="adVer">Version 2.0 &middot; vom 19.11.2026, 12:14 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 2.1 &middot; vom 19.11.2026, 12:39 Uhr</p>
   </div>
 
   <div class="panel" id="p-bilder" hidden>
@@ -1136,7 +1152,8 @@ footer { font-size: 12px; color: var(--muted); }
       return '<div class="ab-r"><span class="ab-l' + cls + '"' + ' style="background:' + (r.p === "Bus" ? colorOf(r.l) : r.p === "SBahn" ? LC.sbahn : /tram|stra/i.test(r.p) ? LC.tram : "") + '"' + '>' + esc(r.l) + '</span><span class="ab-dir">' + esc(r.r) + '</span>' +
         '<span class="ab-c"><b class="num">' + hm(r.plan) + '</b>' + (delay > 0 ? '<span class="ab-dl"> (+' + delay + ')</span>' : "") + '</span>' +
         '<span class="ab-c"><b class="num' + (delay > 0 ? " late" : "") + '">' + hm(r.ist) + '</b></span>' +
-        '<span class="ab-c ab-rt ab-min' + (min <= 10 ? " soon" : "") + '">' + (min <= 0 ? "jetzt" : "in " + (min >= 60 ? Math.floor(min / 60) + " Std " + (min % 60) + " Min." : min + " Min.")) + '</span></div>';
+        '<span class="ab-c ab-rt ab-min' + (min <= 10 ? " soon" : "") + '">' + (min <= 0 ? "jetzt" : "in " + (min >= 60 ? Math.floor(min / 60) + " Std " + (min % 60) + " Min." : min + " Min.")) + '</span>' +
+        '<span class="ab-z">' + (hm(r.plan) === hm(r.ist) ? '<b class="num one">' + hm(r.plan) + '</b>' : '<i>soll</i><b class="num">' + hm(r.plan) + '</b><i>ist</i><b class="num' + (delay > 0 ? " late" : "") + '">' + hm(r.ist) + '</b>') + '</span></div>';
     }).join("");
   }
   function draw() {
