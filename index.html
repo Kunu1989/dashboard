@@ -246,6 +246,7 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 /* Nur Handy-Ansicht (schmale Fenster); Tablet und Notebook bleiben unverändert */
 @media (max-width: 700px) {
   #tab-bilder { display: none !important; }
+  #devStat { display: none !important; }
   #bigcal, #woScroll { max-height: none !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; }
   .kita-view { display: grid !important; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; }
   .kita-view .fsbtn { min-width: 0; padding: 9px 4px; font-size: 14px; text-align: center; }
@@ -675,11 +676,11 @@ footer { font-size: 12px; color: var(--muted); }
       <div id="adBakStatus" class="kita-status" role="status"></div>
     </section>
     </div>
-    <section class="card" aria-labelledby="adTc">
-      <div class="card-head"><h2 id="adTc">Farben</h2></div>
+    <details class="card ad-fold" aria-labelledby="adTc">
+      <summary class="card-head"><h2 id="adTc">Farben</h2><span class="ad-chev" aria-hidden="true"></span></summary>
       <h3 class="lc-h" style="margin-top:0">Kalenderfarben</h3>
       <div class="legend" id="adColors"></div>
-    </section>
+    </details>
     <details class="card ad-fold" aria-labelledby="adTl">
       <summary class="card-head"><h2 id="adTl">Verbindung zum Google-Script</h2><span class="ad-chev" aria-hidden="true"></span></summary>
       <p class="muted ad-note" style="margin:0 0 12px">Das Script liefert Kalender, gemeinsame Einstellungen, Kita-Textumwandlung und Abfahrten. Link und Schlüssel stehen in der Anleitung. Die Eingabe gilt nur auf diesem Gerät. Wetter braucht nichts.</p>
@@ -690,7 +691,7 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
       <div id="calMsg" class="kita-status" role="status"></div>
     </details>
-    <p class="ad-ver" id="adVer">Version 1.0 &middot; vom 19.11.2026, 12:06 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 2.0 &middot; vom 19.11.2026, 12:14 Uhr</p>
   </div>
 
   <div class="panel" id="p-bilder" hidden>
