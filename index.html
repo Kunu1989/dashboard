@@ -730,7 +730,7 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
       <div id="calMsg" class="kita-status" role="status"></div>
     </details>
-    <p class="ad-ver" id="adVer">Version 3.0 &middot; vom 19.11.2026, 22:43 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 3.1 &middot; vom 19.11.2026, 22:53 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -2053,7 +2053,7 @@ footer { font-size: 12px; color: var(--muted); }
   window.addEventListener("hashchange", function () { showTab(); bump(); });
 
   /* ---------- Kita-Wochenplan (PDF -> Bilder, geteilt über db + assets) ---------- */
-  var kita = {plans: {plan: null, monat: null, speise: null}, kind: "plan", state: "loading", stale: false, db: null, assets: null, msg: "", convBusy: false};
+  var kita = {speisen: [], plans: {plan: null, monat: null, speise: null}, kind: "plan", state: "loading", stale: false, db: null, assets: null, msg: "", convBusy: false};
   var KDOC = {plan: "kita/plan", monat: "kita/monatsplan", speise: "kita/speiseplan"}, KNAME = {plan: "Wochenplan", monat: "Monatsplan", speise: "Speiseplan"};
   function curPlan() { return kita.plans[kita.kind]; }
   var fDMY = fmt({day: "numeric", month: "long", year: "numeric"});
@@ -2068,7 +2068,8 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     return 1 + Math.round(((t - w1) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7);
   }
   function mondayOf(d) { return addDays(d, -((d.getDay() + 6) % 7)); }
-  function menus() { var mon = ymd(mondayOf(today)); return MENUS_ALL.filter(function (m) { return m.days[0].d >= mon; }); }
+  function allMenus() { var o = {}; MENUS_ALL.concat(kita.speisen || []).forEach(function (w) { o[ymd(mondayOf(parse(w.days[0].d)))] = w; }); return Object.keys(o).sort().map(function (k) { return o[k]; }); }
+  function menus() { var mon = ymd(mondayOf(today)); return allMenus().filter(function (m) { return m.days[0].d >= mon; }); }
   var menuSel = null;
   function pickMenuWeek() {
     var i, MENUS = menus();
@@ -2153,6 +2154,27 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       .map(function (x) { return [x[0], str(x[1], 160)]; }).sort(function (a, b) { return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0; });
     return items.length ? {title: str(v.title, 40), items: items} : null;
   }
+  function cleanSpeise(v) {
+    if (!v || typeof v !== "object" || !Array.isArray(v.days)) return null;
+    var days = v.days.slice(0, 7).map(function (d) {
+      if (!d || !isoOk(d.d)) return null;
+      var it = (Array.isArray(d.i) ? d.i : []).slice(0, 8).map(function (x) {
+        var t = str(x && x.t, 200); if (!t) return null;
+        return x.x ? {t: t, x: 1} : x.v ? {t: t, v: 1} : {t: t};
+      }).filter(Boolean);
+      return it.length ? {d: d.d, i: it} : null;
+    }).filter(Boolean);
+    if (!days.length) return null;
+    days.sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+    return {kw: isoWeek(parse(days[0].d)), days: days};
+  }
+  function saveSpeise(sc) {
+    var mon = ymd(mondayOf(parse(sc.days[0].d))), keep = ymd(addDays(mondayOf(today), -28));
+    var list = (kita.speisen || []).filter(function (w) { var m = ymd(mondayOf(parse(w.days[0].d))); return m !== mon && m >= keep; });
+    list.push(sc); list.sort(function (a, b) { return a.days[0].d < b.days[0].d ? -1 : 1; });
+    kita.speisen = list; kita.lastKw = sc.kw;
+    return kita.db.doc("kita/speisen").set({weeks: JSON.stringify(list)});
+  }
   function planData(kd) {
     var p = kita.plans[kd], fresh = p && p.at && String(p.at).slice(0, 10) > TEXT_AS_OF;
     if (!fresh) return kd === "plan" ? WOCHE0 : MONAT0;
@@ -2197,6 +2219,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
   /* Neu hochgeladene Pläne lässt die Seite von Claude (Funktion „sample“) in Text umwandeln */
   var PROMPTS = {
     plan: function () { return "Das Bild zeigt den Wochenplan einer Kita (deutsch). Lies ihn genau ab, ohne etwas zu erfinden. Antworte NUR mit JSON in dieser Form: {\"title\":\"16.11. bis 20.11.\",\"theme\":\"Wochenthema ohne das Wort Wochenthema\",\"mon\":\"JJJJ-MM-TT des Montags dieser Woche\",\"days\":[{\"n\":\"Montag\",\"am\":[\"Vormittagspunkt\"],\"pm\":[\"Nachmittagsangebot\"]}],\"note\":\"Schlusssatz unter der Tabelle oder leer\"}. Aufzählungsstriche weglassen. Fett gedruckte Punkte bekommen ein * direkt am Anfang. Nur Tage aufführen, die im Plan stehen. Ist das Jahr nicht erkennbar, gilt das Jahr " + today.getFullYear() + "."; },
+    speise: function () { return "Das Bild zeigt den Speiseplan einer Kita (deutsch) für eine Woche. Lies ihn genau ab, ohne etwas zu erfinden. Antworte NUR mit JSON in dieser Form: {\"days\":[{\"d\":\"JJJJ-MM-TT\",\"i\":[{\"t\":\"Gericht\"},{\"t\":\"Vegi-Frikassee (H,G,I) mit Reis\",\"v\":1}]}]}. Pro Tag ein Eintrag mit dem Datum aus der Tagesüberschrift. Jede Zeile mit einem Gericht ist ein Eintrag, die Allergenkürzel in Klammern bleiben unverändert. Zeilen, die mit 'Vegetarische Alternative:' beginnen, bekommen v:1, der Text 'Vegetarische Alternative:' selbst wird weggelassen. Feiertage oder Schließtage ohne Gericht (zum Beispiel WEIHNACHTEN oder FEIERTAG) werden ein Eintrag mit x:1. Hinweise am Ende des Blatts (Liefersituation, Allergenübersicht, Haftung) weglassen. Ist das Jahr nicht erkennbar, gilt das Jahr " + today.getFullYear() + "."; },
     monat: function () { return "Das Bild zeigt den Monatsplan einer Kita (deutsch) mit Terminen. Lies ihn genau ab, ohne etwas zu erfinden. Antworte NUR mit JSON in dieser Form: {\"title\":\"November 2026\",\"items\":[[\"JJJJ-MM-TT\",\"Text des Termins\"]]}. Ist das Jahr nicht erkennbar, gilt das Jahr " + today.getFullYear() + "."; }
   };
   function convErr(e) {
@@ -2214,6 +2237,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
         return sm.json(PROMPTS[kd](), {images: blobs.slice(0, Math.max(1, lim.images.maxCount || 1)), modelTier: "default", cache: false});
       });
     }).then(function (v) {
+      if (kd === "speise") { var sc = cleanSpeise(v); if (!sc) throw {code: "bad_result"}; return saveSpeise(sc); }
       var c = kd === "plan" ? cleanWoche(v) : cleanMonat(v);
       if (!c) throw {code: "bad_result"};
       return kita.db.doc(KDOC[kd]).update({parsed: JSON.stringify(c)});
@@ -2223,8 +2247,8 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     if (!window.__canConvert) return Promise.resolve();
     kita.convBusy = true; setMsg(KNAME[kd] + " wird in Text umgewandelt … (das kann bis zu einer Minute dauern)"); kitaView();
     return convertPlan(kd, blobs).then(function () {
-      setMsg("Der " + KNAME[kd] + " wurde in Text umgewandelt. Bitte kurz auf Fehler prüfen.", "ok");
-    }, function (e) { setMsg(convErr(e), "err"); }).then(function () { kita.convBusy = false; kitaView(); });
+      setMsg(kd === "speise" ? "Speiseplan KW " + kita.lastKw + " wurde hinzugefügt. Bitte kurz auf Fehler prüfen." : "Der " + KNAME[kd] + " wurde in Text umgewandelt. Bitte kurz auf Fehler prüfen.", "ok");
+    }, function (e) { setMsg(kd === "speise" ? convErr(e).replace(/ Mit .In Text umwandeln. lässt sich das wiederholen\./, " Bitte den Speiseplan noch einmal hochladen.") : convErr(e), "err"); }).then(function () { kita.convBusy = false; kitaView(); });
   }
   function convertAgain() {
     var kd = kita.kind, p = kita.plans[kd], ids = p && Array.isArray(p.pages) ? p.pages.filter(function (x) { return ID32.test(x); }) : [];
@@ -2245,7 +2269,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       if (isMo) renderMonat(pdat); else renderWoche(pdat);
       $("kitaMenu").hidden = true;
     }
-    var isMenu = kita.kind === "speise" && MENUS_ALL.length > 0;
+    var isMenu = kita.kind === "speise" && allMenus().length > 0;
     $("kitaMenu").hidden = !isMenu;
     if (isMenu) {
       renderMenu();
@@ -2308,6 +2332,10 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
             kitaView();
           }, function () { clearTimeout(timer); kita.state = "err"; kitaView(); });
         });
+        db.doc("kita/speisen").onSnapshot(function (s) {
+          var w = []; try { w = s.exists && s.data().weeks ? JSON.parse(s.data().weeks) : []; } catch (e) {}
+          kita.speisen = (Array.isArray(w) ? w : []).map(cleanSpeise).filter(Boolean); kitaView();
+        }, function () {});
       } catch (e) { clearTimeout(timer); kita.state = "err"; kitaView(); }
     });
     useCap("assets").then(function (a) { kita.assets = a; kitaView(); });
@@ -2398,7 +2426,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       });
     }).then(function () {
       setMsg("Neuer " + KNAME[kd] + " gespeichert.", "ok");
-      if (kd !== "speise") runConvert(kd, files);
+      runConvert(kd, files);
     }).catch(function (e) {
       setMsg(errText(e), "err");
       if (!committed) return dropAssets(uploaded);
@@ -2432,7 +2460,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       });
     }).then(function () {
       setMsg("Neuer " + KNAME[kd] + " gespeichert." + extra, "ok");
-      if (kd !== "speise" && convBlobs) runConvert(kd, convBlobs);
+      if (convBlobs) runConvert(kd, convBlobs);
     }).catch(function (e) {
       setMsg(errText(e), "err");
       if (!committed) return dropAssets(uploaded);
