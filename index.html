@@ -234,7 +234,7 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .wo-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative; padding: 4px; margin: -4px; }
 html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-start; }
 #abView .ab-cols > div { padding-bottom: 8px; }
-.ab-r { grid-template-columns: 46px minmax(0, 1fr) 90px 52px 112px; column-gap: 6px; }
+.ab-r { grid-template-columns: 46px minmax(0, 1fr) 90px 54px 136px; column-gap: 6px; }
 
 #bigcal { overflow-y: auto; align-content: start; padding: 3px; margin: -3px; -webkit-overflow-scrolling: touch; }
 .ad-fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; margin: 0; }
@@ -302,6 +302,9 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ab-dir .mqi { display: inline-block; white-space: nowrap; animation: abmq var(--mqd, 8s) ease-in-out infinite alternate; }
 @keyframes abmq { 0%, 15% { transform: translateX(0); } 85%, 100% { transform: translateX(var(--mq, 0px)); } }
 @media (prefers-reduced-motion: reduce) { .ab-dir .mqi { animation: none; } .ab-dir.mq-on { text-overflow: ellipsis; } }
+
+.ab-dir .mqi.loop { animation: abmq2 var(--mqd, 8s) linear infinite; }
+@keyframes abmq2 { from { transform: translateX(0); } to { transform: translateX(var(--mq, 0px)); } }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -712,7 +715,8 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
       <div id="calMsg" class="kita-status" role="status"></div>
     </details>
-    <p class="ad-ver" id="adVer">Version 2.2 &middot; vom 19.11.2026, 17:12 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 2.3 &middot; vom 19.11.2026, 17:19 Uhr</p>
+    <p class="ad-ver" id="adBat"></p>
   </div>
 
   <div class="panel" id="p-bilder" hidden>
@@ -1186,6 +1190,12 @@ footer { font-size: 12px; color: var(--muted); }
       if (e.firstChild && e.firstChild.className === "mqi") { e.textContent = t; e.classList.remove("mq-on"); }
       if (e.scrollWidth > e.clientWidth + 1) {
         var s = document.createElement("span"); s.className = "mqi"; s.textContent = t; e.textContent = ""; e.appendChild(s);
+        if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) { e.textContent = t; return; }
+        if (window.matchMedia && matchMedia("(max-width: 700px)").matches) {
+          /* Handy: Laufschrift, die endlos in einer Richtung durchläuft */
+          s.textContent = t + "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0"; var w = s.offsetWidth; s.textContent = t + "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0" + t;
+          s.className = "mqi loop"; s.style.setProperty("--mq", "-" + w + "px"); s.style.setProperty("--mqd", (w / 60).toFixed(1) + "s"); e.classList.add("mq-on"); return;
+        }
         var o = Math.max(0, s.offsetWidth - e.clientWidth);
         s.style.setProperty("--mq", "-" + (o + 2) + "px"); s.style.setProperty("--mqd", (4 + o / 20).toFixed(1) + "s"); e.classList.add("mq-on");
       }
@@ -1395,9 +1405,17 @@ footer { font-size: 12px; color: var(--muted); }
     window.addEventListener("online", draw); window.addEventListener("offline", draw);
     if (navigator.connection && navigator.connection.addEventListener) navigator.connection.addEventListener("change", draw);
     draw();
-    if (navigator.getBattery) navigator.getBattery().then(function (b) {
-      bat = b; ["levelchange", "chargingchange"].forEach(function (ev) { b.addEventListener(ev, draw); }); draw();
-    }).catch(function () {});
+    var note = document.getElementById("adBat");
+    function say(t) { if (note) note.textContent = t; }
+    function getBat() {
+      if (!navigator.getBattery) { say("Akku-Anzeige: Dieses Gerät oder dieser Browser gibt den Akkustand nicht heraus."); return; }
+      navigator.getBattery().then(function (b) {
+        if (!bat) ["levelchange", "chargingchange"].forEach(function (ev) { b.addEventListener(ev, draw); });
+        bat = b; say("Akku-Anzeige: aktiv"); draw();
+      }).catch(function () { say("Akku-Anzeige: Abruf fehlgeschlagen, wird erneut versucht."); });
+    }
+    getBat();
+    setInterval(function () { getBat(); draw(); }, 60000);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
