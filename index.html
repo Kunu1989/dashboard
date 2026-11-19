@@ -715,7 +715,7 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
       <div id="calMsg" class="kita-status" role="status"></div>
     </details>
-    <p class="ad-ver" id="adVer">Version 2.4 &middot; vom 19.11.2026, 17:25 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 2.5 &middot; vom 19.11.2026, 17:31 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -1377,7 +1377,7 @@ footer { font-size: 12px; color: var(--muted); }
 
 /* Akku- und WLAN-Anzeige neben der Uhr */
 (function () {
-  var box = null, bat = null;
+  var box = null, bat = null, probeOff = false;
   function svgBat(p, chg) {
     var col = (p <= 20 && !chg) ? "#c62828" : "currentColor", w = Math.max(0, Math.min(100, p)) * 0.17;
     return '<svg viewBox="0 0 28 14" width="28" height="14" aria-hidden="true"><rect x="1" y="1" width="21" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="23.5" y="4.5" width="3" height="5" rx="1" fill="currentColor"/><rect x="3" y="3" width="' + w.toFixed(1) + '" height="8" rx="1.5" fill="' + col + '"/></svg>';
@@ -1393,10 +1393,10 @@ footer { font-size: 12px; color: var(--muted); }
       var p = Math.round(bat.level * 100);
       parts.push('<span class="ds" title="Akku">' + svgBat(p, bat.charging) + '<span class="num">' + p + ' %' + (bat.charging ? " ⚡" : "") + '</span></span>');
     }
-    var on = navigator.onLine !== false;
     var typ = c && c.type ? c.type : "";
-    var txt = !on ? "Offline" : typ === "cellular" ? "Mobil" : typ === "wifi" || !typ ? "WLAN" : "Online";
-    if (on || navigator.onLine === false) parts.push('<span class="ds' + (on ? "" : " off") + '" title="Netzwerk">' + svgWifi(on) + '<span>' + txt + '</span></span>');
+    var on = navigator.onLine !== false && !probeOff && typ !== "none";
+    var txt = !on ? "Offline" : typ === "cellular" ? "Mobil" : typ === "ethernet" ? "LAN" : typ === "wifi" ? "WLAN" : typ ? "Online" : "WLAN";
+    parts.push('<span class="ds' + (on ? "" : " off") + '" title="Netzwerk">' + svgWifi(on) + '<span>' + txt + '</span></span>');
     box.innerHTML = parts.join("");
     box.hidden = !parts.length;
   }
@@ -1405,6 +1405,16 @@ footer { font-size: 12px; color: var(--muted); }
     window.addEventListener("online", draw); window.addEventListener("offline", draw);
     if (navigator.connection && navigator.connection.addEventListener) navigator.connection.addEventListener("change", draw);
     draw();
+    /* Echte Prüfung: Der Browser meldet ein ausgeschaltetes WLAN manchmal gar nicht oder spät */
+    function probe() {
+      if (!/^https?:/.test(location.protocol)) return;
+      var ac = window.AbortController ? new AbortController() : null, to = setTimeout(function () { if (ac) ac.abort(); }, 6000);
+      fetch("manifest.webmanifest?_=" + Date.now(), {method: "HEAD", cache: "no-store", signal: ac ? ac.signal : undefined})
+        .then(function () { probeOff = false; }, function () { probeOff = true; })
+        .then(function () { clearTimeout(to); draw(); });
+    }
+    probe(); setInterval(probe, 15000); setInterval(draw, 5000);
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") { probe(); draw(); } });
     var note = document.getElementById("adBat");
     function say(t) { if (note) note.textContent = t; }
     function getBat() {
