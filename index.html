@@ -942,7 +942,14 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .devstat .ds.off { color: #c62828; }
 
 .wb-radar { position: relative; height: clamp(320px, calc(100vh - 330px), 760px); border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: var(--surface-2); }
+.wb-radar .rd-box { position: absolute; inset: 0; }
 .wb-radar .rd-map { position: absolute; inset: 0; z-index: 0; background: #dfe6ea; }
+.rd-ctl { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 1000; display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,.93); box-shadow: 0 1px 6px rgba(0,0,0,.3); color: #1a2530; }
+.rd-ctl .fsbtn { min-height: 36px; padding: 4px 12px; min-width: 44px; }
+.rd-sl { flex: 1; min-width: 0; accent-color: #1a6fc4; }
+.rd-time { font-weight: 700; font-size: 14px; white-space: nowrap; min-width: 190px; text-align: right; }
+.rd-time.fc { color: #d9531e; }
+@media (max-width: 700px) { .rd-ctl { flex-wrap: wrap; gap: 6px 10px; } .rd-time { min-width: 0; flex: 1 1 100%; text-align: left; } }
 .rd-pin { overflow: visible; }
 .rd-pin i { position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; background: #e0475b; border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.35), 0 0 0 8px rgba(224,71,91,.25); }
 .rd-pin b { position: absolute; left: 14px; top: -11px; font: 700 13px/1 var(--font-body, system-ui); color: #1a2530; background: rgba(255,255,255,.92); padding: 4px 7px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.3); white-space: nowrap; }
@@ -1231,7 +1238,7 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="greet" id="greet"></div>
       <h1 id="todayTitle">Heute</h1>
     </div>
-    <div class="clk"><div class="clock num" id="clock" aria-live="off"></div><div id="devStat" class="devstat" hidden></div></div>
+    <div class="clk"><div id="devStat" class="devstat" hidden></div><div class="clock num" id="clock" aria-live="off"></div></div>
   </header>
 
   <div class="panel" id="p-uebersicht">
@@ -2480,33 +2487,155 @@ footer { font-size: 12px; color: var(--muted); }
     if (wbView === "r") return tabs + '<div class="wb-radar" id="wbRadarSlot"></div><div class="wt-note" id="rdNote">Regenradar: Deutscher Wetterdienst, Karte: OpenStreetMap.</div>';
     return tabs + (wbView === "d" ? dd : hero + hh);
   }
-  /* ---------- Regenradar (Leaflet, bleibt zwischen Neuzeichnungen erhalten) ---------- */
-  var RLAT = 49.4539, RLON = 11.0775, radar = {el: null, map: null, layer: null, ok: 0, err: 0};
+  /* ---------- Regenradar: eine Bildebene (schnell), Zeitschritte aus dem DWD, Vorhersage falls verfügbar ---------- */
+  var RLAT = 49.4539, RLON = 11.0775, WMSB = "https://maps.dwd.de/geoserver/dwd/";
+  var radar = {box: null, map: null, ov: null, base: null, frames: [], idx: 0, nowIdx: 0, timer: null, play: true, size: "", gen: 0};
   function rdNote(t) { var n = document.getElementById("rdNote"); if (n) n.textContent = t; }
-  function rdStamp() { var d = new Date(); rdNote("Regenradar: Deutscher Wetterdienst, Karte: OpenStreetMap. Bild geladen um " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " Uhr, wird alle 5 Minuten erneuert."); }
+  function rdTime(d) { return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  function rdDim(txt) {
+    var rs = String(txt || "").trim().split(/\s*,\s*/), last = rs[rs.length - 1];
+    if (!last) return null;
+    if (last.indexOf("/") < 0) { var l = rs.map(function (s) { return new Date(s); }).filter(function (d) { return !isNaN(d); }); return l.length ? {list: l} : null; }
+    var q = last.split("/"), a = new Date(q[0]), b = new Date(q[1]), m = /PT(?:(\d+)H)?(?:(\d+)M)?/.exec(q[2] || "");
+    var st = (((m && m[1]) ? +m[1] * 60 : 0) + ((m && m[2]) ? +m[2] : 0) || 5) * 60000;
+    return isNaN(a) || isNaN(b) ? null : {a: a, b: b, st: st};
+  }
+  function rdTimes(dim, from, to) {
+    var out = [];
+    if (dim.list) return dim.list.filter(function (d) { return d >= from && d <= to; });
+    var k0 = Math.max(0, Math.ceil((from - dim.a) / dim.st));
+    for (var t = dim.a.getTime() + k0 * dim.st; t <= Math.min(+dim.b, +to); t += dim.st) out.push(new Date(t));
+    return out;
+  }
+  function rdCaps(name) {
+    return fetch(WMSB + name + "/wms?service=WMS&version=1.3.0&request=GetCapabilities", {cache: "no-store"}).then(function (r) { if (!r.ok) throw 0; return r.text(); }).then(function (x) {
+      var d = new DOMParser().parseFromString(x, "text/xml"), el = d.getElementsByTagName("Dimension"), txt = "";
+      for (var i = 0; i < el.length; i++) if (el[i].getAttribute("name") === "time") txt = el[i].textContent;
+      var lay = d.getElementsByTagName("Layer"), ln = "";
+      for (var j = 0; j < lay.length; j++) { var nm = lay[j].getElementsByTagName("Name")[0]; if (nm && /:/.test(nm.textContent)) { ln = nm.textContent; break; } }
+      var dim = rdDim(txt); if (!dim || !ln) throw 0;
+      return {layer: ln, dim: dim};
+    });
+  }
+  function rdDiscover() {
+    var now = new Date(), from = new Date(+now - 65 * 60000), to = new Date(+now + 125 * 60000);
+    var main = rdCaps("Niederschlagsradar").catch(function () { return null; });
+    var fcs = ["RV-Produkt", "WN-Produkt", "Radarvorhersage", "FX-Produkt"].map(function (n) { return rdCaps(n).catch(function () { return null; }); });
+    return Promise.all([main].concat(fcs)).then(function (r) {
+      var fr = [], m = r[0];
+      if (m) {
+        var step = Math.max(1, Math.round(600000 / (m.dim.st || 300000)));
+        var ts = rdTimes(m.dim, from, to), past = ts.filter(function (d) { return d <= now; }), fut = ts.filter(function (d) { return d > now; });
+        var pick = function (arr, fromEnd) { var o = []; for (var i = arr.length - 1 - 0; i >= 0; i -= step) o.unshift(arr[i]); return o; };
+        pick(past).forEach(function (d) { fr.push({t: d, layer: m.layer, fc: false}); });
+        fut.forEach(function (d, i) { if (i % step === step - 1 || step === 1) fr.push({t: d, layer: m.layer, fc: true}); });
+      }
+      var hasFc = fr.some(function (f) { return f.fc; });
+      if (!hasFc) {
+        for (var k = 1; k < r.length; k++) if (r[k]) {
+          var c = r[k], ft = rdTimes(c.dim, new Date(+now + 240000), to);
+          if (ft.length) { ft.forEach(function (d, i) { if (i % 2 === 1 || ft.length < 6) fr.push({t: d, layer: c.layer, fc: true}); }); break; }
+        }
+      }
+      return fr;
+    });
+  }
+  function rdUrl(f) {
+    var b = radar.map.getBounds(), p1 = L.CRS.EPSG3857.project(b.getSouthWest()), p2 = L.CRS.EPSG3857.project(b.getNorthEast()), sz = radar.map.getSize(), k = Math.min(1, 1100 / sz.x);
+    return WMSB + "wms?service=WMS&version=1.3.0&request=GetMap&layers=" + encodeURIComponent(f.layer) + "&styles=&format=image%2Fpng&transparent=true&crs=EPSG%3A3857&bbox=" + [p1.x, p1.y, p2.x, p2.y].join(",") +
+      "&width=" + Math.round(sz.x * k) + "&height=" + Math.round(sz.y * k) + (f.t ? "&time=" + encodeURIComponent(f.t.toISOString()) : "");
+  }
+  function rdLabel(f, i) {
+    if (!f.t) return "Aktuelles Radarbild";
+    var mins = Math.round((f.t - new Date()) / 60000), s;
+    if (i === radar.nowIdx) s = "Jetzt";
+    else if (!f.fc) s = "vor " + Math.abs(mins) + " Min.";
+    else s = "in " + mins + " Min.";
+    return s + " · " + rdTime(f.t) + " Uhr" + (f.fc ? " · Vorhersage" : "");
+  }
+  function rdShow(i) {
+    var f = radar.frames[i]; if (!f || !radar.ov) return;
+    radar.idx = i; radar.ov.setUrl(f.url);
+    var sl = radar.box.querySelector(".rd-sl"), tm = radar.box.querySelector(".rd-time");
+    if (sl) sl.value = i;
+    if (tm) { tm.textContent = rdLabel(f, i); tm.className = "rd-time" + (f.fc ? " fc" : ""); }
+  }
+  function rdTick() {
+    clearTimeout(radar.timer);
+    if (!radar.box || !document.body.contains(radar.box)) return;
+    var n = radar.frames.length; if (n < 2 || !radar.play) return;
+    var nx = radar.idx + 1, wait = 700;
+    if (nx >= n) { nx = 0; }
+    if (radar.idx === n - 1) wait = 1800; else if (radar.idx === radar.nowIdx) wait = 1200;
+    radar.timer = setTimeout(function () { rdShow(nx); rdTick(); }, wait);
+  }
+  function rdLoad() {
+    var gen = ++radar.gen, tm = radar.box.querySelector(".rd-time");
+    clearTimeout(radar.timer);
+    rdDiscover().then(function (fr) {
+      if (gen !== radar.gen) return;
+      if (!fr.length) fr = [{t: null, layer: "dwd:Niederschlagsradar", fc: false, latest: true}];
+      fr.forEach(function (f) { f.url = rdUrl(f); });
+      var ok = [], done = 0, i = 0, run = 0;
+      radar.size = radar.map.getSize().x + "x" + radar.map.getSize().y;
+      function next() {
+        if (gen !== radar.gen) return;
+        if (i >= fr.length) { if (run === 0) fin(); return; }
+        var f = fr[i++]; run++;
+        var im = new Image();
+        im.onload = function () { f.ok = true; done++; step(); };
+        im.onerror = function () { f.ok = false; done++; step(); };
+        im.src = f.url;
+      }
+      function step() { run--; if (tm && gen === radar.gen && done < fr.length) tm.textContent = "Lade Radarbilder … " + done + "/" + fr.length; next(); if (run === 0 && i >= fr.length) fin(); }
+      var fin = function () {
+        if (gen !== radar.gen || fin.d) return; fin.d = true;
+        var good = fr.filter(function (f) { return f.ok; });
+        if (!good.length) { rdNote("Das Radarbild kann gerade nicht geladen werden."); if (tm) tm.textContent = "nicht verfügbar"; return; }
+        radar.frames = good; var ni = -1; good.forEach(function (f, k) { if (!f.fc) ni = k; }); radar.nowIdx = Math.max(0, ni);
+        var sl = radar.box.querySelector(".rd-sl"); sl.max = good.length - 1; sl.disabled = good.length < 2;
+        radar.box.querySelector(".rd-play").disabled = good.length < 2;
+        rdShow(radar.nowIdx); rdTick();
+        var d = new Date(); rdNote("Regenradar: Deutscher Wetterdienst, Karte: OpenStreetMap. Geladen um " + rdTime(d) + " Uhr, wird alle 5 Minuten erneuert." + (good.some(function (f) { return f.fc; }) ? "" : " Eine Vorhersage ist gerade nicht verfügbar."));
+      };
+      for (var c = 0; c < 3; c++) next();
+    }).catch(function () { rdNote("Das Radarbild kann gerade nicht geladen werden."); });
+  }
   function radarInit() {
-    if (radar.el || !window.L) return;
-    var el = document.createElement("div"); el.className = "rd-map";
-    var m = L.map(el, {minZoom: 5, maxZoom: 11, zoomSnap: 0.5, attributionControl: false}).setView([RLAT, RLON], 8);
+    if (radar.box || !window.L) return;
+    var box = document.createElement("div"); box.className = "rd-box";
+    var mp = document.createElement("div"); mp.className = "rd-map"; box.appendChild(mp);
+    var ctl = document.createElement("div"); ctl.className = "rd-ctl";
+    ctl.innerHTML = '<button type="button" class="fsbtn rd-play" aria-label="Pause oder Abspielen">❚❚</button><input type="range" class="rd-sl" min="0" max="0" value="0" aria-label="Zeitpunkt"><span class="rd-time">Lade Radarbilder …</span>';
+    box.appendChild(ctl);
+    var m = L.map(mp, {minZoom: 8, maxZoom: 8, zoomControl: false, attributionControl: false, dragging: false, touchZoom: false, scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false, tap: false}).setView([RLAT, RLON], 8);
+    mp.style.position = "absolute"; mp.style.inset = "0";
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 19}).addTo(m);
-    var lay = L.tileLayer.wms("https://maps.dwd.de/geoserver/dwd/wms", {layers: "dwd:Niederschlagsradar", format: "image/png", transparent: true, version: "1.3.0", opacity: 0.8}).addTo(m);
-    lay.on("tileload", function () { radar.ok++; });
-    lay.on("tileerror", function () { radar.err++; if (radar.err >= 6 && !radar.ok) rdNote("Das Radarbild kann gerade nicht geladen werden."); });
-    L.marker([RLAT, RLON], {icon: L.divIcon({className: "rd-pin", html: "<i></i><b>Standort</b>", iconSize: [0, 0]}), interactive: false, keyboard: false}).addTo(m);
-    el.style.position = "absolute"; el.style.inset = "0";
-    radar.el = el; radar.map = m; radar.layer = lay;
-    setInterval(function () { if (radar.layer && document.getElementById("wbRadarSlot")) { radar.ok = 0; radar.err = 0; radar.layer.setParams({_t: Date.now()}); rdStamp(); } }, 300000);
+    L.marker([RLAT, RLON], {icon: L.divIcon({className: "rd-pin", html: "<i></i><b>Standort</b>", iconSize: [0, 0]}), interactive: false, keyboard: false, zIndexOffset: 1000}).addTo(m);
+    radar.box = box; radar.map = m;
+    ctl.querySelector(".rd-sl").addEventListener("input", function (e) { radar.play = false; ctl.querySelector(".rd-play").textContent = "▶"; clearTimeout(radar.timer); rdShow(+e.target.value); });
+    ctl.querySelector(".rd-play").addEventListener("click", function (e) { radar.play = !radar.play; e.currentTarget.textContent = radar.play ? "❚❚" : "▶"; if (radar.play) { if (radar.idx >= radar.frames.length - 1) radar.idx = -1; rdTick(); } else clearTimeout(radar.timer); });
+    setInterval(function () { if (radar.box && document.body.contains(radar.box)) rdLoad(); }, 300000);
   }
   function radarMount() {
     if (wbView !== "r") return;
     var slot = document.getElementById("wbRadarSlot"); if (!slot) return;
     radarInit();
-    if (!radar.el) { slot.innerHTML = '<p class="none">Die Karte konnte nicht geladen werden.</p>'; return; }
-    if (radar.el.parentNode !== slot) { slot.appendChild(radar.el); rdStamp(); }
-    setTimeout(function () { try { radar.map.invalidateSize(); } catch (e) {} }, 60);
+    if (!radar.box) { slot.innerHTML = '<p class="none">Die Karte konnte nicht geladen werden.</p>'; return; }
+    var first = !radar.ov;
+    slot.appendChild(radar.box);
+    radar.map.invalidateSize(false);
+    var sz = radar.map.getSize();
+    if (sz.x < 10) { setTimeout(radarMount, 100); return; }
+    var key = sz.x + "x" + sz.y;
+    if (first || key !== radar.size) {
+      if (radar.ov) radar.map.removeLayer(radar.ov);
+      radar.ov = L.imageOverlay("data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==", radar.map.getBounds(), {opacity: 0.8, interactive: false}).addTo(radar.map);
+      radar.size = key; rdLoad();
+    } else { rdNote("Regenradar: Deutscher Wetterdienst, Karte: OpenStreetMap."); rdTick(); }
   }
   window.__radarMount = radarMount;
-  window.__radarKeep = function () { var s = document.getElementById("wbRadarSlot"); return !!(s && radar.el && radar.el.parentNode === s); };
+  window.__radarKeep = function () { var s = document.getElementById("wbRadarSlot"); return !!(s && radar.box && radar.box.parentNode === s); };
   function weatherView(big) {
     var key = ymd(today), sfx = big ? "Big" : "";
     if (!DAYS.length) return {note: "", html: '<p class="none">' + (wxTry && !wxBusy ? "Das Wetter ist gerade nicht verfügbar." : "Wetter wird geladen …") + '</p>'};
