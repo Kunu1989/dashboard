@@ -762,8 +762,13 @@ footer { font-size: 12px; color: var(--muted); }
     var ctl = window.AbortController ? new AbortController() : null, t = ctl ? setTimeout(function () { ctl.abort(); }, ms || 25000) : 0, o = init || {};
     if (ctl) o.signal = ctl.signal;
     return fetch(u, o).then(function (r) {
-      if (!r.ok) throw {code: "upstream_error", message: "HTTP " + r.status};
-      return r.json();
+      return r.text().then(function (tx) {
+        if (!r.ok) throw {code: "upstream_error", message: "HTTP " + r.status};
+        try { return JSON.parse(tx); } catch (e) {
+          var sn = String(tx).replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 90);
+          throw {code: "upstream_error", message: "ungültige Antwort" + (sn ? ": \u201E" + sn + "\u201C" : " (leer)") + " [HTTP " + r.status + "]"};
+        }
+      });
     }, function (e) { throw {code: "upstream_error", message: e && e.name === "AbortError" ? "Zeitüberschreitung" : "keine Verbindung"}; })
       .then(function (j) { clearTimeout(t); return j; }, function (e) { clearTimeout(t); throw e && e.code ? e : {code: "upstream_error", message: "ungültige Antwort"}; });
   }
@@ -772,7 +777,8 @@ footer { font-size: 12px; color: var(--muted); }
     if (!c.calUrl) return Promise.reject({code: "no_config"});
     var u = c.calUrl + (c.calUrl.indexOf("?") < 0 ? "?" : "&") + "key=" + enc(c.calKey) + "&action=" + action;
     Object.keys(params || {}).forEach(function (q) { u += "&" + q + "=" + enc(params[q]); });
-    return fetchJson(u, ms || 30000).then(function (j) {
+    u += "&_=" + Date.now();
+    return fetchJson(u, ms || 30000, {cache: "no-store", credentials: "omit"}).then(function (j) {
       if (j && j.error) throw {code: "upstream_error", message: String(j.error).slice(0, 160)};
       return j;
     });
