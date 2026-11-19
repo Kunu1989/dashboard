@@ -234,7 +234,7 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .wo-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative; padding: 4px; margin: -4px; }
 html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-start; }
 #abView .ab-cols > div { padding-bottom: 8px; }
-.ab-r { grid-template-columns: 46px minmax(0, 1fr) 98px 88px 130px; }
+.ab-r { grid-template-columns: 46px minmax(0, 1fr) 90px 52px 112px; column-gap: 6px; }
 
 #bigcal { overflow-y: auto; align-content: start; padding: 3px; margin: -3px; -webkit-overflow-scrolling: touch; }
 .ad-fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; margin: 0; }
@@ -297,6 +297,11 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
   #abView .ab-z b.one { grid-column: 1 / -1; }
   #abView .ab-z b.late { color: #e0222d; }
 }
+
+.ab-dir.mq-on { text-overflow: clip; }
+.ab-dir .mqi { display: inline-block; white-space: nowrap; animation: abmq var(--mqd, 8s) ease-in-out infinite alternate; }
+@keyframes abmq { 0%, 15% { transform: translateX(0); } 85%, 100% { transform: translateX(var(--mq, 0px)); } }
+@media (prefers-reduced-motion: reduce) { .ab-dir .mqi { animation: none; } .ab-dir.mq-on { text-overflow: ellipsis; } }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -707,7 +712,7 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
       <div id="calMsg" class="kita-status" role="status"></div>
     </details>
-    <p class="ad-ver" id="adVer">Version 2.1 &middot; vom 19.11.2026, 12:39 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 2.2 &middot; vom 19.11.2026, 17:12 Uhr</p>
   </div>
 
   <div class="panel" id="p-bilder" hidden>
@@ -1145,7 +1150,7 @@ footer { font-size: 12px; color: var(--muted); }
   function listHtml(j, col, ck) {
     var rows = rowsOf(j, col.filter, col.mins, col.limit), colorOf = busColors(ck, rows);
     if (!rows.length) return '<p class="muted ab-none">Keine Abfahrten gefunden.</p>';
-    var head = '<div class="ab-r ab-hd"><span>Linie</span><span>Richtung</span><span class="ab-c">Abfahrt</span><span class="ab-c">Tatsächlich</span><span class="ab-c ab-rt">In Minuten</span></div>';
+    var head = '<div class="ab-r ab-hd"><span>Linie</span><span>Richtung</span><span class="ab-c">Soll</span><span class="ab-c">Ist</span><span class="ab-c ab-rt">In Minuten</span></div>';
     return head + rows.map(function (r) {
       var delay = Math.round((r.ist - r.plan) / 60000), cls = r.p === "Bus" ? " bus" : r.p === "SBahn" ? " sb" : /tram|stra/i.test(r.p) ? " tram" : "";
       var min = Math.round((r.ist - Date.now()) / 60000);
@@ -1170,8 +1175,24 @@ footer { font-size: 12px; color: var(--muted); }
     if (same) [].forEach.call(cols.querySelectorAll(".ab-lst"), function (e, k) { e.scrollTop = tops[k] || 0; });
     showStamp();
     if (window.__pageFit) window.__pageFit();
+    mq();
     links.innerHTML = b.links.map(function (l) { return '<a class="ab-open" href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + "</a>"; }).join("");
   }
+  /* Zu lange Richtungsnamen laufen hin und her, statt abgeschnitten zu werden */
+  function mq() {
+    [].forEach.call(cols.querySelectorAll(".ab-dir"), function (e) {
+      var t = e.__t || (e.__t = e.textContent);
+      if (!e.clientWidth) return;
+      if (e.firstChild && e.firstChild.className === "mqi") { e.textContent = t; e.classList.remove("mq-on"); }
+      if (e.scrollWidth > e.clientWidth + 1) {
+        var s = document.createElement("span"); s.className = "mqi"; s.textContent = t; e.textContent = ""; e.appendChild(s);
+        var o = Math.max(0, s.offsetWidth - e.clientWidth);
+        s.style.setProperty("--mq", "-" + (o + 2) + "px"); s.style.setProperty("--mqd", (4 + o / 20).toFixed(1) + "s"); e.classList.add("mq-on");
+      }
+    });
+  }
+  var mqT = null;
+  if (window.ResizeObserver) new ResizeObserver(function () { clearTimeout(mqT); mqT = setTimeout(mq, 150); }).observe(cols);
   cols.addEventListener("scroll", function () { cols.__sc = Date.now(); }, true);
   cols.addEventListener("touchstart", function () { cols.__sc = Date.now(); }, true);
   function showStamp() {
