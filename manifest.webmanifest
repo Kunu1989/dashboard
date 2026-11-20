@@ -4,11 +4,7 @@
  "lang": "de",
  "start_url": ".",
  "scope": ".",
- "display": "fullscreen",
- "display_override": [
-  "fullscreen",
-  "standalone"
- ],
+ "display": "standalone",
  "background_color": "#EDF0F3",
  "theme_color": "#1D5E78",
  "icons": [
