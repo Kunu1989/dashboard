@@ -795,7 +795,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 3.4 &middot; vom 20.11.2026, 06:21 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 3.5 &middot; vom 20.11.2026, 06:35 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -806,14 +806,12 @@ footer { font-size: 12px; color: var(--muted); }
       <div id="ekSug" class="ek-sug"></div>
       <div id="ekList" class="ek-grid"></div>
       <p id="ekEmpty" class="ek-empty">Die Liste ist leer. Tippe oben einen Artikel ein.</p>
-      <p class="ek-hint">Enter = hinzufügen und gleich Menge, Notiz und nächsten Artikel eingeben. Antippen = erledigt, der Artikel verschwindet. Lange drücken = Details ändern.</p>
+      <p class="ek-hint">Enter = hinzufügen und gleich Menge oder Notiz eingeben. Antippen = erledigt, der Artikel verschwindet. Lange drücken = Details ändern.</p>
     </section>
     <div id="ekToast" class="ek-toast" hidden><span id="ekToastT"></span><button type="button" id="ekUndo">Rückgängig</button></div>
     <div id="ekSheet" class="ek-sheet" hidden><div role="dialog" aria-modal="true" aria-labelledby="ekShT"><h3 id="ekShT"></h3>
-      <div class="ek-two"><label>Menge<input id="ekShQ" type="text" maxlength="30" placeholder="z. B. 2 l" autocomplete="off" enterkeyhint="next"></label><label>Notiz<input id="ekShO" type="text" maxlength="60" placeholder="z. B. reif" autocomplete="off" enterkeyhint="next"></label></div>
+      <label>Menge oder Notiz<input id="ekShQ" type="text" maxlength="60" placeholder="z. B. 2 l oder reif" autocomplete="off" enterkeyhint="done"></label>
       <label>Kategorie<select id="ekShC"></select></label>
-      <label class="ek-next">Nächster Artikel<input id="ekShN" type="text" placeholder="Artikel eingeben …" autocomplete="off" autocapitalize="sentences" enterkeyhint="done"></label>
-      <div id="ekShSug" class="ek-sug"></div>
       <div class="ek-bt"><button type="button" class="fsbtn ek-del" id="ekShDel">Entfernen</button><button type="button" class="fsbtn" id="ekShOk">Fertig</button></div></div></div>
   </div>
   <div class="panel" id="p-bilder" hidden>
@@ -1599,10 +1597,15 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   var list = [], counts = {}, cats = {}, order = CATS.map(function (c) { return c[0]; }), db = null, pending = 0, mPending = 0, oPending = 0;
   var el = {}, undo = null, undoT = null, lpT = null, lpFired = false;
   function $(id) { return document.getElementById(id); }
+  function newId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
   function cleanList(v) {
     var o = []; try { o = JSON.parse(v || "[]"); } catch (e) {}
     if (!Array.isArray(o)) return [];
-    return o.map(function (x) { return x && typeof x.n === "string" && x.n.trim() ? {n: x.n.slice(0, 60), c: CAT_NAME[x.c] ? x.c : "sonst", e: typeof x.e === "string" ? x.e.slice(0, 8) : "🛒", q: typeof x.q === "string" ? x.q.slice(0, 30) : "", o: typeof x.o === "string" ? x.o.slice(0, 60) : ""} : null; }).filter(Boolean).slice(0, 300);
+    return o.map(function (x, i) {
+      if (!x || typeof x.n !== "string" || !x.n.trim()) return null;
+      var q = [typeof x.q === "string" ? x.q.trim() : "", typeof x.o === "string" ? x.o.trim() : ""].filter(Boolean).join(" · ").slice(0, 60);
+      return {id: typeof x.id === "string" && x.id ? x.id.slice(0, 16) : "l" + i + norm(x.n).slice(0, 8), n: x.n.slice(0, 60), c: CAT_NAME[x.c] ? x.c : "sonst", e: typeof x.e === "string" ? x.e.slice(0, 8) : "🛒", q: q};
+    }).filter(Boolean).slice(0, 300);
   }
   function parseObj(v) { try { var o = JSON.parse(v || "{}"); return o && typeof o === "object" && !Array.isArray(o) ? o : {}; } catch (e) { return {}; } }
   function cleanOrder(v) {
@@ -1628,36 +1631,34 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     var items = sorted();
     el.list.textContent = "";
     items.forEach(function (it) {
-      var t = document.createElement("button"); t.type = "button"; t.className = "ek-t"; t.setAttribute("data-k", norm(it.n));
+      var t = document.createElement("button"); t.type = "button"; t.className = "ek-t"; t.setAttribute("data-i", it.id);
       var i = document.createElement("i"); i.textContent = it.e || "🛒"; t.appendChild(i);
       t.appendChild(document.createTextNode(it.n));
-      if (it.q || it.o) { var s = document.createElement("small"); s.textContent = [it.q, it.o].filter(Boolean).join(" · "); t.appendChild(s); }
+      if (it.q) { var s = document.createElement("small"); s.textContent = it.q; t.appendChild(s); }
       el.list.appendChild(t);
     });
     el.empty.hidden = items.length > 0;
     el.count.textContent = items.length ? items.length + (items.length === 1 ? " Artikel" : " Artikel") : "";
   }
-  function inList(k) { return list.some(function (x) { return norm(x.n) === k; }); }
+  function byId(id) { var r = null; list.forEach(function (x) { if (x.id === id) r = x; }); return r; }
   function resolve(name) {
     var k = norm(name), cat = BY[k];
     var nm = cat ? cat.n : name.trim().replace(/\s+/g, " ").replace(/^./, function (c) { return c.toUpperCase(); }).slice(0, 60);
     var c = cats[k] || (cat ? cat.c : "sonst");
-    return {n: nm, c: c, e: cat ? cat.e : "🛒", q: "", o: ""};
+    return {id: newId(), n: nm, c: c, e: cat ? cat.e : "🛒", q: ""};
   }
   function addItem(name) {
     name = String(name || "").trim(); if (!name) return "";
-    var it = resolve(name), k = norm(it.n);
-    if (!k) return "";
-    if (inList(k)) { flash(k); return k; }
-    list.push(it); counts[it.n] = (counts[it.n] || 0) + 1; saveList(); saveMerk(); render(); flash(k);
-    return k;
+    var it = resolve(name); if (!norm(it.n)) return "";
+    list.push(it); counts[it.n] = (counts[it.n] || 0) + 1; saveList(); saveMerk(); render(); flash(it.id);
+    return it.id;
   }
-  function flash(k) {
-    var t = el.list.querySelector('[data-k="' + k + '"]'); if (!t) return;
+  function flash(id) {
+    var t = el.list.querySelector('[data-i="' + id + '"]'); if (!t) return;
     t.classList.add("ek-new"); setTimeout(function () { t.classList.remove("ek-new"); }, 900);
   }
-  function removeItem(k) {
-    var idx = -1; list.forEach(function (x, i) { if (norm(x.n) === k) idx = i; }); if (idx < 0) return;
+  function removeItem(id) {
+    var idx = -1; list.forEach(function (x, i) { if (x.id === id) idx = i; }); if (idx < 0) return;
     var it = list.splice(idx, 1)[0]; saveList(); render();
     undo = it; el.toastT.textContent = it.n + " entfernt"; el.toast.hidden = false;
     clearTimeout(undoT); undoT = setTimeout(function () { el.toast.hidden = true; undo = null; }, 6000);
@@ -1667,7 +1668,6 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     Object.keys(counts).forEach(function (n) { var kk = norm(n); if (kk && !BY[kk]) pool.push({n: n, k: kk, e: "🛒", c: cats[kk] || "sonst"}); });
     var res = [];
     pool.forEach(function (x) {
-      if (inList(x.k)) return;
       var s = 0, nm = x.n.toLowerCase().replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss");
       if (x.k.indexOf(k) === 0) s = 100;
       else if (nm.split(/[^a-z0-9]+/).some(function (w) { return w.indexOf(k) === 0; })) s = 80;
@@ -1681,7 +1681,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
   /* Enter übernimmt den ersten Vorschlag, wenn der getippte Text dessen Anfang ist (außer er ist selbst ein bekannter Artikel) */
   function pickTyped(text) {
-    var k = norm(text); if (!k || BY[k] || inList(k)) return text;
+    var k = norm(text); if (!k || BY[k]) return text;
     var r = matches(k)[0];
     return r && r.s >= 100 && r.x.k.indexOf(k) === 0 ? r.x.n : text;
   }
@@ -1694,29 +1694,21 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       box.appendChild(b);
     });
   }
-  /* ---------- Details (Menge, Notiz) und schnelle Eingabe ---------- */
+  /* ---------- Details (Menge oder Notiz, Kategorie) ---------- */
   var sheetK = null;
-  function openSheet(k, focusNext) {
-    var it = null; list.forEach(function (x) { if (norm(x.n) === k) it = x; }); if (!it) return;
-    sheetK = k; el.shT.textContent = (it.e || "🛒") + " " + it.n; el.shQ.value = it.q || ""; el.shO.value = it.o || ""; el.shN.value = ""; el.shSug.textContent = "";
+  function openSheet(id) {
+    var it = byId(id); if (!it) return;
+    sheetK = id; el.shT.textContent = (it.e || "🛒") + " " + it.n; el.shQ.value = it.q || "";
     el.shC.textContent = ""; order.forEach(function (c) { var o = document.createElement("option"); o.value = c; o.textContent = CAT_NAME[c]; el.shC.appendChild(o); });
-    el.shC.value = it.c; el.sheet.hidden = false; setTimeout(function () { (focusNext ? el.shN : el.shQ).focus(); }, 30);
+    el.shC.value = it.c; el.sheet.hidden = false; setTimeout(function () { el.shQ.focus(); }, 30);
   }
   function saveSheetFields() {
-    if (!sheetK) return;
-    list.forEach(function (x) {
-      if (norm(x.n) !== sheetK) return;
-      x.q = el.shQ.value.trim().slice(0, 30); x.o = el.shO.value.trim().slice(0, 60);
-      if (x.c !== el.shC.value) { x.c = el.shC.value; cats[sheetK] = x.c; saveMerk(); }
-    });
+    var x = sheetK && byId(sheetK); if (!x) return;
+    x.q = el.shQ.value.trim().slice(0, 60);
+    if (x.c !== el.shC.value) { x.c = el.shC.value; cats[norm(x.n)] = x.c; saveMerk(); }
     saveList(); render();
   }
   function closeSheet() { saveSheetFields(); el.sheet.hidden = true; sheetK = null; try { el.input.focus(); } catch (e) {} }
-  function nextFromSheet(name) {
-    name = String(name || "").trim();
-    if (!name) { closeSheet(); return; }
-    saveSheetFields(); var k = addItem(pickTyped(name)); if (k) openSheet(k, true); else closeSheet();
-  }
   function deleteFromSheet() { var k = sheetK; if (!k) return; el.sheet.hidden = true; sheetK = null; removeItem(k); try { el.input.focus(); } catch (e) {} }
   /* ---------- Reihenfolge der Kategorien (Optionen) ---------- */
   function renderOrder() {
@@ -1735,27 +1727,23 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
   function start() {
     el = {list: $("ekList"), sug: $("ekSug"), input: $("ekInput"), form: $("ekForm"), empty: $("ekEmpty"), count: $("ekCount"), toast: $("ekToast"), toastT: $("ekToastT"),
-      sheet: $("ekSheet"), shT: $("ekShT"), shQ: $("ekShQ"), shO: $("ekShO"), shC: $("ekShC"), shN: $("ekShN"), shSug: $("ekShSug")};
+      sheet: $("ekSheet"), shT: $("ekShT"), shQ: $("ekShQ"), shC: $("ekShC")};
     if (!el.list) return;
     renderOrder(); render();
     el.input.addEventListener("input", function () { suggest(el.input.value); });
-    el.form.addEventListener("submit", function (e) { e.preventDefault(); var k = addItem(pickTyped(el.input.value)); el.input.value = ""; el.sug.textContent = ""; if (k) openSheet(k, true); else el.input.focus(); });
+    el.form.addEventListener("submit", function (e) { e.preventDefault(); var k = addItem(pickTyped(el.input.value)); el.input.value = ""; el.sug.textContent = ""; if (k) openSheet(k); else el.input.focus(); });
     el.sug.addEventListener("click", function (e) { var b = e.target.closest(".ek-s"); if (!b) return; addItem(b.getAttribute("data-n")); el.input.value = ""; el.sug.textContent = ""; el.input.focus(); });
     el.list.addEventListener("pointerdown", function (e) {
       var t = e.target.closest(".ek-t"); if (!t) return; lpFired = false; clearTimeout(lpT);
-      lpT = setTimeout(function () { lpFired = true; openSheet(t.getAttribute("data-k")); }, 550);
+      lpT = setTimeout(function () { lpFired = true; openSheet(t.getAttribute("data-i")); }, 550);
     });
     ["pointerup", "pointerleave", "pointercancel", "scroll"].forEach(function (ev) { el.list.addEventListener(ev, function () { clearTimeout(lpT); }, true); });
     el.list.addEventListener("contextmenu", function (e) { if (e.target.closest(".ek-t")) e.preventDefault(); });
-    el.list.addEventListener("click", function (e) { var t = e.target.closest(".ek-t"); if (!t) return; if (lpFired) { lpFired = false; return; } removeItem(t.getAttribute("data-k")); });
-    $("ekUndo").addEventListener("click", function () { if (!undo) return; if (!inList(norm(undo.n))) list.push(undo); undo = null; el.toast.hidden = true; saveList(); render(); });
+    el.list.addEventListener("click", function (e) { var t = e.target.closest(".ek-t"); if (!t) return; if (lpFired) { lpFired = false; return; } removeItem(t.getAttribute("data-i")); });
+    $("ekUndo").addEventListener("click", function () { if (!undo) return; if (!byId(undo.id)) list.push(undo); undo = null; el.toast.hidden = true; saveList(); render(); });
     $("ekShOk").addEventListener("click", closeSheet); $("ekShDel").addEventListener("click", deleteFromSheet);
     el.sheet.addEventListener("click", function (e) { if (e.target === el.sheet) closeSheet(); });
-    el.shQ.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); el.shO.focus(); } else if (e.key === "Escape") closeSheet(); });
-    el.shO.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); el.shN.focus(); } else if (e.key === "Escape") closeSheet(); });
-    el.shN.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); nextFromSheet(el.shN.value); } else if (e.key === "Escape") closeSheet(); });
-    el.shN.addEventListener("input", function () { suggest(el.shN.value, el.shSug); });
-    el.shSug.addEventListener("click", function (e) { var b = e.target.closest(".ek-s"); if (b) nextFromSheet(b.getAttribute("data-n")); });
+    el.shQ.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); closeSheet(); } else if (e.key === "Escape") closeSheet(); });
     var rs = $("ekOrderReset"); if (rs) rs.addEventListener("click", function () { order = CATS.map(function (c) { return c[0]; }); saveOrder(); renderOrder(); render(); });
     if (window.claude && window.claude.use) window.claude.use("db").then(function (d) {
       db = d; if (!d) return;
