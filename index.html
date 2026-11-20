@@ -814,7 +814,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 4.3 &middot; vom 20.11.2026, 11:49 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 4.4 &middot; vom 20.11.2026, 12:55 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -2485,6 +2485,17 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     return kita.db.doc("kita/speisen").set({weeks: JSON.stringify(list)});
   }
   function planData(kd) {
+    var r = planData0(kd);
+    if (kd !== "plan" || !r || r._prev) return r;
+    var tm = ymd(mondayOf(today));
+    if (r.mon <= tm) return r;
+    var p = kita.plans.plan, c = [];
+    try { if (p && p.prev) c.push(cleanWoche(JSON.parse(p.prev))); } catch (e) {}
+    c.push(WOCHE0);
+    for (var i = 0; i < c.length; i++) if (c[i] && c[i].mon === tm) return c[i];
+    return r;
+  }
+  function planData0(kd) {
     var p = kita.plans[kd], fresh = p && p.at && String(p.at).slice(0, 10) > TEXT_AS_OF;
     if (!fresh) return kd === "plan" ? WOCHE0 : MONAT0;
     if (p.parsed) { try { var o = JSON.parse(p.parsed); return kd === "plan" ? cleanWoche(o) : cleanMonat(o); } catch (e) {} }
@@ -2558,7 +2569,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       if (kd === "speise") { var sc = cleanSpeise(v); if (!sc) throw {code: "bad_result"}; return saveSpeise(sc); }
       var c = kd === "plan" ? cleanWoche(v) : cleanMonat(v);
       if (!c) throw {code: "bad_result"};
-      return kita.db.doc(KDOC[kd]).update({parsed: JSON.stringify(c), prev: ''});
+      return kita.db.doc(KDOC[kd]).update({parsed: JSON.stringify(c)});
     });
   }
   function runConvert(kd, blobs) {
