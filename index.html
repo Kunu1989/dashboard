@@ -814,7 +814,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 4.4 &middot; vom 20.11.2026, 12:55 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 4.5 &middot; vom 20.11.2026, 13:04 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -2362,7 +2362,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   window.addEventListener("hashchange", function () { showTab(); bump(); });
 
   /* ---------- Kita-Wochenplan (PDF -> Bilder, geteilt über db + assets) ---------- */
-  var kita = {speisen: [], plans: {plan: null, monat: null, speise: null}, kind: "plan", state: "loading", stale: false, db: null, assets: null, msg: "", convBusy: false};
+  var kita = {tage: [], speisen: [], plans: {plan: null, monat: null, speise: null}, kind: "plan", state: "loading", stale: false, db: null, assets: null, msg: "", convBusy: false};
   var KDOC = {plan: "kita/plan", monat: "kita/monatsplan", speise: "kita/speiseplan"}, KNAME = {plan: "Wochenplan", monat: "Monatsplan", speise: "Speiseplan"};
   function curPlan() { return kita.plans[kita.kind]; }
   var fDMY = fmt({day: "numeric", month: "long", year: "numeric"});
@@ -2484,16 +2484,38 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     kita.speisen = list; kita.lastKw = sc.kw;
     return kita.db.doc("kita/speisen").set({weeks: JSON.stringify(list)});
   }
+  function wEntries(w, o) {
+    if (!w || !w.mon) return;
+    w.days.forEach(function (d, k) {
+      var k2 = ymd(addDays(parse(w.mon), typeof d.i === "number" ? d.i : k));
+      o[k2] = {d: k2, n: d.n, am: d.am, pm: d.pm, th: w.theme || "", no: w.note || ""};
+    });
+  }
+  function tageBase(r0) {
+    var o = {}, p = kita.plans.plan;
+    wEntries(WOCHE0, o);
+    if (p && p.prev) { try { wEntries(cleanWoche(JSON.parse(p.prev)), o); } catch (e) {} }
+    (kita.tage || []).forEach(function (d) { o[d.d] = d; });
+    if (r0 && !r0._prev) wEntries(r0, o);
+    return o;
+  }
+  function tageList(o) {
+    var y = ymd(addDays(today, -1));
+    return Object.keys(o).sort().filter(function (k) { return k >= y; }).map(function (k) { return o[k]; });
+  }
+  function saveTage(w) {
+    var o = tageBase(null); wEntries(w, o);
+    var list = tageList(o);
+    kita.tage = list;
+    return kita.db.doc("kita/tage").set({days: JSON.stringify(list)});
+  }
   function planData(kd) {
-    var r = planData0(kd);
-    if (kd !== "plan" || !r || r._prev) return r;
-    var tm = ymd(mondayOf(today));
-    if (r.mon <= tm) return r;
-    var p = kita.plans.plan, c = [];
-    try { if (p && p.prev) c.push(cleanWoche(JSON.parse(p.prev))); } catch (e) {}
-    c.push(WOCHE0);
-    for (var i = 0; i < c.length; i++) if (c[i] && c[i].mon === tm) return c[i];
-    return r;
+    var r0 = planData0(kd);
+    if (kd !== "plan") return r0;
+    var list = tageList(tageBase(r0));
+    if (!list.length) return r0;
+    var tk = ymd(today), f = list.filter(function (d) { return d.d >= tk; })[0] || list[0];
+    return {theme: f.th || "", note: f.no || "", days: list, _prev: !!(r0 && r0._prev)};
   }
   function planData0(kd) {
     var p = kita.plans[kd], fresh = p && p.at && String(p.at).slice(0, 10) > TEXT_AS_OF;
@@ -2506,8 +2528,8 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
   }
   function renderWoche(W) {
     var tk = ymd(today);
-    $("kitaWoche").innerHTML = !W ? "" : '<h3 class="mo-h">Wochenplan' + (W.title ? " " + esc(W.title) : "") + '</h3>' + (W.theme ? '<h3 class="mo-h mo-sub">Wochenthema: ' + esc(W.theme) + '</h3>' : "") + (W.note ? '<h3 class="mo-h mo-sub">' + esc(W.note) + '</h3>' : "") + '<div class="wo-scroll" id="woScroll"><div class="menu-days wo-days">' + W.days.map(function (d, idx) {
-      var dt = addDays(parse(W.mon), typeof d.i === "number" ? d.i : idx), k = ymd(dt);
+    $("kitaWoche").innerHTML = !W ? "" : (W.theme ? '<h3 class="mo-h mo-sub">Wochenthema: ' + esc(W.theme) + '</h3>' : "") + (W.note ? '<h3 class="mo-h mo-sub">' + esc(W.note) + '</h3>' : "") + '<div class="wo-scroll" id="woScroll"><div class="menu-days wo-days">' + W.days.map(function (d, idx) {
+      var dt = d.d ? parse(d.d) : addDays(parse(W.mon), typeof d.i === "number" ? d.i : idx), k = ymd(dt);
       return '<div class="mday' + (k === tk ? " today" : k < tk ? " past" : "") + '"><h3>' + esc(d.n) + '<small>' + dt.getDate() + '.' + (dt.getMonth() + 1) + '.</small></h3>' +
         '<ul>' + d.am.map(function (x) { var hl = x.charAt(0) === "*"; return '<li' + (hl ? ' class="veg"' : '') + '>' + esc(hl ? x.slice(1) : x) + '</li>'; }).join("") + '</ul>' +
         (d.pm.length ? '<div class="wo-pm"><span class="vt">Nachmittag</span>' + d.pm.map(function (x) { return '<div>' + esc(x) + '</div>'; }).join("") + '</div>' : '') + '</div>';
@@ -2569,7 +2591,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       if (kd === "speise") { var sc = cleanSpeise(v); if (!sc) throw {code: "bad_result"}; return saveSpeise(sc); }
       var c = kd === "plan" ? cleanWoche(v) : cleanMonat(v);
       if (!c) throw {code: "bad_result"};
-      return kita.db.doc(KDOC[kd]).update({parsed: JSON.stringify(c)});
+      return kita.db.doc(KDOC[kd]).update({parsed: JSON.stringify(c)}).then(function () { return kd === "plan" ? saveTage(c) : null; });
     });
   }
   function runConvert(kd, blobs) {
@@ -2662,6 +2684,12 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
             kitaView();
           }, function () { clearTimeout(timer); kita.state = "err"; kitaView(); });
         });
+        db.doc("kita/tage").onSnapshot(function (s) {
+          var w = []; try { w = s.exists && s.data().days ? JSON.parse(s.data().days) : []; } catch (e) {}
+          kita.tage = (Array.isArray(w) ? w : []).filter(function (d) { return d && isoOk(d.d) && typeof d.n === "string" && Array.isArray(d.am) && Array.isArray(d.pm); }).map(function (d) {
+            return {d: d.d, n: str(d.n, 20), am: d.am.slice(0, 15).map(function (x) { return str(x, 160); }).filter(Boolean), pm: d.pm.slice(0, 6).map(function (x) { return str(x, 160); }).filter(Boolean), th: str(d.th, 120), no: str(d.no, 200)};
+          }); kitaView();
+        }, function () {});
         db.doc("kita/speisen").onSnapshot(function (s) {
           var w = []; try { w = s.exists && s.data().weeks ? JSON.parse(s.data().weeks) : []; } catch (e) {}
           kita.speisen = (Array.isArray(w) ? w : []).map(cleanSpeise).filter(Boolean); kitaView();
