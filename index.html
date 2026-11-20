@@ -804,7 +804,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 3.9 &middot; vom 20.11.2026, 11:15 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 4.0 &middot; vom 20.11.2026, 11:20 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -2521,7 +2521,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     if (c === "not_granted") return "Die Umwandlung in Text wurde nicht erlaubt.";
     if (c === "unavailable" || c === "images_unavailable") return "Die Umwandlung in Text ist auf diesem Gerät nicht möglich.";
     if (c === "rate_limited") return "Zu viele Anfragen, bitte gleich noch einmal „In Text umwandeln“ drücken.";
-    return "Die Umwandlung in Text hat nicht geklappt" + (c ? " (" + c + ")" : "") + ". Mit „In Text umwandeln“ lässt sich das wiederholen.";
+    return "Die Umwandlung in Text hat nicht geklappt" + (c ? " (" + c + (e && e.message ? ": " + String(e.message).slice(0, 200) : "") + ")" : "") + ". Mit „In Text umwandeln“ lässt sich das wiederholen.";
   }
   function heldPrev(kd, old) {
     if (kd === "speise" || !old) return "";
