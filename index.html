@@ -795,7 +795,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 3.5 &middot; vom 20.11.2026, 06:35 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 3.6 &middot; vom 20.11.2026, 06:40 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -806,7 +806,7 @@ footer { font-size: 12px; color: var(--muted); }
       <div id="ekSug" class="ek-sug"></div>
       <div id="ekList" class="ek-grid"></div>
       <p id="ekEmpty" class="ek-empty">Die Liste ist leer. Tippe oben einen Artikel ein.</p>
-      <p class="ek-hint">Enter = hinzufügen und gleich Menge oder Notiz eingeben. Antippen = erledigt, der Artikel verschwindet. Lange drücken = Details ändern.</p>
+      <p class="ek-hint">Enter = hinzufügen. Antippen = erledigt, der Artikel verschwindet. Lange drücken = Menge, Notiz oder Kategorie ändern.</p>
     </section>
     <div id="ekToast" class="ek-toast" hidden><span id="ekToastT"></span><button type="button" id="ekUndo">Rückgängig</button></div>
     <div id="ekSheet" class="ek-sheet" hidden><div role="dialog" aria-modal="true" aria-labelledby="ekShT"><h3 id="ekShT"></h3>
@@ -1731,7 +1731,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     if (!el.list) return;
     renderOrder(); render();
     el.input.addEventListener("input", function () { suggest(el.input.value); });
-    el.form.addEventListener("submit", function (e) { e.preventDefault(); var k = addItem(pickTyped(el.input.value)); el.input.value = ""; el.sug.textContent = ""; if (k) openSheet(k); else el.input.focus(); });
+    el.form.addEventListener("submit", function (e) { e.preventDefault(); addItem(pickTyped(el.input.value)); el.input.value = ""; el.sug.textContent = ""; el.input.focus(); });
     el.sug.addEventListener("click", function (e) { var b = e.target.closest(".ek-s"); if (!b) return; addItem(b.getAttribute("data-n")); el.input.value = ""; el.sug.textContent = ""; el.input.focus(); });
     el.list.addEventListener("pointerdown", function (e) {
       var t = e.target.closest(".ek-t"); if (!t) return; lpFired = false; clearTimeout(lpT);
