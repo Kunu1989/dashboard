@@ -804,7 +804,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 3.8 &middot; vom 20.11.2026, 10:59 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 3.9 &middot; vom 20.11.2026, 11:15 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -2470,7 +2470,10 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     var p = kita.plans[kd], fresh = p && p.at && String(p.at).slice(0, 10) > TEXT_AS_OF;
     if (!fresh) return kd === "plan" ? WOCHE0 : MONAT0;
     if (p.parsed) { try { var o = JSON.parse(p.parsed); return kd === "plan" ? cleanWoche(o) : cleanMonat(o); } catch (e) {} }
-    return null;
+    var q = null;
+    if (p.prev) { try { var o2 = JSON.parse(p.prev); q = kd === "plan" ? cleanWoche(o2) : cleanMonat(o2); } catch (e) {} }
+    if (!q) q = kd === "plan" ? WOCHE0 : MONAT0;
+    return Object.assign({}, q, {_prev: true});
   }
   function renderWoche(W) {
     var tk = ymd(today);
@@ -2520,6 +2523,12 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     if (c === "rate_limited") return "Zu viele Anfragen, bitte gleich noch einmal „In Text umwandeln“ drücken.";
     return "Die Umwandlung in Text hat nicht geklappt" + (c ? " (" + c + ")" : "") + ". Mit „In Text umwandeln“ lässt sich das wiederholen.";
   }
+  function heldPrev(kd, old) {
+    if (kd === "speise" || !old) return "";
+    if (old.parsed) return old.parsed;
+    if (old.prev) return old.prev;
+    return JSON.stringify(kd === "plan" ? WOCHE0 : MONAT0);
+  }
   function convertPlan(kd, blobs) {
     return useCap("sample").then(function (sm) {
       if (!sm) throw {code: "unavailable"};
@@ -2531,7 +2540,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       if (kd === "speise") { var sc = cleanSpeise(v); if (!sc) throw {code: "bad_result"}; return saveSpeise(sc); }
       var c = kd === "plan" ? cleanWoche(v) : cleanMonat(v);
       if (!c) throw {code: "bad_result"};
-      return kita.db.doc(KDOC[kd]).update({parsed: JSON.stringify(c)});
+      return kita.db.doc(KDOC[kd]).update({parsed: JSON.stringify(c), prev: ''});
     });
   }
   function runConvert(kd, blobs) {
@@ -2570,22 +2579,23 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     }
     var p = curPlan(), nm = KNAME[kita.kind], pages = p && Array.isArray(p.pages) ? p.pages.filter(function (x) { return ID32.test(x); }) : [];
     var txt = isMo || isWo, fresh = !txt || (p && p.at && String(p.at).slice(0, 10) > TEXT_AS_OF);
-    if (txt && (pdat || !fresh)) pages = [];
-    var pdf = !(txt && (pdat || !fresh)) && p && ID32.test(p.pdf || "") ? p.pdf : null;
+    var held = !!(pdat && pdat._prev);
+    if (txt && ((pdat && !held) || !fresh)) pages = [];
+    var pdf = !(txt && ((pdat && !held) || !fresh)) && p && ID32.test(p.pdf || "") ? p.pdf : null;
     var at = p && p.at ? new Date(p.at) : null;
     $("kitaMeta").textContent = p && !(txt && !fresh) ? "Hochgeladen am " + (at && !isNaN(at) ? fDMY(at) : "?") : "";
     var link = $("kitaPdf");
     link.hidden = !pdf;
     if (pdf) link.setAttribute("href", window.__assetUrl(pdf));
     $("kitaUp").hidden = true;
-    $("kitaConv").hidden = !(txt && !pdat && fresh && pages.length && !kita.convBusy && kita.assets && window.__canConvert);
+    $("kitaConv").hidden = !(txt && (!pdat || held) && fresh && pages.length && !kita.convBusy && kita.assets && window.__canConvert);
     $("kitaUpTxt").textContent = "Neuen " + nm + " hochladen";
     $("kkPlan").setAttribute("aria-pressed", String(kita.kind === "plan"));
     $("kkMonat").setAttribute("aria-pressed", String(kita.kind === "monat"));
     $("kkSpeise").setAttribute("aria-pressed", String(kita.kind === "speise"));
     var host = $("kitaPages");
     if (pages.length) {
-      host.innerHTML = (txt ? '<p class="menu-note">' + (kita.convBusy ? "Wird in Text umgewandelt …" : "Dieser Plan ist noch nicht in Text umgewandelt.") + '</p>' : "") + pages.map(function (id, i) { return '<img class="kitaImg" src="' + window.__assetUrl(id) + '" alt="' + nm + ', Seite ' + (i + 1) + '">'; }).join("");
+      host.innerHTML = (txt ? '<p class="menu-note">' + (kita.convBusy ? "Wird in Text umgewandelt …" : "Der neue Plan ist noch nicht in Text umgewandelt, oben steht bis dahin der bisherige.") + '</p>' : "") + pages.map(function (id, i) { return '<img class="kitaImg" src="' + window.__assetUrl(id) + '" alt="' + nm + ', Seite ' + (i + 1) + '">'; }).join("");
       Array.prototype.forEach.call(host.querySelectorAll("img"), function (img) {
         img.addEventListener("error", function () { var d = document.createElement("div"); d.className = "none"; d.textContent = "Dieses Bild kann gerade nicht geladen werden."; img.replaceWith(d); });
       });
@@ -2711,7 +2721,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     });
     p.then(function () {
       var old = kita.plans[kd], nm = files[0].name.slice(0, 70) + (files.length > 1 ? " (+" + (files.length - 1) + ")" : "");
-      return kita.db.doc(KDOC[kd]).set({pdf: null, pages: uploaded.slice(), name: nm, at: new Date().toISOString()}).then(function () {
+      return kita.db.doc(KDOC[kd]).set({pdf: null, pages: uploaded.slice(), name: nm, at: new Date().toISOString(), prev: heldPrev(kd, old)}).then(function () {
         committed = true;
         return dropAssets(old ? [old.pdf].concat(Array.isArray(old.pages) ? old.pages : []) : []);
       });
@@ -2744,7 +2754,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       return p;
     }).then(function () {
       var old = kita.plans[kd];
-      return kita.db.doc(KDOC[kd]).set({pdf: pdfId, pages: pageIds, name: file.name.slice(0, 80), at: new Date().toISOString()}).then(function () {
+      return kita.db.doc(KDOC[kd]).set({pdf: pdfId, pages: pageIds, name: file.name.slice(0, 80), at: new Date().toISOString(), prev: heldPrev(kd, old)}).then(function () {
         committed = true;
         var oldIds = old ? [old.pdf].concat(Array.isArray(old.pages) ? old.pages : []) : [];
         return dropAssets(oldIds);
