@@ -346,7 +346,7 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ek-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 40; display: flex; gap: 14px; align-items: center; background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 12px; font-size: 15px; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
 .ek-toast[hidden] { display: none; }
 .ek-toast button { font: inherit; font-weight: 700; background: none; border: 0; color: inherit; text-decoration: underline; cursor: pointer; }
-.ek-sheet { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.ek-sheet { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.45); display: flex; align-items: flex-start; justify-content: center; padding: max(16px, 6vh) 16px 16px; overflow-y: auto; }
 .ek-sheet[hidden] { display: none; }
 .ek-sheet > div { width: min(100%, 380px); background: var(--surface); color: var(--ink); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
 .ek-sheet h3 { margin: 0; font-size: 19px; }
@@ -359,6 +359,21 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ek-mv:disabled { opacity: .3; cursor: default; }
 @media (min-width: 701px) { #ekList { max-height: calc(100vh - 430px); min-height: 160px; overflow-y: auto; padding: 3px; margin: 5px -3px -3px; scrollbar-width: none; } #ekList::-webkit-scrollbar { display: none; } }
 .tab { min-height: 78px; }
+
+.ek-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ek-two label, .ek-next { min-width: 0; }
+.ek-next { padding-top: 6px; border-top: 1px solid var(--line); }
+.ek-next input { border: 2px solid var(--accent); }
+.ek-sheet .ek-sug { margin: 0; }
+.ek-bt .ek-del { margin-right: auto; }
+.ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.ad-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+@media (max-width: 700px) {
+  .ad-cols { display: flex; flex-direction: column; gap: 18px; }
+  .ad-col { display: contents; }
+  .ad-cols [aria-labelledby="adT2"] { order: 1; } .ad-cols [aria-labelledby="adT1"] { order: 2; } .ad-cols [aria-labelledby="adTq"] { order: 3; }
+  .ad-cols [aria-labelledby="adTc"] { order: 4; } .ad-cols [aria-labelledby="adTe"] { order: 5; } .ad-cols [aria-labelledby="adTl"] { order: 6; }
+}
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
 .ab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 420px)); gap: 14px; }
 @media (max-width: 700px) { .ab-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -723,13 +738,31 @@ footer { font-size: 12px; color: var(--muted); }
   </div>
 
   <div class="panel" id="p-admin" hidden>
-    <div class="ad-pair">
-    <section class="card" aria-labelledby="adT2">
+    <div class="ad-cols">
+    <div class="ad-col">
+<section class="card" aria-labelledby="adT2">
       <div class="card-head"><h2 id="adT2">Kita-Pläne hochladen</h2></div>
       <div class="ad-btns" id="adKita"></div>
       <div id="adKitaStatus" class="kita-status" role="status"></div>
     </section>
-    <section class="card" aria-labelledby="adT1">
+<section class="card" aria-labelledby="adTq">
+      <div class="card-head"><h2 id="adTq">Import &amp; Export</h2></div>
+      <h3 class="lc-h" style="margin-top:0">Excel-Import: Zitate und Vorlesen</h3>
+      <p class="muted ad-note" style="margin:0 0 12px" id="adQInfo"></p>
+      <div class="ad-btns">
+        <label class="fsbtn"><span>Excel hochladen</span><input type="file" id="adQFile" class="vh" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
+      </div>
+      <div id="adQStatus" class="kita-status" role="status"></div>
+      <p class="muted ad-note">Blätter: „Zitate“ (Zitat, Autor), „Orte“ (Kürzel, Name), „Ignorieren“ (Terminanfang), „Sonderwörter“ (Wort, Lesart, Art), „Farben“ (Kalender, Farbe). Vorhandene Blätter ersetzen die jeweilige Liste, fehlende bleiben wie sie sind. Erste Zeile = Überschrift.</p>
+    
+      <h3 class="lc-h">Sicherung (Export)</h3>
+      <p class="muted ad-note" style="margin:0 0 12px">Speichert Zitate, Orte, Ignorierliste, Sonderwörter und Kalenderfarben als Excel-Datei. Mit dem Excel-Import lässt sich alles wieder einspielen.</p>
+      <div class="ad-btns"><button type="button" class="fsbtn" id="adBak">Einstellungen als Excel sichern</button></div>
+      <div id="adBakStatus" class="kita-status" role="status"></div>
+    </section>
+    </div>
+    <div class="ad-col">
+<section class="card" aria-labelledby="adT1">
       <div class="card-head"><h2 id="adT1">Zeiten</h2></div>
       <div class="ad-rows">
         <label class="ad-row"><span>Diashow: Wechsel alle</span><select id="adSec" aria-label="Sekunden pro Bild"></select></label>
@@ -739,36 +772,18 @@ footer { font-size: 12px; color: var(--muted); }
       </div>
       <p class="muted ad-note">Diese Zeiten gelten für alle Geräte, nur die Startseite gilt allein für dieses Gerät.</p>
     </section>
-    </div>
-    <div class="ad-pair">
-    <section class="card" aria-labelledby="adTq">
-      <div class="card-head"><h2 id="adTq">Excel-Import: Zitate und Vorlesen</h2></div>
-      <p class="muted ad-note" style="margin:0 0 12px" id="adQInfo"></p>
-      <div class="ad-btns">
-        <label class="fsbtn"><span>Excel hochladen</span><input type="file" id="adQFile" class="vh" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
-      </div>
-      <div id="adQStatus" class="kita-status" role="status"></div>
-      <p class="muted ad-note">Blätter: „Zitate“ (Zitat, Autor), „Orte“ (Kürzel, Name), „Ignorieren“ (Terminanfang), „Sonderwörter“ (Wort, Lesart, Art), „Farben“ (Kalender, Farbe). Vorhandene Blätter ersetzen die jeweilige Liste, fehlende bleiben wie sie sind. Erste Zeile = Überschrift.</p>
-    </section>
-    <section class="card" aria-labelledby="adTb">
-      <div class="card-head"><h2 id="adTb">Sicherung</h2></div>
-      <p class="muted ad-note" style="margin:0 0 12px">Speichert Zitate, Orte, Ignorierliste, Sonderwörter und Kalenderfarben als Excel-Datei. Mit dem Excel-Import lässt sich alles wieder einspielen.</p>
-      <div class="ad-btns"><button type="button" class="fsbtn" id="adBak">Einstellungen als Excel sichern</button></div>
-      <div id="adBakStatus" class="kita-status" role="status"></div>
-    </section>
-    </div>
-    <details class="card ad-fold" aria-labelledby="adTc">
+<details class="card ad-fold" aria-labelledby="adTc">
       <summary class="card-head"><h2 id="adTc">Farben</h2><span class="ad-chev" aria-hidden="true"></span></summary>
       <h3 class="lc-h" style="margin-top:0">Kalenderfarben</h3>
       <div class="legend" id="adColors"></div>
     </details>
-    <details class="card ad-fold" aria-labelledby="adTe">
+<details class="card ad-fold" aria-labelledby="adTe">
       <summary class="card-head"><h2 id="adTe">Einkauf: Reihenfolge</h2><span class="ad-chev" aria-hidden="true"></span></summary>
       <p class="ab-lead">Die Einkaufsliste wird in dieser Reihenfolge sortiert, zum Beispiel so, wie du durch den Laden gehst. Gilt für alle Geräte.</p>
       <div id="ekOrder"></div>
       <div class="ad-btns" style="margin-top:12px"><button type="button" class="fsbtn" id="ekOrderReset">Standard-Reihenfolge</button></div>
     </details>
-    <details class="card ad-fold" aria-labelledby="adTl">
+<details class="card ad-fold" aria-labelledby="adTl">
       <summary class="card-head"><h2 id="adTl">Verbindung zum Google-Script</h2><span class="ad-chev" aria-hidden="true"></span></summary>
       <p class="muted ad-note" style="margin:0 0 12px">Das Script liefert Kalender, gemeinsame Einstellungen, Kita-Textumwandlung und Abfahrten. Link und Schlüssel stehen in der Anleitung. Die Eingabe gilt nur auf diesem Gerät. Wetter braucht nichts.</p>
       <div class="ad-rows">
@@ -778,7 +793,9 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
       <div id="calMsg" class="kita-status" role="status"></div>
     </details>
-    <p class="ad-ver" id="adVer">Version 3.3 &middot; vom 20.11.2026, 06:06 Uhr</p>
+    </div>
+    </div>
+    <p class="ad-ver" id="adVer">Version 3.4 &middot; vom 20.11.2026, 06:21 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -789,13 +806,15 @@ footer { font-size: 12px; color: var(--muted); }
       <div id="ekSug" class="ek-sug"></div>
       <div id="ekList" class="ek-grid"></div>
       <p id="ekEmpty" class="ek-empty">Die Liste ist leer. Tippe oben einen Artikel ein.</p>
-      <p class="ek-hint">Antippen = erledigt, der Artikel verschwindet. Lange drücken = Menge oder Kategorie ändern.</p>
+      <p class="ek-hint">Enter = hinzufügen und gleich Menge, Notiz und nächsten Artikel eingeben. Antippen = erledigt, der Artikel verschwindet. Lange drücken = Details ändern.</p>
     </section>
     <div id="ekToast" class="ek-toast" hidden><span id="ekToastT"></span><button type="button" id="ekUndo">Rückgängig</button></div>
     <div id="ekSheet" class="ek-sheet" hidden><div role="dialog" aria-modal="true" aria-labelledby="ekShT"><h3 id="ekShT"></h3>
-      <label>Menge oder Notiz<input id="ekShQ" type="text" maxlength="30" placeholder="z. B. 2 l"></label>
+      <div class="ek-two"><label>Menge<input id="ekShQ" type="text" maxlength="30" placeholder="z. B. 2 l" autocomplete="off" enterkeyhint="next"></label><label>Notiz<input id="ekShO" type="text" maxlength="60" placeholder="z. B. reif" autocomplete="off" enterkeyhint="next"></label></div>
       <label>Kategorie<select id="ekShC"></select></label>
-      <div class="ek-bt"><button type="button" class="fsbtn" id="ekShNo">Abbrechen</button><button type="button" class="fsbtn" id="ekShOk">Speichern</button></div></div></div>
+      <label class="ek-next">Nächster Artikel<input id="ekShN" type="text" placeholder="Artikel eingeben …" autocomplete="off" autocapitalize="sentences" enterkeyhint="done"></label>
+      <div id="ekShSug" class="ek-sug"></div>
+      <div class="ek-bt"><button type="button" class="fsbtn ek-del" id="ekShDel">Entfernen</button><button type="button" class="fsbtn" id="ekShOk">Fertig</button></div></div></div>
   </div>
   <div class="panel" id="p-bilder" hidden>
     <section class="card" aria-labelledby="biTitle">
@@ -1583,7 +1602,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   function cleanList(v) {
     var o = []; try { o = JSON.parse(v || "[]"); } catch (e) {}
     if (!Array.isArray(o)) return [];
-    return o.map(function (x) { return x && typeof x.n === "string" && x.n.trim() ? {n: x.n.slice(0, 60), c: CAT_NAME[x.c] ? x.c : "sonst", e: typeof x.e === "string" ? x.e.slice(0, 8) : "🛒", q: typeof x.q === "string" ? x.q.slice(0, 30) : ""} : null; }).filter(Boolean).slice(0, 300);
+    return o.map(function (x) { return x && typeof x.n === "string" && x.n.trim() ? {n: x.n.slice(0, 60), c: CAT_NAME[x.c] ? x.c : "sonst", e: typeof x.e === "string" ? x.e.slice(0, 8) : "🛒", q: typeof x.q === "string" ? x.q.slice(0, 30) : "", o: typeof x.o === "string" ? x.o.slice(0, 60) : ""} : null; }).filter(Boolean).slice(0, 300);
   }
   function parseObj(v) { try { var o = JSON.parse(v || "{}"); return o && typeof o === "object" && !Array.isArray(o) ? o : {}; } catch (e) { return {}; } }
   function cleanOrder(v) {
@@ -1612,7 +1631,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       var t = document.createElement("button"); t.type = "button"; t.className = "ek-t"; t.setAttribute("data-k", norm(it.n));
       var i = document.createElement("i"); i.textContent = it.e || "🛒"; t.appendChild(i);
       t.appendChild(document.createTextNode(it.n));
-      if (it.q) { var s = document.createElement("small"); s.textContent = it.q; t.appendChild(s); }
+      if (it.q || it.o) { var s = document.createElement("small"); s.textContent = [it.q, it.o].filter(Boolean).join(" · "); t.appendChild(s); }
       el.list.appendChild(t);
     });
     el.empty.hidden = items.length > 0;
@@ -1623,14 +1642,15 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     var k = norm(name), cat = BY[k];
     var nm = cat ? cat.n : name.trim().replace(/\s+/g, " ").replace(/^./, function (c) { return c.toUpperCase(); }).slice(0, 60);
     var c = cats[k] || (cat ? cat.c : "sonst");
-    return {n: nm, c: c, e: cat ? cat.e : "🛒", q: ""};
+    return {n: nm, c: c, e: cat ? cat.e : "🛒", q: "", o: ""};
   }
   function addItem(name) {
-    name = String(name || "").trim(); if (!name) return;
+    name = String(name || "").trim(); if (!name) return "";
     var it = resolve(name), k = norm(it.n);
-    if (!k) return;
-    if (inList(k)) { flash(k); return; }
+    if (!k) return "";
+    if (inList(k)) { flash(k); return k; }
     list.push(it); counts[it.n] = (counts[it.n] || 0) + 1; saveList(); saveMerk(); render(); flash(k);
+    return k;
   }
   function flash(k) {
     var t = el.list.querySelector('[data-k="' + k + '"]'); if (!t) return;
@@ -1642,8 +1662,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     undo = it; el.toastT.textContent = it.n + " entfernt"; el.toast.hidden = false;
     clearTimeout(undoT); undoT = setTimeout(function () { el.toast.hidden = true; undo = null; }, 6000);
   }
-  function suggest(q) {
-    var k = norm(q); el.sug.textContent = ""; if (!k) return;
+  function matches(k) {
     var pool = CAT_LIST.slice();
     Object.keys(counts).forEach(function (n) { var kk = norm(n); if (kk && !BY[kk]) pool.push({n: n, k: kk, e: "🛒", c: cats[kk] || "sonst"}); });
     var res = [];
@@ -1658,26 +1677,47 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       if (s) res.push({x: x, s: s + Math.min(counts[x.n] || 0, 30) / 10});
     });
     res.sort(function (a, b) { return b.s - a.s || a.x.n.localeCompare(b.x.n, "de"); });
-    res.slice(0, 8).forEach(function (r, i) {
+    return res;
+  }
+  /* Enter übernimmt den ersten Vorschlag, wenn der getippte Text dessen Anfang ist (außer er ist selbst ein bekannter Artikel) */
+  function pickTyped(text) {
+    var k = norm(text); if (!k || BY[k] || inList(k)) return text;
+    var r = matches(k)[0];
+    return r && r.s >= 100 && r.x.k.indexOf(k) === 0 ? r.x.n : text;
+  }
+  function suggest(q, box) {
+    box = box || el.sug; var k = norm(q); box.textContent = ""; if (!k) return;
+    matches(k).slice(0, 8).forEach(function (r, i) {
       var b = document.createElement("button"); b.type = "button"; b.className = "ek-s" + (i === 0 ? " first" : "");
       b.textContent = (r.x.e || "🛒") + " " + r.x.n; b.setAttribute("data-n", r.x.n);
       if (counts[r.x.n] >= 3) { var em = document.createElement("em"); em.textContent = "häufig"; b.appendChild(em); }
-      el.sug.appendChild(b);
+      box.appendChild(b);
     });
   }
-  /* ---------- Menge / Kategorie ---------- */
+  /* ---------- Details (Menge, Notiz) und schnelle Eingabe ---------- */
   var sheetK = null;
-  function openSheet(k) {
+  function openSheet(k, focusNext) {
     var it = null; list.forEach(function (x) { if (norm(x.n) === k) it = x; }); if (!it) return;
-    sheetK = k; el.shT.textContent = it.n; el.shQ.value = it.q || "";
+    sheetK = k; el.shT.textContent = (it.e || "🛒") + " " + it.n; el.shQ.value = it.q || ""; el.shO.value = it.o || ""; el.shN.value = ""; el.shSug.textContent = "";
     el.shC.textContent = ""; order.forEach(function (c) { var o = document.createElement("option"); o.value = c; o.textContent = CAT_NAME[c]; el.shC.appendChild(o); });
-    el.shC.value = it.c; el.sheet.hidden = false; setTimeout(function () { el.shQ.focus(); }, 50);
+    el.shC.value = it.c; el.sheet.hidden = false; setTimeout(function () { (focusNext ? el.shN : el.shQ).focus(); }, 30);
   }
-  function closeSheet() { el.sheet.hidden = true; sheetK = null; }
-  function saveSheet() {
-    list.forEach(function (x) { if (norm(x.n) === sheetK) { x.q = el.shQ.value.trim().slice(0, 30); if (x.c !== el.shC.value) { x.c = el.shC.value; cats[sheetK] = x.c; saveMerk(); } } });
-    saveList(); render(); closeSheet();
+  function saveSheetFields() {
+    if (!sheetK) return;
+    list.forEach(function (x) {
+      if (norm(x.n) !== sheetK) return;
+      x.q = el.shQ.value.trim().slice(0, 30); x.o = el.shO.value.trim().slice(0, 60);
+      if (x.c !== el.shC.value) { x.c = el.shC.value; cats[sheetK] = x.c; saveMerk(); }
+    });
+    saveList(); render();
   }
+  function closeSheet() { saveSheetFields(); el.sheet.hidden = true; sheetK = null; try { el.input.focus(); } catch (e) {} }
+  function nextFromSheet(name) {
+    name = String(name || "").trim();
+    if (!name) { closeSheet(); return; }
+    saveSheetFields(); var k = addItem(pickTyped(name)); if (k) openSheet(k, true); else closeSheet();
+  }
+  function deleteFromSheet() { var k = sheetK; if (!k) return; el.sheet.hidden = true; sheetK = null; removeItem(k); try { el.input.focus(); } catch (e) {} }
   /* ---------- Reihenfolge der Kategorien (Optionen) ---------- */
   function renderOrder() {
     var box = $("ekOrder"); if (!box) return; box.textContent = "";
@@ -1695,11 +1735,11 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
   function start() {
     el = {list: $("ekList"), sug: $("ekSug"), input: $("ekInput"), form: $("ekForm"), empty: $("ekEmpty"), count: $("ekCount"), toast: $("ekToast"), toastT: $("ekToastT"),
-      sheet: $("ekSheet"), shT: $("ekShT"), shQ: $("ekShQ"), shC: $("ekShC")};
+      sheet: $("ekSheet"), shT: $("ekShT"), shQ: $("ekShQ"), shO: $("ekShO"), shC: $("ekShC"), shN: $("ekShN"), shSug: $("ekShSug")};
     if (!el.list) return;
     renderOrder(); render();
     el.input.addEventListener("input", function () { suggest(el.input.value); });
-    el.form.addEventListener("submit", function (e) { e.preventDefault(); addItem(el.input.value); el.input.value = ""; el.sug.textContent = ""; el.input.focus(); });
+    el.form.addEventListener("submit", function (e) { e.preventDefault(); var k = addItem(pickTyped(el.input.value)); el.input.value = ""; el.sug.textContent = ""; if (k) openSheet(k, true); else el.input.focus(); });
     el.sug.addEventListener("click", function (e) { var b = e.target.closest(".ek-s"); if (!b) return; addItem(b.getAttribute("data-n")); el.input.value = ""; el.sug.textContent = ""; el.input.focus(); });
     el.list.addEventListener("pointerdown", function (e) {
       var t = e.target.closest(".ek-t"); if (!t) return; lpFired = false; clearTimeout(lpT);
@@ -1709,8 +1749,13 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     el.list.addEventListener("contextmenu", function (e) { if (e.target.closest(".ek-t")) e.preventDefault(); });
     el.list.addEventListener("click", function (e) { var t = e.target.closest(".ek-t"); if (!t) return; if (lpFired) { lpFired = false; return; } removeItem(t.getAttribute("data-k")); });
     $("ekUndo").addEventListener("click", function () { if (!undo) return; if (!inList(norm(undo.n))) list.push(undo); undo = null; el.toast.hidden = true; saveList(); render(); });
-    $("ekShOk").addEventListener("click", saveSheet); $("ekShNo").addEventListener("click", closeSheet);
-    el.shQ.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); saveSheet(); } else if (e.key === "Escape") closeSheet(); });
+    $("ekShOk").addEventListener("click", closeSheet); $("ekShDel").addEventListener("click", deleteFromSheet);
+    el.sheet.addEventListener("click", function (e) { if (e.target === el.sheet) closeSheet(); });
+    el.shQ.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); el.shO.focus(); } else if (e.key === "Escape") closeSheet(); });
+    el.shO.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); el.shN.focus(); } else if (e.key === "Escape") closeSheet(); });
+    el.shN.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); nextFromSheet(el.shN.value); } else if (e.key === "Escape") closeSheet(); });
+    el.shN.addEventListener("input", function () { suggest(el.shN.value, el.shSug); });
+    el.shSug.addEventListener("click", function (e) { var b = e.target.closest(".ek-s"); if (b) nextFromSheet(b.getAttribute("data-n")); });
     var rs = $("ekOrderReset"); if (rs) rs.addEventListener("click", function () { order = CATS.map(function (c) { return c[0]; }); saveOrder(); renderOrder(); render(); });
     if (window.claude && window.claude.use) window.claude.use("db").then(function (d) {
       db = d; if (!d) return;
