@@ -804,7 +804,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 4.1 &middot; vom 20.11.2026, 11:29 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 4.2 &middot; vom 20.11.2026, 11:45 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -1049,10 +1049,10 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       var blobs = (o && o.images) || [];
       return Promise.all(blobs.map(toJpegB64)).then(function (list) {
         var body = {action: "convert", prompt: String(prompt), images: list.map(function (d) { return {mime: "image/jpeg", data: d}; })};
-        /* Gemini ist manchmal überlastet (503): bis zu 4 Versuche mit wachsender Pause */
+        /* Gemini ist manchmal überlastet (503): bis zu 3 Versuche mit wachsender Pause */
         function go(n) {
-          return post(body, 170000).catch(function (e) {
-            if (n < 4 && e && /503|overload|high demand|unavailable/i.test(String(e.message || ""))) return new Promise(function (ok) { setTimeout(ok, 6000 * n); }).then(function () { return go(n + 1); });
+          return post(body, 75000).catch(function (e) {
+            if (n < 3 && e && /503|overload|high demand|unavailable|Zeit/i.test(String(e.message || ""))) return new Promise(function (ok) { setTimeout(ok, 6000 * n); }).then(function () { return go(n + 1); });
             throw e;
           });
         }
