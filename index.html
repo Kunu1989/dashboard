@@ -393,6 +393,8 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ek-in { display: flex; gap: 12px; align-items: center; flex: 0 0 auto; }
 .ek-in input { flex: 1 1 auto; min-width: 0; font-size: 18px; padding: 13px 14px; border: 2px solid var(--accent); border-radius: 12px; background: var(--bg); }
 .ek-cancel { font: inherit; font-size: 16px; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 10px 4px; white-space: nowrap; }
+
+.ek-svg { width: 1.3em; height: 1.3em; vertical-align: -.25em; margin: -.1em 0; }
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 @media (max-width: 700px) {
@@ -822,7 +824,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 5.0 &middot; vom 20.11.2026, 15:32 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 5.1 &middot; vom 20.11.2026, 20:40 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -1615,9 +1617,9 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   var CATS = [["obst", "Obst & Gemüse"], ["back", "Brot & Backwaren"], ["milch", "Milch, Käse & Eier"], ["fleisch", "Fleisch, Wurst & Fisch"], ["tk", "Tiefkühl"], ["vorrat", "Vorrat & Konserven"], ["wuerz", "Gewürze, Öle & Soßen"], ["sues", "Süßes & Snacks"], ["getr", "Getränke"], ["haus", "Haushalt & Drogerie"], ["kind", "Baby & Kind"], ["sonst", "Sonstiges"]];
   var CAT_NAME = {}; CATS.forEach(function (c) { CAT_NAME[c[0]] = c[1]; });
   var DATA = {
-    obst: "Äpfel|🍎;Birnen|🍐;Bananen|🍌;Orangen|🍊;Mandarinen|🍊;Zitronen|🍋;Limetten|🍋;Trauben|🍇;Erdbeeren|🍓;Himbeeren|🍓;Blaubeeren|🫐;Kiwi|🥝;Ananas|🍍;Mango|🥭;Honigmelone|🍈;Wassermelone|🍉;Pfirsiche|🍑;Nektarinen|🍑;Kirschen|🍒;Pflaumen|🍑;Avocado|🥑;Tomaten|🍅;Cocktailtomaten|🍅;Gurke|🥒;Paprika|🫑;Karotten|🥕;Kartoffeln|🥔;Süßkartoffeln|🍠;Zwiebeln|🧅;Frühlingszwiebeln|🧅;Knoblauch|🧄;Brokkoli|🥦;Blumenkohl|🥦;Zucchini|🥒;Aubergine|🍆;Champignons|🍄;Spinat|🥬;Salat|🥬;Eisbergsalat|🥬;Rucola|🥬;Feldsalat|🥬;Kohlrabi|🥬;Lauch|🥬;Sellerie|🥬;Radieschen|🥕;Rote Bete|🍠;Mais|🌽;Erbsen|🫛;Grüne Bohnen|🫛;Ingwer|🫚;Petersilie|🌿;Schnittlauch|🌿;Basilikum|🌿;Dill|🌿;Rosenkohl|🥬;Weißkohl|🥬;Rotkohl|🥬;Fenchel|🥬;Kürbis|🎃;Spargel|🥬;Gemüsekiste|🥕",
+    obst: "Äpfel|🍎;Birnen|🍐;Bananen|🍌;Orangen|🍊;Mandarinen|🍊;Zitronen|🍋;Limetten|🍋;Trauben|🍇;Erdbeeren|🍓;Himbeeren|🍓;Blaubeeren|🫐;Kiwi|🥝;Ananas|🍍;Mango|🥭;Honigmelone|🍈;Wassermelone|🍉;Pfirsiche|🍑;Nektarinen|🍑;Kirschen|🍒;Pflaumen|🍑;Avocado|🥑;Tomaten|🍅;Cocktailtomaten|🍅;Gurke|🥒;Paprika|🫑;Karotten|🥕;Kartoffeln|🥔;Süßkartoffeln|🍠;Zwiebeln|🧅;Frühlingszwiebeln|🧅;Knoblauch|🧄;Brokkoli|🥦;Blumenkohl|@bk;Zucchini|🥒;Aubergine|🍆;Champignons|🍄;Spinat|🥬;Salat|🥬;Eisbergsalat|🥬;Rucola|🥬;Feldsalat|🥬;Kohlrabi|🥬;Lauch|🥬;Sellerie|🥬;Radieschen|🥕;Rote Bete|🍠;Mais|🌽;Erbsen|🫛;Grüne Bohnen|🫛;Ingwer|🫚;Petersilie|🌿;Schnittlauch|🌿;Basilikum|🌿;Dill|🌿;Rosenkohl|🥬;Weißkohl|🥬;Rotkohl|🥬;Fenchel|🥬;Kürbis|🎃;Spargel|🥬;Gemüsekiste|🥕",
     back: "Brot|🍞;Toast|🍞;Toastbrot|🍞;Vollkornbrot|🍞;Brötchen|🥖;Baguette|🥖;Brezeln|🥨;Laugenbrötchen|🥨;Croissants|🥐;Kuchen|🍰;Muffins|🧁;Tortillas|🫓;Wraps|🌯;Fladenbrot|🫓;Knäckebrot|🍞;Zwieback|🍞;Hefe|🧁;Waffeln|🧇",
-    milch: "Milch|🥛;Hafermilch|🥛;Butter|🧈;Margarine|🧈;Sahne|🥛;Schmand|🥛;Joghurt|🥣;Naturjoghurt|🥣;Fruchtjoghurt|🥣;Quark|🥣;Skyr|🥣;Frischkäse|🧀;Käse|🧀;Gouda|🧀;Emmentaler|🧀;Mozzarella|🧀;Parmesan|🧀;Feta|🧀;Camembert|🧀;Reibekäse|🧀;Eier|🥚;Kondensmilch|🥛;Pudding|🍮;Milchreis|🍚",
+    milch: "Milch|🥛;Hafermilch|🥛;Butter|🧈;Margarine|🧈;Sahne|🥛;Schmand|🥛;Joghurt|🥣;Naturjoghurt|🥣;Fruchtjoghurt|🥣;Quark|🥣;Magerquark|@qu;Skyr|🥣;Frischkäse|🧀;Käse|🧀;Gouda|🧀;Emmentaler|🧀;Mozzarella|🧀;Parmesan|🧀;Feta|🧀;Camembert|🧀;Reibekäse|🧀;Eier|🥚;Kondensmilch|🥛;Pudding|🍮;Milchreis|🍚",
     fleisch: "Hähnchen|🍗;Hähnchenbrust|🍗;Putenbrust|🍗;Hackfleisch|🥩;Rindfleisch|🥩;Schweinefleisch|🥩;Steak|🥩;Schnitzel|🥩;Würstchen|🌭;Bratwurst|🌭;Salami|🥓;Schinken|🥓;Speck|🥓;Aufschnitt|🥓;Leberwurst|🥓;Lachs|🐟;Fischstäbchen|🐟;Forelle|🐟;Garnelen|🦐",
     tk: "Tiefkühlpizza|🍕;Tiefkühlgemüse|🥦;Pommes|🍟;Eiscreme|🍨;Tiefkühlbeeren|🍓;Rahmspinat|🥬;Kartoffelecken|🥔;Kroketten|🥔;Hähnchennuggets|🍗;Gemüsepfanne|🥦",
     vorrat: "Nudeln|🍝;Spaghetti|🍝;Tortellini|🍝;Spätzle|🍝;Gnocchi|🍝;Reis|🍚;Basmatireis|🍚;Couscous|🍚;Haferflocken|🥣;Müsli|🥣;Cornflakes|🥣;Mehl|🌾;Zucker|🥄;Vanillezucker|🥄;Backpulver|🧁;Paniermehl|🥖;Maisstärke|🌽;Linsen|🫘;Kichererbsen|🫘;Kidneybohnen|🫘;Dosenmais|🌽;Dosentomaten|🥫;Passierte Tomaten|🥫;Tomatenmark|🥫;Kokosmilch|🥥;Thunfisch|🥫;Suppe|🥫;Kartoffelpüree|🥔;Semmelknödel|🥔;Nüsse|🥜;Mandeln|🥜;Walnüsse|🥜;Rosinen|🍇;Honig|🍯;Marmelade|🍓;Nuss-Nougat-Creme|🍫;Erdnussbutter|🥜;Pesto|🌿",
@@ -1631,7 +1633,13 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   var CAT_LIST = [];
   Object.keys(DATA).forEach(function (c) { DATA[c].split(";").forEach(function (s) { var p = s.split("|"); CAT_LIST.push({n: p[0], e: p[1], c: c}); }); });
   function norm(s) { return String(s || "").toLowerCase().replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss").replace(/[^a-z0-9]/g, ""); }
+  var SVGS = {"@qu": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><path d=\"M13 23l4.200 32q.6 4 4.600 4h20.400q4 0 4.600-4L51 23z\" fill=\"#fdfdfb\" stroke=\"#a9b8c9\" stroke-width=\"2.200\" stroke-linejoin=\"round\"/><path d=\"M14.400 33h35.200l-2 15H16.400z\" fill=\"#3f86d6\"/><path d=\"M32 36.500c2.800 3.300 4.200 5.200 4.200 7.200a4.200 4.200 0 0 1-8.400 0c0-2 1.400-3.900 4.200-7.200z\" fill=\"#fff\"/><rect x=\"10\" y=\"13\" width=\"44\" height=\"11\" rx=\"3.500\" fill=\"#2a63ad\" stroke=\"#1e4a85\" stroke-width=\"2\"/><path d=\"M15 17.200h34\" stroke=\"#6ea5e6\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>", "@bk": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><path d=\"M9 34C6 52 18 60 32 60s26-8 23-26c-5 8-14 12-23 12S14 42 9 34z\" fill=\"#6cb846\" stroke=\"#3f8a2e\" stroke-width=\"2.200\" stroke-linejoin=\"round\"/><path d=\"M32 59V47M22 55l5-7M42 55l-5-7\" stroke=\"#3f8a2e\" stroke-width=\"2\" stroke-linecap=\"round\"/><g fill=\"#f7f0d8\" stroke=\"#d6c99b\" stroke-width=\"2.400\"><circle cx=\"19\" cy=\"31\" r=\"10\"/><circle cx=\"45\" cy=\"31\" r=\"10\"/><circle cx=\"32\" cy=\"22\" r=\"12\"/><circle cx=\"25\" cy=\"38\" r=\"10\"/><circle cx=\"39\" cy=\"38\" r=\"10\"/></g><g fill=\"#f7f0d8\"><circle cx=\"19\" cy=\"31\" r=\"9\"/><circle cx=\"45\" cy=\"31\" r=\"9\"/><circle cx=\"32\" cy=\"22\" r=\"11\"/><circle cx=\"25\" cy=\"38\" r=\"9\"/><circle cx=\"39\" cy=\"38\" r=\"9\"/></g><path d=\"M25 20q3-4 7-3M41 32q-3 3-7 2M17 33q3 2 6 0\" stroke=\"#e3d8b0\" stroke-width=\"2\" stroke-linecap=\"round\" fill=\"none\"/></svg>"};
+  function setIcon(i, e) {
+    if (SVGS[e]) { var m = document.createElement("img"); m.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(SVGS[e]); m.alt = ""; m.className = "ek-svg"; i.appendChild(m); }
+    else i.textContent = e;
+  }
   var BY = {}; CAT_LIST.forEach(function (x) { x.k = norm(x.n); BY[x.k] = x; });
+  function iconOf(it) { var c = BY[norm(it.n)]; return c ? c.e : (it.e || "🛒"); }
   function lev(a, b) {
     var m = a.length, n = b.length, d = [], i, j;
     for (i = 0; i <= m; i++) { d[i] = [i]; } for (j = 1; j <= n; j++) d[0][j] = j;
@@ -1676,7 +1684,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     el.list.textContent = "";
     items.forEach(function (it) {
       var t = document.createElement("button"); t.type = "button"; t.className = "ek-t"; t.setAttribute("data-i", it.id);
-      var i = document.createElement("i"); i.textContent = it.e || "🛒"; t.appendChild(i);
+      var i = document.createElement("i"); setIcon(i, iconOf(it)); t.appendChild(i);
       t.appendChild(document.createTextNode(it.n));
       if (it.q) { var s = document.createElement("small"); s.textContent = it.q; t.appendChild(s); }
       el.list.appendChild(t);
@@ -1734,7 +1742,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   var CHIPS = ["1", "2", "3", "4", "6", "250 g", "500 g", "1 kg", "1 l", "Bio"];
   function tileEl(n, e, letter, small) {
     var t = document.createElement("button"); t.type = "button"; t.className = "ek-t"; t.setAttribute("data-n", n);
-    var i = document.createElement("i"); i.textContent = e; if (letter) i.className = "ek-letter"; t.appendChild(i);
+    var i = document.createElement("i"); setIcon(i, e); if (letter) i.className = "ek-letter"; t.appendChild(i);
     t.appendChild(document.createTextNode(n));
     if (small) { var s = document.createElement("small"); s.textContent = small; t.appendChild(s); }
     return t;
