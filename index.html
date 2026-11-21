@@ -354,6 +354,8 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .panel .row2 { grid-auto-flow: column; grid-template-rows: auto auto; align-items: stretch; }
 .panel .row2 > .col { display: contents; }
 @media (max-width: 900px) { .panel .row2 { grid-auto-flow: row; grid-template-rows: none; } }
+.ie-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; padding: 6px 0; }
+.ie-l { flex: 0 0 96px; font-weight: 700; }
 /* Einkauf */
 .ek-count { font-size: 14px; color: var(--muted); }
 .ek-grid { align-content: start; display: grid; grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 8px; margin-top: 8px; }
@@ -808,18 +810,11 @@ footer { font-size: 12px; color: var(--muted); }
     </section>
 <section class="card" aria-labelledby="adTq">
       <div class="card-head"><h2 id="adTq">Import &amp; Export</h2></div>
-      <h3 class="lc-h" style="margin-top:0">Excel-Import: Zitate und Vorlesen</h3>
-      <p class="muted ad-note" style="margin:0 0 12px" id="adQInfo"></p>
-      <div class="ad-btns">
-        <label class="fsbtn"><span>Excel hochladen</span><input type="file" id="adQFile" class="vh" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
-      </div>
+      <div class="ie-row"><span class="ie-l">Import</span><label class="fsbtn"><span>Excel hochladen</span><input type="file" id="adQFile" class="vh" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label></div>
+      <div class="ie-row"><span class="ie-l">Sicherung</span><button type="button" class="fsbtn" id="adBak">Einstellungen als Excel sichern</button></div>
       <div id="adQStatus" class="kita-status" role="status"></div>
-      <p class="muted ad-note">Blätter: „Zitate“ (Zitat, Autor), „Orte“ (Kürzel, Name), „Ignorieren“ (Terminanfang), „Sonderwörter“ (Wort, Lesart, Art), „Farben“ (Kalender, Farbe), „Einkauf Aldi“ und „Einkauf Norma“ (Artikel, Symbol; die Reihenfolge der Zeilen ist die Reihenfolge der Einkaufsliste). Vorhandene Blätter ersetzen die jeweilige Liste, fehlende bleiben wie sie sind. Erste Zeile = Überschrift.</p>
-    
-      <h3 class="lc-h">Sicherung (Export)</h3>
-      <p class="muted ad-note" style="margin:0 0 12px">Speichert Zitate, Orte, Ignorierliste, Sonderwörter, Kalenderfarben und die Einkaufsartikel (je Laden) als Excel-Datei. Mit dem Excel-Import lässt sich alles wieder einspielen.</p>
-      <div class="ad-btns"><button type="button" class="fsbtn" id="adBak">Einstellungen als Excel sichern</button></div>
       <div id="adBakStatus" class="kita-status" role="status"></div>
+      <p id="adQInfo" hidden></p><button type="button" id="adQReset" hidden style="display:none"></button>
     </section>
 <details class="card ad-fold" aria-labelledby="adTd">
       <summary class="card-head"><h2 id="adTd">Dokumentation</h2><span class="ad-chev" aria-hidden="true"></span></summary>
@@ -855,7 +850,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 6.0 &middot; vom 21.11.2026, 17:58 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 6.1 &middot; vom 21.11.2026, 18:10 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
