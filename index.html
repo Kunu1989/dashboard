@@ -403,6 +403,11 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ek-cancel { font: inherit; font-size: 16px; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 10px 4px; white-space: nowrap; }
 
 .ek-svg { width: 1.3em; height: 1.3em; vertical-align: -.25em; margin: -.1em 0; }
+
+.ek-shops { display: inline-flex; margin-left: auto; border: 1.5px solid var(--accent); border-radius: 999px; overflow: hidden; }
+.ek-shop { font: inherit; font-size: 15px; font-weight: 700; padding: 7px 18px; background: transparent; color: var(--accent); border: 0; cursor: pointer; }
+.ek-shop.on { background: var(--accent); color: #fff; }
+#ekShC { display: none; }
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 @media (max-width: 700px) {
@@ -823,9 +828,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
 <details class="card ad-fold" aria-labelledby="adTe">
       <summary class="card-head"><h2 id="adTe">Einkauf: Reihenfolge</h2><span class="ad-chev" aria-hidden="true"></span></summary>
-      <p class="ab-lead">Die Einkaufsliste wird in dieser Reihenfolge sortiert, zum Beispiel so, wie du durch den Laden gehst. Gilt für alle Geräte.</p>
-      <div id="ekOrder"></div>
-      <div class="ad-btns" style="margin-top:12px"><button type="button" class="fsbtn" id="ekOrderReset">Standard-Reihenfolge</button></div>
+      <p class="ab-lead">Oben in der Einkaufsliste wählst du den Laden (Aldi oder Norma). Die Liste wird dann so sortiert, wie die Artikel im Blatt „Einkauf Aldi“ bzw. „Einkauf Norma“ der Excel-Sicherung stehen. Zum Ändern: Sicherung speichern, Zeilen verschieben oder neue Artikel einfügen, Datei wieder hochladen. Gilt für alle Geräte.</p>
     </details>
 <details class="card ad-fold" aria-labelledby="adTl">
       <summary class="card-head"><h2 id="adTl">Verbindung zum Google-Script</h2><span class="ad-chev" aria-hidden="true"></span></summary>
@@ -844,16 +847,16 @@ footer { font-size: 12px; color: var(--muted); }
     </section>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 5.8 &middot; vom 21.11.2026, 12:20 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 5.9 &middot; vom 21.11.2026, 16:53 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
     <section class="card" id="ekCard" aria-labelledby="ekTitle">
-      <div class="card-head"><h2 id="ekTitle">Einkaufsliste</h2><span id="ekCount" class="ek-count"></span></div>
+      <div class="card-head"><h2 id="ekTitle">Einkaufsliste</h2><span id="ekCount" class="ek-count"></span><div class="ek-shops" role="group" aria-label="Laden"><button type="button" id="ekShopA" class="ek-shop">Aldi</button><button type="button" id="ekShopN" class="ek-shop">Norma</button></div></div>
       <div id="ekList" class="ek-grid"></div>
       <p id="ekEmpty" class="ek-empty">Die Liste ist leer. Tippe unten auf „Ich brauche …“.</p>
-      <p class="ek-hint">Antippen = erledigt, der Artikel verschwindet. Lange drücken = Menge, Notiz oder Kategorie ändern.</p>
+      <p class="ek-hint">Antippen = erledigt, der Artikel verschwindet. Lange drücken = Menge oder Notiz ändern. Aldi / Norma sortiert die Liste nach dem jeweiligen Laden.</p>
     </section>
     <div id="ekBar" class="ek-bar"><button type="button" id="ekOpen" class="ek-fake">Ich brauche …</button><button type="button" id="ekPlus" class="ek-add" aria-label="Artikel hinzufügen">+</button></div>
     <div id="ekToast" class="ek-toast" hidden><span id="ekToastT"></span><button type="button" id="ekUndo">Rückgängig</button></div>
@@ -1712,20 +1715,30 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     sonst: "Blumen|💐;Geschenkpapier|🎁;Briefmarken|✉️;Pflaster|🩹;Katzenfutter|🐱;Hundefutter|🐶;Katzenstreu|🐱"
   };
   var CAT_LIST = [];
-  Object.keys(DATA).forEach(function (c) { DATA[c].split(";").forEach(function (s) { var p = s.split("|"); CAT_LIST.push({n: p[0], e: p[1], c: c}); }); });
+  CATS.forEach(function (cc) { var c = cc[0]; if (DATA[c]) DATA[c].split(";").forEach(function (s) { var p = s.split("|"); CAT_LIST.push({n: p[0], e: p[1], c: c}); }); });
   function norm(s) { return String(s || "").toLowerCase().replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss").replace(/[^a-z0-9]/g, ""); }
   var SVGS = {"@sa": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><g transform=\"rotate(-28 30 26)\"><path d=\"M6 25q-4 1-3 4t3 3\" fill=\"none\" stroke=\"#8a6a3b\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"6\" y=\"17\" width=\"44\" height=\"18\" rx=\"9\" fill=\"#b3382f\" stroke=\"#7a201b\" stroke-width=\"2.200\"/><path d=\"M12 21.500h30\" stroke=\"#d1685c\" stroke-width=\"2\" stroke-linecap=\"round\"/><g fill=\"#f6d9cf\"><circle cx=\"17\" cy=\"28\" r=\"1.700\"/><circle cx=\"26\" cy=\"24\" r=\"1.600\"/><circle cx=\"33\" cy=\"29\" r=\"1.800\"/><circle cx=\"41\" cy=\"25\" r=\"1.600\"/><circle cx=\"22\" cy=\"30\" r=\"1.300\"/><circle cx=\"38\" cy=\"31\" r=\"1.300\"/></g></g><circle cx=\"44\" cy=\"44\" r=\"14\" fill=\"#8e5a3a\" stroke=\"#6e4128\" stroke-width=\"2.200\"/><circle cx=\"44\" cy=\"44\" r=\"11.500\" fill=\"#c9473c\"/><g fill=\"#f6d9cf\"><circle cx=\"39\" cy=\"40\" r=\"2\"/><circle cx=\"47\" cy=\"38.500\" r=\"1.800\"/><circle cx=\"49\" cy=\"47\" r=\"2\"/><circle cx=\"41\" cy=\"49\" r=\"1.800\"/><circle cx=\"44\" cy=\"44\" r=\"1.400\"/></g></svg>", "@sc": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><g transform=\"rotate(-30 30 34)\"><path d=\"M48 31q9-1 9 6t-7 6\" fill=\"none\" stroke=\"none\"/><rect x=\"46\" y=\"29\" width=\"14\" height=\"9\" rx=\"3\" fill=\"#f4ecd8\" stroke=\"#b9a984\" stroke-width=\"2\"/><circle cx=\"61\" cy=\"30.500\" r=\"4\" fill=\"#f4ecd8\" stroke=\"#b9a984\" stroke-width=\"2\"/><circle cx=\"61\" cy=\"37.500\" r=\"4\" fill=\"#f4ecd8\" stroke=\"#b9a984\" stroke-width=\"2\"/><path d=\"M8 34c0-12 10-19 24-19 10 0 17 6 17 19s-7 19-17 19C18 53 8 46 8 34z\" fill=\"#dd7f74\" stroke=\"#a5453c\" stroke-width=\"2.200\"/><path d=\"M12 28c3-7 10-9 19-9\" fill=\"none\" stroke=\"#efa89e\" stroke-width=\"2.200\" stroke-linecap=\"round\"/><ellipse cx=\"14\" cy=\"34\" rx=\"6\" ry=\"12\" fill=\"#f6b1b1\" stroke=\"#a5453c\" stroke-width=\"2\"/><path d=\"M12 30q3 2 4 6\" fill=\"none\" stroke=\"#fce1de\" stroke-width=\"1.800\" stroke-linecap=\"round\"/><path d=\"M26 22q-2 12 2 28M36 20q2 14-2 31\" fill=\"none\" stroke=\"#b9584e\" stroke-width=\"1.600\" stroke-linecap=\"round\" opacity=\".7\"/></g></svg>", "@qu": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><path d=\"M13 23l4.200 32q.6 4 4.600 4h20.400q4 0 4.600-4L51 23z\" fill=\"#fdfdfb\" stroke=\"#a9b8c9\" stroke-width=\"2.200\" stroke-linejoin=\"round\"/><path d=\"M14.400 33h35.200l-2 15H16.400z\" fill=\"#3f86d6\"/><path d=\"M32 36.500c2.800 3.300 4.200 5.200 4.200 7.200a4.200 4.200 0 0 1-8.400 0c0-2 1.400-3.900 4.200-7.200z\" fill=\"#fff\"/><rect x=\"10\" y=\"13\" width=\"44\" height=\"11\" rx=\"3.500\" fill=\"#2a63ad\" stroke=\"#1e4a85\" stroke-width=\"2\"/><path d=\"M15 17.200h34\" stroke=\"#6ea5e6\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>", "@bk": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><path d=\"M9 34C6 52 18 60 32 60s26-8 23-26c-5 8-14 12-23 12S14 42 9 34z\" fill=\"#6cb846\" stroke=\"#3f8a2e\" stroke-width=\"2.200\" stroke-linejoin=\"round\"/><path d=\"M32 59V47M22 55l5-7M42 55l-5-7\" stroke=\"#3f8a2e\" stroke-width=\"2\" stroke-linecap=\"round\"/><g fill=\"#f7f0d8\" stroke=\"#d6c99b\" stroke-width=\"2.400\"><circle cx=\"19\" cy=\"31\" r=\"10\"/><circle cx=\"45\" cy=\"31\" r=\"10\"/><circle cx=\"32\" cy=\"22\" r=\"12\"/><circle cx=\"25\" cy=\"38\" r=\"10\"/><circle cx=\"39\" cy=\"38\" r=\"10\"/></g><g fill=\"#f7f0d8\"><circle cx=\"19\" cy=\"31\" r=\"9\"/><circle cx=\"45\" cy=\"31\" r=\"9\"/><circle cx=\"32\" cy=\"22\" r=\"11\"/><circle cx=\"25\" cy=\"38\" r=\"9\"/><circle cx=\"39\" cy=\"38\" r=\"9\"/></g><path d=\"M25 20q3-4 7-3M41 32q-3 3-7 2M17 33q3 2 6 0\" stroke=\"#e3d8b0\" stroke-width=\"2\" stroke-linecap=\"round\" fill=\"none\"/></svg>"};
   function setIcon(i, e) {
     if (SVGS[e]) { var m = document.createElement("img"); m.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(SVGS[e]); m.alt = ""; m.className = "ek-svg"; i.appendChild(m); }
     else i.textContent = e;
   }
-  var CAT_BASE = CAT_LIST.slice(), BY = {};
-  /* Katalog (Artikel mit Kategorie und Symbol): eingebaut oder aus der Excel-Sicherung (Dokument einkauf/katalog) */
-  var catRaw = null;
-  function setCatalog(rows) {
-    catRaw = rows && rows.length ? rows : null;
-    CAT_LIST = catRaw ? catRaw.map(function (x) { return {n: x.n, c: CAT_NAME[x.c] ? x.c : "sonst", e: x.e}; }) : CAT_BASE.slice(); BY = {};
-    CAT_LIST.forEach(function (x) { x.k = norm(x.n); BY[x.k] = x; });
+  var CAT_BASE = CAT_LIST.slice(), BY = {}, catRaw = null, ORD = {aldi: {}, norma: {}}, SHOPS = ["aldi", "norma"], shop = "aldi";
+  try { var sv = localStorage.getItem("fd:ekshop"); if (sv === "norma" || sv === "aldi") shop = sv; } catch (e) {}
+  /* Katalog je Laden: Reihenfolge der Artikel = Reihenfolge in der Einkaufsliste (Blätter „Einkauf Aldi“ / „Einkauf Norma“ der Excel-Sicherung) */
+  function curRaw() {
+    var b = CAT_BASE.map(function (x) { return {n: x.n, e: x.e}; });
+    return catRaw ? {aldi: catRaw.aldi.slice(), norma: catRaw.norma.slice()} : {aldi: b, norma: b.slice()};
+  }
+  function setCatalog(raw) {
+    catRaw = raw && raw.aldi.length && raw.norma.length ? raw : null;
+    var r = curRaw(); CAT_LIST = []; BY = {}; ORD = {aldi: {}, norma: {}};
+    SHOPS.forEach(function (key) {
+      r[key].forEach(function (x, i) {
+        var k = norm(x.n); if (!k) return;
+        if (!BY[k]) { var o = {n: x.n, e: x.e, c: "sonst", k: k}; BY[k] = o; CAT_LIST.push(o); }
+        if (ORD[key][k] == null) ORD[key][k] = i;
+      });
+    });
   }
   setCatalog(null);
   function iconOf(it) { var c = BY[norm(it.n)]; return c ? c.e : (it.e || "🛒"); }
@@ -1772,7 +1785,9 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
 
   /* ---------- Anzeige ---------- */
   function sorted() {
-    return list.slice().sort(function (a, b) { var d = order.indexOf(catOf(a)) - order.indexOf(catOf(b)); return d || a.n.localeCompare(b.n, "de"); });
+    var o = ORD[shop] || {};
+    return list.map(function (x, i) { var p = o[norm(x.n)]; return [x, p == null ? 1e6 : p, i]; })
+      .sort(function (a, b) { return a[1] - b[1] || a[2] - b[2]; }).map(function (a) { return a[0]; });
   }
   function render() {
     if (!el.list) return;
@@ -1798,6 +1813,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   function addItem(name) {
     name = String(name || "").trim(); if (!name) return "";
     var it = resolve(name); if (!norm(it.n)) return "";
+    if (!BY[norm(it.n)]) { var rw = curRaw(); SHOPS.forEach(function (key) { rw[key].push({n: it.n, e: it.e || "🛒"}); }); setCatalog(rw); saveCat(); }
     list.push(it); counts[it.n] = (counts[it.n] || 0) + 1; saveList(); saveMerk(); render(); flash(it.id);
     return it.id;
   }
@@ -1907,7 +1923,9 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       input: $("ekInput"), close: $("ekClose"), form: $("ekForm")};
     if (!el.list) return;
     CHIPS.forEach(function (c) { var b = document.createElement("button"); b.type = "button"; b.className = "ek-chip"; b.textContent = c; b.setAttribute("data-c", c); el.chips.appendChild(b); });
-    renderOrder(); render(); placeBar();
+    function shopUI() { SHOPS.forEach(function (k) { var b = $(k === "aldi" ? "ekShopA" : "ekShopN"); if (b) { b.classList.toggle("on", shop === k); b.setAttribute("aria-pressed", shop === k ? "true" : "false"); } }); }
+    [["ekShopA", "aldi"], ["ekShopN", "norma"]].forEach(function (p) { var b = $(p[0]); if (b) b.addEventListener("click", function () { shop = p[1]; try { localStorage.setItem("fd:ekshop", shop); } catch (e) {} shopUI(); render(); }); });
+    shopUI(); renderOrder(); render(); placeBar();
     window.addEventListener("resize", placeBar); window.addEventListener("orientationchange", function () { setTimeout(placeBar, 300); });
     window.addEventListener("hashchange", function () { setTimeout(placeBar, 60); setTimeout(placeBar, 400); }); setInterval(placeBar, 1500);
     if (window.visualViewport) { window.visualViewport.addEventListener("resize", fitSheet); window.visualViewport.addEventListener("scroll", fitSheet); }
@@ -1957,97 +1975,58 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       db = d; if (!d) return;
       d.doc("einkauf/liste").onSnapshot(function (s) { if (pending) return; if (s && s.exists) { var nl = cleanList((s.data() || {}).items); if (JSON.stringify(nl) !== JSON.stringify(list)) { list = nl; render(); } } });
       d.doc("einkauf/merk").onSnapshot(function (s) { if (mPending || mT) return; if (s && s.exists) { var o = s.data() || {}; counts = parseObj(o.counts); cats = parseObj(o.cats); Object.keys(cats).forEach(function (k) { if (cats[k] === "fleisch" && BY[k] && (BY[k].c === "wurst" || BY[k].c === "fisch")) cats[k] = BY[k].c; }); } });
-      d.doc("einkauf/kategorien").onSnapshot(function (s) { if (cPending) return; var nc = s && s.exists ? cleanCats((s.data() || {}).cats) : [], sg = JSON.stringify(nc); if (sg !== cSig) { cSig = sg; setCats(nc); } });
-      d.doc("einkauf/katalog").onSnapshot(function (s) { if (kPending) return; var nc = s && s.exists ? cleanCat((s.data() || {}).items) : [], sg = JSON.stringify(nc); if (sg !== catSig) { catSig = sg; setCatalog(nc); render(); } });
+      d.doc("einkauf/katalog").onSnapshot(function (s) { if (kPending) return; var raw = s && s.exists ? toRaw(s.data() || {}) : null, sg = JSON.stringify(raw); if (sg !== catSig) { catSig = sg; setCatalog(raw); render(); } });
       d.doc("settings/einkaufreihenfolge").onSnapshot(function (s) { if (oPending) return; if (s && s.exists) { var no = cleanOrder((s.data() || {}).order); if (no.join() !== order.join()) { order = no; renderOrder(); render(); } } });
     });
   }
 
-  /* ---------- Excel-Sicherung: Blatt „Einkauf“ (Kategorie, Artikel, Symbol) ---------- */
+  /* ---------- Excel-Sicherung: Blätter „Einkauf Aldi“ und „Einkauf Norma“ (Artikel, Symbol) ---------- */
   var kPending = 0, catSig = "";
-  function cleanCat(v) {
-    var o = []; try { o = JSON.parse(v || "[]"); } catch (e) {}
+  function cleanShop(v) {
+    var o = v; if (typeof v === "string") { try { o = JSON.parse(v); } catch (e) { o = []; } }
     if (!Array.isArray(o)) return [];
     var seen = {}, r = [];
     o.slice(0, 1500).forEach(function (x) {
       if (!Array.isArray(x) || typeof x[0] !== "string") return;
       var n = x[0].replace(/\s+/g, " ").trim().slice(0, 60), k = norm(n);
       if (!k || seen[k]) return; seen[k] = 1;
-      r.push({n: n, c: CAT_NAME[x[1]] || /^[a-z0-9_]{1,16}$/.test(String(x[1])) ? x[1] : "sonst", e: typeof x[2] === "string" && x[2] ? x[2].slice(0, 8) : "🛒"});
+      r.push({n: n, e: typeof x[1] === "string" && x[1] ? x[1].slice(0, 8) : "🛒"});
     });
     return r;
   }
-  function catId(t, oldN) {
-    var k = norm(t); if (!k) return "sonst";
-    var r = "sonst"; CATS.forEach(function (c) { if (norm(c[1]) === k || c[0] === String(t).trim().toLowerCase()) r = c[0]; });
-    if (r === "sonst" && oldN && oldN[k] && CAT_NAME[oldN[k]]) r = oldN[k];
-    if (r === "sonst" && k.length >= 4) CATS.forEach(function (c) { if (r === "sonst" && norm(c[1]).indexOf(k) === 0) r = c[0]; });
-    return r;
-  }
-  function saveCats() {
-    if (!db) return;
-    kPending++; cPending++; db.doc("einkauf/kategorien").set({cats: JSON.stringify(CATS)}).catch(function () {}).then(function () { kPending--; cPending--; });
-  }
-  function buildCats(rows) {
-    var oldByName = {}; CATS.forEach(function (c) { oldByName[norm(c[1])] = c[0]; });
-    var used = {}, names = {}, items = [];
-    rows.slice(0, 30).forEach(function (r) {
-      var n = String(r[0] == null ? "" : r[0]).replace(/\s+/g, " ").trim().slice(0, 40), k = norm(n); if (!k || names[k]) return; names[k] = 1;
-      var id = String(r[1] == null ? "" : r[1]).trim().toLowerCase(); if (!/^[a-z0-9_]{1,16}$/.test(id) || used[id]) id = "";
-      if (id) used[id] = 1; items.push({n: n, k: k, id: id});
-    });
-    items.forEach(function (x) {
-      if (x.id) return;
-      var o = oldByName[x.k];
-      if (o && !used[o]) x.id = o;
-      else { do { x.id = "k" + Math.random().toString(36).slice(2, 7); } while (used[x.id]); }
-      used[x.id] = 1;
-    });
-    if (!items.length) return null;
-    var out = items.map(function (x) { return [x.id, x.n]; });
-    if (!used.sonst) out.push(["sonst", CAT_NAME.sonst || "Sonstiges"]);
-    return out;
+  function toRaw(d) {
+    if (d.aldi || d.norma) { var a = cleanShop(d.aldi), n = cleanShop(d.norma); return a.length && n.length ? {aldi: a, norma: n} : null; }
+    var o = []; try { o = JSON.parse(d.items || "[]"); } catch (e) {}
+    var l = cleanShop(Array.isArray(o) ? o.map(function (x) { return [x && x[0], x && x[2]]; }) : []);
+    return l.length ? {aldi: l, norma: l.slice()} : null;
   }
   function saveCat() {
-    if (!db) return;
-    var arr = CAT_LIST.map(function (x) { return [x.n, x.c, x.e]; });
-    kPending++; db.doc("einkauf/katalog").set({items: JSON.stringify(arr)}).catch(function () {}).then(function () { kPending--; });
+    if (!db) return; var r = curRaw();
+    function ser(a) { return JSON.stringify(a.map(function (x) { return [x.n, x.e]; })); }
+    catSig = JSON.stringify(catRaw ? {aldi: catRaw.aldi, norma: catRaw.norma} : null);
+    kPending++; db.doc("einkauf/katalog").set({aldi: ser(r.aldi), norma: ser(r.norma)}).catch(function () {}).then(function () { kPending--; });
+  }
+  function parseRows(rows, key) {
+    var seen = {}, res = [];
+    rows.forEach(function (r) {
+      var old = r.length >= 3, n = String(r[old ? 1 : 0] == null ? "" : r[old ? 1 : 0]).replace(/\s+/g, " ").trim().slice(0, 60), k = norm(n); if (!k) return;
+      var e = String(r[old ? 2 : 1] == null ? "" : r[old ? 2 : 1]).trim(), b = BY[k];
+      if (!/[^\x00-\x7f]/.test(e) || e.length > 8) e = b ? b.e : "🛒";
+      if (seen[k] != null) res[seen[k]] = {n: n, e: e}; else { seen[k] = res.length; res.push({n: n, e: e}); }
+    });
+    return res.slice(0, 1500);
   }
   window.__ekCatalog = {
-    rows: function () {
-      var out = [];
-      CATS.forEach(function (c) { CAT_LIST.forEach(function (x) { if (x.c === c[0]) out.push([c[1], x.n, SVGS[x.e] ? "(Bild)" : x.e]); }); });
+    rows: function (key) { return curRaw()[key].map(function (x) { return [x.n, SVGS[x.e] ? "(Bild)" : x.e]; }); },
+    importRows: function (aRows, nRows, oRows) {
+      var r = curRaw(), out = {a: 0, n: 0};
+      if (oRows && !aRows && !nRows) { aRows = oRows; nRows = oRows; }
+      var a = aRows ? parseRows(aRows) : null, n = nRows ? parseRows(nRows) : null;
+      if (a && a.length) { r.aldi = a; out.a = a.length; }
+      if (n && n.length) { r.norma = n; out.n = n.length; }
+      if (!out.a && !out.n) return out;
+      setCatalog(r); saveCat(); render();
       return out;
-    },
-    cats: function () { return CATS.map(function (c) { return [c[1], c[0]]; }); },
-    importRows: function (rows, catRows) {
-      var oldN = {}, nCats = 0; CATS.forEach(function (c) { oldN[norm(c[1])] = c[0]; });
-      if (catRows && catRows.length) {
-        var nc = buildCats(catRows);
-        if (nc) {
-          setCats(nc); nCats = nc.length;
-          order = nc.map(function (c) { return c[0]; }); cSig = JSON.stringify(nc);
-          Object.keys(cats).forEach(function (k) { if (!CAT_NAME[cats[k]]) cats[k] = "sonst"; });
-          list.forEach(function (x) { if (!CAT_NAME[x.c]) x.c = "sonst"; });
-          saveCats(); saveOrder(); renderOrder();
-        }
-      }
-      rows = rows || [];
-      var seen = {}, res = [];
-      rows.forEach(function (r) {
-        var n = String(r[1] == null ? "" : r[1]).replace(/\s+/g, " ").trim().slice(0, 60), k = norm(n); if (!k) return;
-        var e = String(r[2] == null ? "" : r[2]).trim(), old = BY[k] || null;
-        if (!/[^\x00-\x7f]/.test(e) || e.length > 8) e = old ? old.e : "🛒";
-        var item = {n: n, c: catId(r[0], oldN), e: e};
-        if (seen[k] != null) res[seen[k]] = item; else { seen[k] = res.length; res.push(item); }
-      });
-      if (!res.length) { if (nCats) { setCatalog(catRaw); saveCat(); saveMerk(); saveList(); render(); } return {c: nCats, a: 0}; }
-      setCatalog(res.slice(0, 1500));
-      res.forEach(function (x) { delete cats[norm(x.n)]; });
-      list.forEach(function (x) { var b = BY[norm(x.n)]; if (b) x.c = b.c; });
-      catSig = JSON.stringify(cleanCat(JSON.stringify(CAT_LIST.map(function (x) { return [x.n, x.c, x.e]; }))));
-      saveCat(); saveMerk(); saveList(); render();
-      return {c: nCats, a: res.length};
     }
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
@@ -3826,7 +3805,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
         add("Orte", ["Kürzel", "Gesprochener Name"], Object.keys(STATIONS).sort().map(function (c) { return [c, STATIONS[c]]; }), [14, 44]);
         add("Ignorieren", ["Terminanfang (wird nicht vorgelesen)"], IGN_ALL.map(function (t) { return [t]; }), [50]);
         add("Sonderwörter", ["Wort im Kalender", "Wird gelesen als", "Art"], SPEC, [22, 44, 16]);
-        if (window.__ekCatalog) { add("Einkauf", ["Kategorie", "Artikel", "Symbol"], window.__ekCatalog.rows(), [26, 32, 12]); add("Einkaufskategorien", ["Kategorie", "Kennung (nicht ändern, bei neuen Zeilen leer lassen)"], window.__ekCatalog.cats(), [34, 48]); }
+        if (window.__ekCatalog) { var ekh = ["Artikel (Reihenfolge der Zeilen = Reihenfolge in der Einkaufsliste)", "Symbol"]; add("Einkauf Aldi", ekh, window.__ekCatalog.rows("aldi"), [60, 12]); add("Einkauf Norma", ekh, window.__ekCatalog.rows("norma"), [60, 12]); }
         add("Farben", ["Kalender", "Farbe"], ORDER.map(function (k) { return [CALS[k].name, calColor(k)]; }).concat(window.__lineColors ? window.__lineColors.rows() : []), [24, 14]);
         var d = new Date(), pad = function (n) { return (n < 10 ? "0" : "") + n; };
         var name = "Familien-Dashboard-Sicherung-" + d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + ".xlsx";
@@ -3882,16 +3861,16 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       Promise.all([loadXlsx(), f.arrayBuffer()]).then(function (v) {
         var X = v[0], wb = X.read(new Uint8Array(v[1]), {type: "array"}), done = [], doneP = [];
         var zr = sheetRows(X, wb, "Zitate");
-        if (zr === null && wb.SheetNames.length && !sheetRows(X, wb, "Farben") && !sheetRows(X, wb, "Einkauf") && !sheetRows(X, wb, "Einkaufskategorien") && !sheetRows(X, wb, "Orte") && !sheetRows(X, wb, "Ignorieren") && !sheetRows(X, wb, "Sonderwörter")) {
+        if (zr === null && wb.SheetNames.length && !sheetRows(X, wb, "Farben") && !sheetRows(X, wb, "Einkauf") && !sheetRows(X, wb, "Einkauf Aldi") && !sheetRows(X, wb, "Einkauf Norma") && !sheetRows(X, wb, "Orte") && !sheetRows(X, wb, "Ignorieren") && !sheetRows(X, wb, "Sonderwörter")) {
           var r0 = X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1, defval: ""});
           if (r0.length && /^zitat$/i.test(String(r0[0][0]).trim())) r0.shift();
           zr = r0;
         }
         var list = null;
         if (zr !== null && zr.length) { list = cleanQ(zr); if (!list.length) throw "keine"; }
-        else if (zr !== null && !(sheetRows(X, wb, "Einkauf") || sheetRows(X, wb, "Einkaufskategorien") || sheetRows(X, wb, "Farben") || sheetRows(X, wb, "Orte") || sheetRows(X, wb, "Ignorieren") || sheetRows(X, wb, "Sonderwörter"))) throw "keine";
-        var ekr = sheetRows(X, wb, "Einkauf"), ekc = sheetRows(X, wb, "Einkaufskategorien");
-        if ((ekr !== null || ekc !== null) && window.__ekCatalog) { var ekn = window.__ekCatalog.importRows(ekr || [], ekc || []); if (ekn.c) doneP.push(ekn.c + " Einkaufskategorien"); if (ekn.a) doneP.push(ekn.a + " Einkaufsartikel"); }
+        else if (zr !== null && !(sheetRows(X, wb, "Einkauf") || sheetRows(X, wb, "Einkauf Aldi") || sheetRows(X, wb, "Einkauf Norma") || sheetRows(X, wb, "Farben") || sheetRows(X, wb, "Orte") || sheetRows(X, wb, "Ignorieren") || sheetRows(X, wb, "Sonderwörter"))) throw "keine";
+        var eka = sheetRows(X, wb, "Einkauf Aldi"), ekn = sheetRows(X, wb, "Einkauf Norma"), eko = sheetRows(X, wb, "Einkauf");
+        if ((eka !== null || ekn !== null || eko !== null) && window.__ekCatalog) { var ekr = window.__ekCatalog.importRows(eka, ekn, eko); if (ekr.a) doneP.push(ekr.a + " Artikel Aldi"); if (ekr.n) doneP.push(ekr.n + " Artikel Norma"); }
         var orte = sheetRows(X, wb, "Orte"), ign = sheetRows(X, wb, "Ignorieren"), sond = sheetRows(X, wb, "Sonderwörter"), far = sheetRows(X, wb, "Farben");
         if (far !== null) {
           var nf = 0;
