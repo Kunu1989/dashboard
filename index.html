@@ -408,13 +408,25 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ek-shop { font: inherit; font-size: 15px; font-weight: 700; padding: 7px 18px; background: transparent; color: var(--accent); border: 0; cursor: pointer; }
 .ek-shop.on { background: var(--accent); color: #fff; }
 #ekShC { display: none; }
+
+.ek-chips { display: none; }
+.ek-bar { justify-content: flex-end; pointer-events: none; }
+.ek-bar .ek-add { pointer-events: auto; width: 64px; height: 56px; }
+/* breite Bildschirme / Querformat: Eingabe oben im Dialog, damit die Bildschirmtastatur sie nicht verdeckt */
+@media (min-width: 700px), (orientation: landscape) {
+  .ek-sheet { justify-content: flex-start; padding-top: max(10px, env(safe-area-inset-top, 0px)); box-sizing: border-box; }
+  .ek-pn { border-radius: 18px; padding-top: 14px; max-height: calc(100% - 20px); }
+  .ek-grab { display: none; }
+  .ek-in { order: -1; margin-bottom: 12px; }
+  .ek-mid { justify-content: flex-start; }
+}
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 @media (max-width: 700px) {
   .ad-cols { display: flex; flex-direction: column; gap: 18px; }
   .ad-col { display: contents; }
   .ad-cols [aria-labelledby="adT2"] { order: 1; } .ad-cols [aria-labelledby="adT1"] { order: 2; } .ad-cols [aria-labelledby="adTq"] { order: 3; }
-  .ad-cols [aria-labelledby="adTc"] { order: 4; } .ad-cols [aria-labelledby="adTe"] { order: 5; } .ad-cols [aria-labelledby="adTl"] { order: 6; } .ad-cols [aria-labelledby="adTd"] { order: 7; }
+  .ad-cols [aria-labelledby="adTc"] { order: 4; } .ad-cols [aria-labelledby="adTl"] { order: 6; } .ad-cols [aria-labelledby="adTd"] { order: 3; }
 }
 .ad-btns a.fsbtn { display: inline-block; text-decoration: none; }
 .ab-lead { margin: 0 0 14px; color: var(--muted); font-size: 15px; max-width: 70ch; }
@@ -802,13 +814,18 @@ footer { font-size: 12px; color: var(--muted); }
         <label class="fsbtn"><span>Excel hochladen</span><input type="file" id="adQFile" class="vh" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
       </div>
       <div id="adQStatus" class="kita-status" role="status"></div>
-      <p class="muted ad-note">Blätter: „Zitate“ (Zitat, Autor), „Orte“ (Kürzel, Name), „Ignorieren“ (Terminanfang), „Sonderwörter“ (Wort, Lesart, Art), „Farben“ (Kalender, Farbe). Vorhandene Blätter ersetzen die jeweilige Liste, fehlende bleiben wie sie sind. Erste Zeile = Überschrift.</p>
+      <p class="muted ad-note">Blätter: „Zitate“ (Zitat, Autor), „Orte“ (Kürzel, Name), „Ignorieren“ (Terminanfang), „Sonderwörter“ (Wort, Lesart, Art), „Farben“ (Kalender, Farbe), „Einkauf Aldi“ und „Einkauf Norma“ (Artikel, Symbol; die Reihenfolge der Zeilen ist die Reihenfolge der Einkaufsliste). Vorhandene Blätter ersetzen die jeweilige Liste, fehlende bleiben wie sie sind. Erste Zeile = Überschrift.</p>
     
       <h3 class="lc-h">Sicherung (Export)</h3>
-      <p class="muted ad-note" style="margin:0 0 12px">Speichert Zitate, Orte, Ignorierliste, Sonderwörter und Kalenderfarben als Excel-Datei. Mit dem Excel-Import lässt sich alles wieder einspielen.</p>
+      <p class="muted ad-note" style="margin:0 0 12px">Speichert Zitate, Orte, Ignorierliste, Sonderwörter, Kalenderfarben und die Einkaufsartikel (je Laden) als Excel-Datei. Mit dem Excel-Import lässt sich alles wieder einspielen.</p>
       <div class="ad-btns"><button type="button" class="fsbtn" id="adBak">Einstellungen als Excel sichern</button></div>
       <div id="adBakStatus" class="kita-status" role="status"></div>
     </section>
+<details class="card ad-fold" aria-labelledby="adTd">
+      <summary class="card-head"><h2 id="adTd">Dokumentation</h2><span class="ad-chev" aria-hidden="true"></span></summary>
+      <p class="ad-note">Das ausführliche Handbuch mit Inhaltsverzeichnis: Bedienung, Einstellungen, Vorlesen, Technik und Fehlersuche.</p>
+      <div class="ad-btns"><a class="fsbtn" id="adDoc" href="Dokumentation.pdf" download="Familien-Dashboard-Handbuch.pdf">Dokumentation herunterladen (PDF)</a> <a class="fsbtn" href="Dokumentation.html" target="_blank" rel="noopener">Im Browser öffnen</a></div>
+    </details>
     </div>
     <div class="ad-col">
 <section class="card" aria-labelledby="adT1">
@@ -826,10 +843,6 @@ footer { font-size: 12px; color: var(--muted); }
       <h3 class="lc-h" style="margin-top:0">Kalenderfarben</h3>
       <div class="legend" id="adColors"></div>
     </details>
-<details class="card ad-fold" aria-labelledby="adTe">
-      <summary class="card-head"><h2 id="adTe">Einkauf: Reihenfolge</h2><span class="ad-chev" aria-hidden="true"></span></summary>
-      <p class="ab-lead">Oben in der Einkaufsliste wählst du den Laden (Aldi oder Norma). Die Liste wird dann so sortiert, wie die Artikel im Blatt „Einkauf Aldi“ bzw. „Einkauf Norma“ der Excel-Sicherung stehen. Zum Ändern: Sicherung speichern, Zeilen verschieben oder neue Artikel einfügen, Datei wieder hochladen. Gilt für alle Geräte.</p>
-    </details>
 <details class="card ad-fold" aria-labelledby="adTl">
       <summary class="card-head"><h2 id="adTl">Verbindung zum Google-Script</h2><span class="ad-chev" aria-hidden="true"></span></summary>
       <p class="muted ad-note" style="margin:0 0 12px">Das Script liefert Kalender, gemeinsame Einstellungen, Kita-Textumwandlung und Abfahrten. Link und Schlüssel stehen in der Anleitung. Die Eingabe gilt nur auf diesem Gerät. Wetter braucht nichts.</p>
@@ -840,25 +853,19 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
       <div id="calMsg" class="kita-status" role="status"></div>
     </details>
-<section class="card" aria-labelledby="adTd">
-      <div class="card-head"><h2 id="adTd">Dokumentation</h2></div>
-      <p class="ad-note">Das ausführliche Handbuch mit Inhaltsverzeichnis: Bedienung, Einstellungen, Vorlesen, Technik und Fehlersuche.</p>
-      <div class="ad-btns"><a class="fsbtn" id="adDoc" href="Dokumentation.pdf" download="Familien-Dashboard-Handbuch.pdf">Dokumentation herunterladen (PDF)</a> <a class="fsbtn" href="Dokumentation.html" target="_blank" rel="noopener">Im Browser öffnen</a></div>
-    </section>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 5.9 &middot; vom 21.11.2026, 16:53 Uhr</p>
-    <p class="ad-ver" id="adBat"></p>
+    <p class="ad-ver" id="adVer">Version 6.0 &middot; vom 21.11.2026, 17:58 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
     <section class="card" id="ekCard" aria-labelledby="ekTitle">
       <div class="card-head"><h2 id="ekTitle">Einkaufsliste</h2><span id="ekCount" class="ek-count"></span><div class="ek-shops" role="group" aria-label="Laden"><button type="button" id="ekShopA" class="ek-shop">Aldi</button><button type="button" id="ekShopN" class="ek-shop">Norma</button></div></div>
       <div id="ekList" class="ek-grid"></div>
-      <p id="ekEmpty" class="ek-empty">Die Liste ist leer. Tippe unten auf „Ich brauche …“.</p>
+      <p id="ekEmpty" class="ek-empty">Die Liste ist leer. Tippe unten rechts auf das Plus.</p>
       <p class="ek-hint">Antippen = erledigt, der Artikel verschwindet. Lange drücken = Menge oder Notiz ändern. Aldi / Norma sortiert die Liste nach dem jeweiligen Laden.</p>
     </section>
-    <div id="ekBar" class="ek-bar"><button type="button" id="ekOpen" class="ek-fake">Ich brauche …</button><button type="button" id="ekPlus" class="ek-add" aria-label="Artikel hinzufügen">+</button></div>
+    <div id="ekBar" class="ek-bar"><button type="button" id="ekPlus" class="ek-add" aria-label="Artikel hinzufügen">+</button></div>
     <div id="ekToast" class="ek-toast" hidden><span id="ekToastT"></span><button type="button" id="ekUndo">Rückgängig</button></div>
     <div id="ekSheet" class="ek-sheet" hidden><div class="ek-pn" role="dialog" aria-modal="true" aria-label="Artikel hinzufügen">
       <div class="ek-grab"></div>
@@ -1623,7 +1630,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       if (!navigator.getBattery) { say("Akku-Anzeige: Dieses Gerät oder dieser Browser gibt den Akkustand nicht heraus."); return; }
       navigator.getBattery().then(function (b) {
         if (!bat) ["levelchange", "chargingchange"].forEach(function (ev) { b.addEventListener(ev, draw); });
-        bat = b; say("Akku-Anzeige: aktiv"); draw();
+        bat = b; draw();
       }).catch(function () { say("Akku-Anzeige: Abruf fehlgeschlagen, wird erneut versucht."); });
     }
     getBat();
@@ -1922,21 +1929,19 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       sheet: $("ekSheet"), sg: $("ekSg"), det: $("ekDet"), hint: $("ekSgHint"), shT: $("ekShT"), chips: $("ekChips"), shQ: $("ekShQ"), shC: $("ekShC"),
       input: $("ekInput"), close: $("ekClose"), form: $("ekForm")};
     if (!el.list) return;
-    CHIPS.forEach(function (c) { var b = document.createElement("button"); b.type = "button"; b.className = "ek-chip"; b.textContent = c; b.setAttribute("data-c", c); el.chips.appendChild(b); });
     function shopUI() { SHOPS.forEach(function (k) { var b = $(k === "aldi" ? "ekShopA" : "ekShopN"); if (b) { b.classList.toggle("on", shop === k); b.setAttribute("aria-pressed", shop === k ? "true" : "false"); } }); }
     [["ekShopA", "aldi"], ["ekShopN", "norma"]].forEach(function (p) { var b = $(p[0]); if (b) b.addEventListener("click", function () { shop = p[1]; try { localStorage.setItem("fd:ekshop", shop); } catch (e) {} shopUI(); render(); }); });
     shopUI(); renderOrder(); render(); placeBar();
     window.addEventListener("resize", placeBar); window.addEventListener("orientationchange", function () { setTimeout(placeBar, 300); });
     window.addEventListener("hashchange", function () { setTimeout(placeBar, 60); setTimeout(placeBar, 400); }); setInterval(placeBar, 1500);
     if (window.visualViewport) { window.visualViewport.addEventListener("resize", fitSheet); window.visualViewport.addEventListener("scroll", fitSheet); }
-    $("ekOpen").addEventListener("click", function () { openEntry(null, false); });
     $("ekPlus").addEventListener("click", function () { openEntry(null, false); });
     el.close.addEventListener("click", closeSheet);
     el.sheet.addEventListener("click", function (e) { if (e.target === el.sheet) closeSheet(); });
     el.sheet.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
     el.input.addEventListener("input", refreshSheet);
     [el.chips, el.sg, el.close].forEach(function (n) { n.addEventListener("mousedown", function (e) { e.preventDefault(); }); });
-    el.form.addEventListener("submit", function (e) { e.preventDefault(); var t = el.input.value.trim(); if (!t) { closeSheet(); return; } pickItem(pickTyped(t)); });
+    el.form.addEventListener("submit", function (e) { e.preventDefault(); var t = el.input.value.trim(); if (!t) { closeSheet(); return; } pickItem(t); });
     el.sg.addEventListener("click", function (e) { var b = e.target.closest(".ek-t"); if (b) pickItem(b.getAttribute("data-n")); });
     el.chips.addEventListener("click", function (e) {
       var b = e.target.closest(".ek-chip"), x = cur && byId(cur); if (!b || !x) return;
