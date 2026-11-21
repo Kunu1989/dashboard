@@ -350,6 +350,10 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 #sbOv.ab-board { padding: 0; background: transparent; border: 0; border-radius: 0; gap: 0; }
 #sbOv .ab-lst { max-height: none; overflow: visible; padding-right: 0; }
 #sbOv .ab-lst .ab-hd { background: transparent; position: static; }
+/* Übersicht: Heute/Morgen und Wetter, S-Bahn und Zitat jeweils gleich hoch */
+.panel .row2 { grid-auto-flow: column; grid-template-rows: auto auto; align-items: stretch; }
+.panel .row2 > .col { display: contents; }
+@media (max-width: 900px) { .panel .row2 { grid-auto-flow: row; grid-template-rows: none; } }
 /* Einkauf */
 .ek-count { font-size: 14px; color: var(--muted); }
 .ek-grid { align-content: start; display: grid; grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 8px; margin-top: 8px; }
@@ -840,7 +844,7 @@ footer { font-size: 12px; color: var(--muted); }
     </section>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 5.5 &middot; vom 21.11.2026, 11:59 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 5.7 &middot; vom 21.11.2026, 12:13 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -1664,13 +1668,15 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
 <script>
 /* Einkaufsliste: gemeinsame Liste mit Vorschlägen beim Tippen, Kategorien nur für die Sortierung */
 (function () {
-  var CATS = [["obst", "Obst & Gemüse"], ["back", "Brot & Backwaren"], ["milch", "Milch, Käse & Eier"], ["fleisch", "Fleisch, Wurst & Fisch"], ["tk", "Tiefkühl"], ["vorrat", "Vorrat & Konserven"], ["wuerz", "Gewürze, Öle & Soßen"], ["sues", "Süßes & Snacks"], ["getr", "Getränke"], ["haus", "Haushalt & Drogerie"], ["kind", "Baby & Kind"], ["sonst", "Sonstiges"]];
+  var CATS = [["obst", "Obst & Gemüse"], ["back", "Brot & Backwaren"], ["milch", "Milch, Käse & Eier"], ["fleisch", "Frischfleisch"], ["wurst", "Wurst"], ["fisch", "Fisch"], ["tk", "Tiefkühl"], ["vorrat", "Vorrat & Konserven"], ["wuerz", "Gewürze, Öle & Soßen"], ["sues", "Süßes & Snacks"], ["getr", "Getränke"], ["haus", "Haushalt & Drogerie"], ["kind", "Baby & Kind"], ["sonst", "Sonstiges"]];
   var CAT_NAME = {}; CATS.forEach(function (c) { CAT_NAME[c[0]] = c[1]; });
   var DATA = {
     obst: "Äpfel|🍎;Birnen|🍐;Bananen|🍌;Orangen|🍊;Mandarinen|🍊;Zitronen|🍋;Limetten|🍋;Trauben|🍇;Erdbeeren|🍓;Himbeeren|🍓;Blaubeeren|🫐;Kiwi|🥝;Ananas|🍍;Mango|🥭;Honigmelone|🍈;Wassermelone|🍉;Pfirsiche|🍑;Nektarinen|🍑;Kirschen|🍒;Pflaumen|🍑;Avocado|🥑;Tomaten|🍅;Cocktailtomaten|🍅;Gurke|🥒;Paprika|🫑;Karotten|🥕;Kartoffeln|🥔;Süßkartoffeln|🍠;Zwiebeln|🧅;Frühlingszwiebeln|🧅;Knoblauch|🧄;Brokkoli|🥦;Blumenkohl|@bk;Zucchini|🥒;Aubergine|🍆;Champignons|🍄;Spinat|🥬;Salat|🥬;Eisbergsalat|🥬;Rucola|🥬;Feldsalat|🥬;Kohlrabi|🥬;Lauch|🥬;Sellerie|🥬;Radieschen|🥕;Rote Bete|🍠;Mais|🌽;Erbsen|🫛;Grüne Bohnen|🫛;Ingwer|🫚;Petersilie|🌿;Schnittlauch|🌿;Basilikum|🌿;Dill|🌿;Rosenkohl|🥬;Weißkohl|🥬;Rotkohl|🥬;Fenchel|🥬;Kürbis|🎃;Spargel|🥬;Gemüsekiste|🥕",
     back: "Brot|🍞;Toast|🍞;Toastbrot|🍞;Vollkornbrot|🍞;Brötchen|🥖;Baguette|🥖;Brezeln|🥨;Laugenbrötchen|🥨;Croissants|🥐;Kuchen|🍰;Muffins|🧁;Tortillas|🫓;Wraps|🌯;Fladenbrot|🫓;Knäckebrot|🍞;Zwieback|🍞;Hefe|🧁;Waffeln|🧇",
     milch: "Milch|🥛;Hafermilch|🥛;Butter|🧈;Margarine|🧈;Sahne|🥛;Schmand|🥛;Joghurt|🥣;Naturjoghurt|🥣;Fruchtjoghurt|🥣;Quark|🥣;Magerquark|@qu;Skyr|🥣;Frischkäse|🧀;Käse|🧀;Gouda|🧀;Emmentaler|🧀;Mozzarella|🧀;Parmesan|🧀;Feta|🧀;Camembert|🧀;Reibekäse|🧀;Eier|🥚;Kondensmilch|🥛;Pudding|🍮;Milchreis|🍚",
-    fleisch: "Hähnchen|🍗;Hähnchenbrust|🍗;Putenbrust|🍗;Hackfleisch|🥩;Rindfleisch|🥩;Schweinefleisch|🥩;Steak|🥩;Schnitzel|🥩;Würstchen|🌭;Bratwurst|🌭;Salami|@sa;Schinken|@sc;Speck|🥓;Aufschnitt|🥓;Leberwurst|🥓;Lachs|🐟;Fischstäbchen|🐟;Forelle|🐟;Garnelen|🦐",
+    fleisch: "Hähnchen|🍗;Hähnchenbrust|🍗;Putenbrust|🍗;Hackfleisch|🥩;Rindfleisch|🥩;Schweinefleisch|🥩;Steak|🥩;Schnitzel|🥩",
+    wurst: "Würstchen|🌭;Bratwurst|🌭;Salami|@sa;Schinken|@sc;Speck|🥓;Aufschnitt|🥓;Leberwurst|🥓",
+    fisch: "Lachs|🐟;Fischstäbchen|🐟;Forelle|🐟;Garnelen|🦐",
     tk: "Tiefkühlpizza|🍕;Tiefkühlgemüse|🥦;Pommes|🍟;Eiscreme|🍨;Tiefkühlbeeren|🍓;Rahmspinat|🥬;Kartoffelecken|🥔;Kroketten|🥔;Hähnchennuggets|🍗;Gemüsepfanne|🥦",
     vorrat: "Nudeln|🍝;Spaghetti|🍝;Tortellini|🍝;Spätzle|🍝;Gnocchi|🍝;Reis|🍚;Basmatireis|🍚;Couscous|🍚;Haferflocken|🥣;Müsli|🥣;Cornflakes|🥣;Mehl|🌾;Zucker|🥄;Vanillezucker|🥄;Backpulver|🧁;Paniermehl|🥖;Maisstärke|🌽;Linsen|🫘;Kichererbsen|🫘;Kidneybohnen|🫘;Dosenmais|🌽;Dosentomaten|🥫;Passierte Tomaten|🥫;Tomatenmark|🥫;Kokosmilch|🥥;Thunfisch|🥫;Suppe|🥫;Kartoffelpüree|🥔;Semmelknödel|🥔;Nüsse|🥜;Mandeln|🥜;Walnüsse|🥜;Rosinen|🍇;Honig|🍯;Marmelade|🍓;Nuss-Nougat-Creme|🍫;Erdnussbutter|🥜;Pesto|🌿",
     wuerz: "Salz|🧂;Pfeffer|🧂;Paprikapulver|🌶️;Zimt|🧂;Curry|🧂;Oregano|🌿;Olivenöl|🫒;Sonnenblumenöl|🌻;Essig|🧴;Balsamico|🧴;Senf|🧴;Ketchup|🍅;Mayonnaise|🧴;Sojasoße|🧴;Brühe|🥣;Gemüsebrühe|🥣;Tomatensoße|🍅;Salatdressing|🥗;Grillsoße|🧴",
@@ -1688,7 +1694,13 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     if (SVGS[e]) { var m = document.createElement("img"); m.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(SVGS[e]); m.alt = ""; m.className = "ek-svg"; i.appendChild(m); }
     else i.textContent = e;
   }
-  var BY = {}; CAT_LIST.forEach(function (x) { x.k = norm(x.n); BY[x.k] = x; });
+  var CAT_BASE = CAT_LIST.slice(), BY = {};
+  /* Katalog (Artikel mit Kategorie und Symbol): eingebaut oder aus der Excel-Sicherung (Dokument einkauf/katalog) */
+  function setCatalog(rows) {
+    CAT_LIST = rows && rows.length ? rows : CAT_BASE.slice(); BY = {};
+    CAT_LIST.forEach(function (x) { x.k = norm(x.n); BY[x.k] = x; });
+  }
+  setCatalog(null);
   function iconOf(it) { var c = BY[norm(it.n)]; return c ? c.e : (it.e || "🛒"); }
   function lev(a, b) {
     var m = a.length, n = b.length, d = [], i, j;
@@ -1700,19 +1712,26 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   var el = {}, undo = null, undoT = null, lpT = null, lpFired = false;
   function $(id) { return document.getElementById(id); }
   function newId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  /* Früher gab es nur „Fleisch, Wurst & Fisch“ (fleisch): Artikel mit bekanntem Namen wandern in Wurst oder Fisch */
+  function fixCat(x) {
+    var c = CAT_NAME[x.c] ? x.c : "sonst", b = BY[norm(x.n)];
+    if (c === "fleisch" && b && (b.c === "wurst" || b.c === "fisch")) return b.c;
+    return c;
+  }
   function cleanList(v) {
     var o = []; try { o = JSON.parse(v || "[]"); } catch (e) {}
     if (!Array.isArray(o)) return [];
     return o.map(function (x, i) {
       if (!x || typeof x.n !== "string" || !x.n.trim()) return null;
       var q = [typeof x.q === "string" ? x.q.trim() : "", typeof x.o === "string" ? x.o.trim() : ""].filter(Boolean).join(" · ").slice(0, 60);
-      return {id: typeof x.id === "string" && x.id ? x.id.slice(0, 16) : "l" + i + norm(x.n).slice(0, 8), n: x.n.slice(0, 60), c: CAT_NAME[x.c] ? x.c : "sonst", e: typeof x.e === "string" ? x.e.slice(0, 8) : "🛒", q: q};
+      return {id: typeof x.id === "string" && x.id ? x.id.slice(0, 16) : "l" + i + norm(x.n).slice(0, 8), n: x.n.slice(0, 60), c: fixCat(x), e: typeof x.e === "string" ? x.e.slice(0, 8) : "🛒", q: q};
     }).filter(Boolean).slice(0, 300);
   }
   function parseObj(v) { try { var o = JSON.parse(v || "{}"); return o && typeof o === "object" && !Array.isArray(o) ? o : {}; } catch (e) { return {}; } }
   function cleanOrder(v) {
     var o = []; try { o = JSON.parse(v || "[]"); } catch (e) {}
     o = Array.isArray(o) ? o.filter(function (x, i) { return CAT_NAME[x] && o.indexOf(x) === i; }) : [];
+    ["wurst", "fisch"].forEach(function (n, k) { if (o.indexOf(n) < 0 && o.indexOf("fleisch") >= 0) o.splice(o.indexOf("fleisch") + 1 + k, 0, n); });
     CATS.forEach(function (c) { if (o.indexOf(c[0]) < 0) o.push(c[0]); });
     return o;
   }
@@ -1910,10 +1929,62 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     if (window.claude && window.claude.use) window.claude.use("db").then(function (d) {
       db = d; if (!d) return;
       d.doc("einkauf/liste").onSnapshot(function (s) { if (pending) return; if (s && s.exists) { var nl = cleanList((s.data() || {}).items); if (JSON.stringify(nl) !== JSON.stringify(list)) { list = nl; render(); } } });
-      d.doc("einkauf/merk").onSnapshot(function (s) { if (mPending || mT) return; if (s && s.exists) { var o = s.data() || {}; counts = parseObj(o.counts); cats = parseObj(o.cats); } });
+      d.doc("einkauf/merk").onSnapshot(function (s) { if (mPending || mT) return; if (s && s.exists) { var o = s.data() || {}; counts = parseObj(o.counts); cats = parseObj(o.cats); Object.keys(cats).forEach(function (k) { if (cats[k] === "fleisch" && BY[k] && (BY[k].c === "wurst" || BY[k].c === "fisch")) cats[k] = BY[k].c; }); } });
+      d.doc("einkauf/katalog").onSnapshot(function (s) { if (kPending) return; var nc = s && s.exists ? cleanCat((s.data() || {}).items) : [], sg = JSON.stringify(nc); if (sg !== catSig) { catSig = sg; setCatalog(nc); render(); } });
       d.doc("settings/einkaufreihenfolge").onSnapshot(function (s) { if (oPending) return; if (s && s.exists) { var no = cleanOrder((s.data() || {}).order); if (no.join() !== order.join()) { order = no; renderOrder(); render(); } } });
     });
   }
+
+  /* ---------- Excel-Sicherung: Blatt „Einkauf“ (Kategorie, Artikel, Symbol) ---------- */
+  var kPending = 0, catSig = "";
+  function cleanCat(v) {
+    var o = []; try { o = JSON.parse(v || "[]"); } catch (e) {}
+    if (!Array.isArray(o)) return [];
+    var seen = {}, r = [];
+    o.slice(0, 1500).forEach(function (x) {
+      if (!Array.isArray(x) || typeof x[0] !== "string") return;
+      var n = x[0].replace(/\s+/g, " ").trim().slice(0, 60), k = norm(n);
+      if (!k || seen[k]) return; seen[k] = 1;
+      r.push({n: n, c: CAT_NAME[x[1]] ? x[1] : "sonst", e: typeof x[2] === "string" && x[2] ? x[2].slice(0, 8) : "🛒"});
+    });
+    return r;
+  }
+  function catId(t) {
+    var k = norm(t); if (!k) return "sonst";
+    var r = "sonst"; CATS.forEach(function (c) { if (norm(c[1]) === k || c[0] === String(t).trim().toLowerCase()) r = c[0]; });
+    if (r === "sonst" && k.length >= 4) CATS.forEach(function (c) { if (r === "sonst" && norm(c[1]).indexOf(k) === 0) r = c[0]; });
+    return r;
+  }
+  function saveCat() {
+    if (!db) return;
+    var arr = CAT_LIST.map(function (x) { return [x.n, x.c, x.e]; });
+    kPending++; db.doc("einkauf/katalog").set({items: JSON.stringify(arr)}).catch(function () {}).then(function () { kPending--; });
+  }
+  window.__ekCatalog = {
+    rows: function () {
+      var out = [];
+      CATS.forEach(function (c) { CAT_LIST.forEach(function (x) { if (x.c === c[0]) out.push([c[1], x.n, SVGS[x.e] ? "(Bild)" : x.e]); }); });
+      return out;
+    },
+    cats: function () { return CATS.map(function (c) { return [c[1]]; }); },
+    importRows: function (rows) {
+      var seen = {}, res = [];
+      rows.forEach(function (r) {
+        var n = String(r[1] == null ? "" : r[1]).replace(/\s+/g, " ").trim().slice(0, 60), k = norm(n); if (!k) return;
+        var e = String(r[2] == null ? "" : r[2]).trim(), old = BY[k] || null;
+        if (!/[^\x00-\x7f]/.test(e) || e.length > 8) e = old ? old.e : "🛒";
+        var item = {n: n, c: catId(r[0]), e: e};
+        if (seen[k] != null) res[seen[k]] = item; else { seen[k] = res.length; res.push(item); }
+      });
+      if (!res.length) return 0;
+      setCatalog(res.slice(0, 1500));
+      res.forEach(function (x) { delete cats[norm(x.n)]; });
+      list.forEach(function (x) { var b = BY[norm(x.n)]; if (b) x.c = b.c; });
+      catSig = JSON.stringify(cleanCat(JSON.stringify(CAT_LIST.map(function (x) { return [x.n, x.c, x.e]; }))));
+      saveCat(); saveMerk(); saveList(); render();
+      return res.length;
+    }
+  };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
 </script>
@@ -3690,6 +3761,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
         add("Orte", ["Kürzel", "Gesprochener Name"], Object.keys(STATIONS).sort().map(function (c) { return [c, STATIONS[c]]; }), [14, 44]);
         add("Ignorieren", ["Terminanfang (wird nicht vorgelesen)"], IGN_ALL.map(function (t) { return [t]; }), [50]);
         add("Sonderwörter", ["Wort im Kalender", "Wird gelesen als", "Art"], SPEC, [22, 44, 16]);
+        if (window.__ekCatalog) { add("Einkauf", ["Kategorie", "Artikel", "Symbol"], window.__ekCatalog.rows(), [26, 32, 12]); add("Einkaufskategorien", ["Erlaubte Kategorien (Spalte A im Blatt Einkauf)"], window.__ekCatalog.cats(), [48]); }
         add("Farben", ["Kalender", "Farbe"], ORDER.map(function (k) { return [CALS[k].name, calColor(k)]; }).concat(window.__lineColors ? window.__lineColors.rows() : []), [24, 14]);
         var d = new Date(), pad = function (n) { return (n < 10 ? "0" : "") + n; };
         var name = "Familien-Dashboard-Sicherung-" + d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + ".xlsx";
@@ -3745,13 +3817,16 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       Promise.all([loadXlsx(), f.arrayBuffer()]).then(function (v) {
         var X = v[0], wb = X.read(new Uint8Array(v[1]), {type: "array"}), done = [], doneP = [];
         var zr = sheetRows(X, wb, "Zitate");
-        if (zr === null && wb.SheetNames.length && !sheetRows(X, wb, "Farben") && !sheetRows(X, wb, "Orte") && !sheetRows(X, wb, "Ignorieren") && !sheetRows(X, wb, "Sonderwörter")) {
+        if (zr === null && wb.SheetNames.length && !sheetRows(X, wb, "Farben") && !sheetRows(X, wb, "Einkauf") && !sheetRows(X, wb, "Orte") && !sheetRows(X, wb, "Ignorieren") && !sheetRows(X, wb, "Sonderwörter")) {
           var r0 = X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1, defval: ""});
           if (r0.length && /^zitat$/i.test(String(r0[0][0]).trim())) r0.shift();
           zr = r0;
         }
         var list = null;
-        if (zr !== null) { list = cleanQ(zr); if (!list.length) throw "keine"; }
+        if (zr !== null && zr.length) { list = cleanQ(zr); if (!list.length) throw "keine"; }
+        else if (zr !== null && !(sheetRows(X, wb, "Einkauf") || sheetRows(X, wb, "Farben") || sheetRows(X, wb, "Orte") || sheetRows(X, wb, "Ignorieren") || sheetRows(X, wb, "Sonderwörter"))) throw "keine";
+        var ekr = sheetRows(X, wb, "Einkauf");
+        if (ekr !== null && window.__ekCatalog) { var ekn = window.__ekCatalog.importRows(ekr); if (ekn) doneP.push(ekn + " Einkaufsartikel"); }
         var orte = sheetRows(X, wb, "Orte"), ign = sheetRows(X, wb, "Ignorieren"), sond = sheetRows(X, wb, "Sonderwörter"), far = sheetRows(X, wb, "Farben");
         if (far !== null) {
           var nf = 0;
