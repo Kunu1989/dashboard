@@ -285,17 +285,17 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 /* Abfahrten: Handy-Zeile (Zeiten gestapelt), am Tablet/Notebook versteckt */
 .ab-z { display: none; }
 @media (max-width: 700px) {
-  #abView .ab-hd { display: none; }
-  #abView .ab-r:not(.ab-hd) { grid-template-columns: 50px minmax(0, 1fr) auto; grid-template-areas: "l d z" "l m z"; column-gap: 12px; row-gap: 2px; padding: 10px 0; }
-  #abView .ab-r .ab-l { grid-area: l; align-self: center; font-size: 17px; padding: 5px 8px; border-radius: 9px; }
-  #abView .ab-r .ab-dir { grid-area: d; font-weight: 700; font-size: 17px; }
-  #abView .ab-r .ab-c:not(.ab-rt) { display: none; }
-  #abView .ab-r .ab-rt { grid-area: m; text-align: left; font-size: 14px; }
-  #abView .ab-r .ab-z { grid-area: z; display: grid; grid-template-columns: auto auto; gap: 2px 8px; align-items: baseline; justify-items: end; align-self: center; }
-  #abView .ab-z i { font-style: normal; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-  #abView .ab-z b { font-size: 19px; font-weight: 800; }
-  #abView .ab-z b.one { grid-column: 1 / -1; }
-  #abView .ab-z b.late { color: #e0222d; }
+  #abView .ab-hd, #sbOv .ab-hd { display: none; }
+  #abView .ab-r:not(.ab-hd), #sbOv .ab-r:not(.ab-hd) { grid-template-columns: 50px minmax(0, 1fr) auto; grid-template-areas: "l d z" "l m z"; column-gap: 12px; row-gap: 2px; padding: 10px 0; }
+  #abView .ab-r .ab-l, #sbOv .ab-r .ab-l { grid-area: l; align-self: center; font-size: 17px; padding: 5px 8px; border-radius: 9px; }
+  #abView .ab-r .ab-dir, #sbOv .ab-r .ab-dir { grid-area: d; font-weight: 700; font-size: 17px; }
+  #abView .ab-r .ab-c:not(.ab-rt), #sbOv .ab-r .ab-c:not(.ab-rt) { display: none; }
+  #abView .ab-r .ab-rt, #sbOv .ab-r .ab-rt { grid-area: m; text-align: left; font-size: 14px; }
+  #abView .ab-r .ab-z, #sbOv .ab-r .ab-z { grid-area: z; display: grid; grid-template-columns: auto auto; gap: 2px 8px; align-items: baseline; justify-items: end; align-self: center; }
+  #abView .ab-z i, #sbOv .ab-z i { font-style: normal; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  #abView .ab-z b, #sbOv .ab-z b { font-size: 19px; font-weight: 800; }
+  #abView .ab-z b.one, #sbOv .ab-z b.one { grid-column: 1 / -1; }
+  #abView .ab-z b.late, #sbOv .ab-z b.late { color: #e0222d; }
 }
 
 .ab-dir.mq-on { text-overflow: clip; }
@@ -307,8 +307,8 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 @keyframes abmq2 { from { transform: translateX(0); } to { transform: translateX(var(--mq, 0px)); } }
 
 /* Abfahrten: Scrollleisten ausblenden (Scrollen per Touch/Mausrad geht weiter), damit nichts blinkt */
-#abView .ab-lst { scrollbar-width: none; -ms-overflow-style: none; }
-#abView .ab-lst::-webkit-scrollbar { display: none; width: 0; height: 0; }
+#abView .ab-lst, #sbOv .ab-lst { scrollbar-width: none; -ms-overflow-style: none; }
+#abView .ab-lst::-webkit-scrollbar, #sbOv .ab-lst::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
 /* Handy: Begrüßung über die volle Breite, darunter Datum und Uhrzeit nebeneinander */
 @media (max-width: 700px) {
@@ -346,6 +346,10 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
   .ad-cols > .card, .ad-col > .card, .ad-cols { min-width: 0; max-width: 100%; }
   .ad-rows { max-width: 100%; }
 }
+
+#sbOv.ab-board { padding: 0; background: transparent; border: 0; border-radius: 0; gap: 0; }
+#sbOv .ab-lst { max-height: none; overflow: visible; padding-right: 0; }
+#sbOv .ab-lst .ab-hd { background: transparent; position: static; }
 /* Einkauf */
 .ek-count { font-size: 14px; color: var(--muted); }
 .ek-grid { align-content: start; display: grid; grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 8px; margin-top: 8px; }
@@ -693,11 +697,17 @@ footer { font-size: 12px; color: var(--muted); }
 
   <div class="panel" id="p-uebersicht">
   <div class="row2">
+    <div class="col">
     <section class="card" aria-labelledby="tTitle">
       <div class="card-head"><h2 id="tTitle">Heute und morgen</h2><span class="stamp" data-st="cal"></span><button type="button" class="fsbtn" id="speakBtn" aria-pressed="false">Vorlesen</button></div>
       <p class="speak-note" id="speakNote" role="status" hidden></p>
       <div class="dayCols" id="twoDays"></div>
     </section>
+    <section class="card" id="sbCard" aria-labelledby="sbTitle">
+      <div class="card-head"><h2 id="sbTitle">S-Bahn Richtung Hbf</h2><span class="muted" style="font-size:13px">ab Nür-Dutzendteich</span><span class="stamp" id="sbStamp"></span></div>
+      <div class="ab-board" id="sbOv"><div class="ab-lst" id="sbList"><p class="muted ab-none">Wird geladen &hellip;</p></div></div>
+    </section>
+    </div>
 
     <div class="col">
     <section class="card" aria-labelledby="wTitle">
@@ -830,7 +840,7 @@ footer { font-size: 12px; color: var(--muted); }
     </section>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 5.4 &middot; vom 21.11.2026, 06:51 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 5.5 &middot; vom 21.11.2026, 11:59 Uhr</p>
     <p class="ad-ver" id="adBat"></p>
   </div>
 
@@ -1274,7 +1284,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     for (var i = 0; i < names.length; i++) { for (var j = 0; j < ks.length; j++) { if (ks[j].toLowerCase() === names[i].toLowerCase() && o[ks[j]] != null && o[ks[j]] !== "") return o[ks[j]]; } }
     return null;
   }
-  function rowsOf(j, filter, mins, limit) {
+  function rowsOf(j, filter, mins, limit, lead) {
     var arr = Array.isArray(j) ? j : (j && (j.Abfahrten || j.abfahrten)) || [], now = Date.now(), out = [];
     arr.forEach(function (x) {
       var plan = Date.parse(pick(x, ["AbfahrtszeitSoll", "AbfahrtSollzeit"]) || ""), ist = Date.parse(pick(x, ["AbfahrtszeitIst", "AbfahrtPrognose"]) || "");
@@ -1284,6 +1294,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       plan = Math.floor(plan / 60000) * 60000; ist = Math.max(plan, Math.round(ist / 60000) * 60000);
       if (Math.max(plan, ist) < now - 60000) return;
       if (mins && ist > now + mins * 60000) return;
+      if (lead && ist < now + lead * 60000) return;
       var o = {plan: plan, ist: ist, l: String(pick(x, ["Linienname"]) || "?"), r: String(pick(x, ["Richtungstext"]) || ""), p: String(pick(x, ["Produkt"]) || ""), dir: String(pick(x, ["Richtung"]) || "")};
       if (!filter || filter(o)) out.push(o);
     });
@@ -1303,8 +1314,8 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     return function (l) { if (FIX[l]) return LC[FIX[l]]; var i = known.indexOf(l); return LC.bus[(i < 0 ? 0 : i) % LC.bus.length]; };
   }
   function listHtml(j, col, ck) {
-    var rows = rowsOf(j, col.filter, col.mins, col.limit), colorOf = busColors(ck, rows);
-    if (!rows.length) return '<p class="muted ab-none">Keine Abfahrten gefunden.</p>';
+    var rows = rowsOf(j, col.filter, col.mins, col.limit, col.lead), colorOf = busColors(ck, rows);
+    if (!rows.length) return '<p class="muted ab-none">' + (col.none || "Keine Abfahrten gefunden.") + "</p>";
     var head = '<div class="ab-r ab-hd"><span>Linie</span><span>Richtung</span><span class="ab-c">Soll</span><span class="ab-c">Ist</span><span class="ab-c ab-rt">In Minuten</span></div>';
     return head + rows.map(function (r) {
       var delay = Math.round((r.ist - r.plan) / 60000), cls = r.p === "Bus" ? " bus" : r.p === "SBahn" ? " sb" : /tram|stra/i.test(r.p) ? " tram" : "";
@@ -1394,13 +1405,43 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   Array.prototype.forEach.call(btns, function (b) { b.addEventListener("click", function () { select(b.getAttribute("data-b")); }); });
   select(cur);
 
+  /* ---------- Übersicht: nächste S-Bahnen Richtung Hbf (mindestens 7 Minuten Vorlauf) ---------- */
+  (function () {
+    var host = document.getElementById("sbList"), card = document.getElementById("sbCard"), pnl = document.getElementById("p-uebersicht"), st = document.getElementById("sbStamp");
+    if (!host || !card) return;
+    var COL = {limit: 2, lead: 7, filter: B.dz.cols[0].filter, none: "Keine Bahn in den nächsten Stunden, die noch zu erreichen ist."};
+    var jd = null, ja = 0, jb = false, shown = "";
+    function arr(j) { return Array.isArray(j) ? j : (j && (j.Abfahrten || j.abfahrten)) || []; }
+    function paint() {
+      if (!jd) return;
+      var h = listHtml(jd, COL, "ov");
+      if (h !== shown) { shown = h; host.innerHTML = h; }
+      if (st) { var m = Math.floor((Date.now() - ja) / 60000); st.textContent = m < 1 ? "gerade eben" : "vor " + m + " Min."; st.classList.toggle("old", Date.now() - ja > 180000); }
+    }
+    function pull() {
+      if (jb) return; jb = true;
+      var F = window.__fd, direct = function () { return F.fetchJson("https://start.vag.de/dm/api/v1/abfahrten/VGN/1510?timespan=360&limitcount=300", 20000); };
+      (F.remoteOn() ? F.api("abf", {id: 1510, n: 300, t: 360}).catch(function (e) { return direct().catch(function () { throw e; }); }) : direct()).then(function (j) {
+        jd = {Abfahrten: arr(j)}; ja = Date.now(); paint();
+      }, function (e) {
+        if (!jd) host.innerHTML = '<p class="muted ab-none">' + (e && e.code === "no_config" ? "Abfahrten laden: Link zum Script fehlt (Optionen)." : "Abfahrten konnten nicht geladen werden.") + "</p>";
+      }).then(function () { jb = false; });
+    }
+    function tick() {
+      if (document.hidden || !pnl || pnl.hidden) return;
+      if (!ja || Date.now() - ja > 45000) pull(); else paint();
+    }
+    setInterval(tick, 5000); tick();
+    window.addEventListener("hashchange", function () { setTimeout(tick, 100); });
+  })();
+
   /* Seite soll nicht scrollen: Listen in Kästen schrumpfen, bis alles ins Fenster passt */
   (function () {
     var doc = document.documentElement, busy = false;
     function fit() {
       if (busy) return; busy = true;
       try {
-        var els = [].slice.call(document.querySelectorAll(".panel:not([hidden]) .ab-lst, .panel:not([hidden]) #woScroll, .panel:not([hidden]) #bigcal")).filter(function (e) { return e.offsetParent !== null; });
+        var els = [].slice.call(document.querySelectorAll(".panel:not([hidden]) .ab-lst:not(#sbList), .panel:not([hidden]) #woScroll, .panel:not([hidden]) #bigcal")).filter(function (e) { return e.offsetParent !== null; });
         if (els.length) {
           var tops = els.map(function (e) { return e.scrollTop; });
           els.forEach(function (e) { e.style.maxHeight = "none"; });
@@ -1408,7 +1449,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
           if (o > 0) {
             var h = Math.max.apply(null, els.map(function (e) { return e.offsetHeight; }));
             var hv = Math.max(200, h - o - 2);
-            var r0 = document.querySelector(".ab-lst .ab-r:not(.ab-hd)"), hd0 = document.querySelector(".ab-lst .ab-hd");
+            var r0 = document.querySelector(".ab-lst:not(#sbList) .ab-r:not(.ab-hd)"), hd0 = document.querySelector(".ab-lst:not(#sbList) .ab-hd");
             if (r0 && hd0 && r0.offsetHeight > 20) { var n = Math.floor((hv - hd0.offsetHeight - 4) / r0.offsetHeight); if (n >= 3) hv = hd0.offsetHeight + 4 + n * r0.offsetHeight; }
             var v = hv + "px";
             els.forEach(function (e) { e.style.maxHeight = v; });
@@ -1422,7 +1463,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     window.addEventListener("resize", fit);
     window.addEventListener("hashchange", function () { setTimeout(fit, 60); });
     document.addEventListener("click", function () { setTimeout(fit, 120); }, true);
-    setInterval(function () { if (doc.scrollHeight > window.innerHeight + 1 || document.querySelector(".ab-lst:not([style*=max-height]), #woScroll:not([style*=max-height]), #bigcal:not([style*=max-height])")) fit(); }, 1500);
+    setInterval(function () { if (doc.scrollHeight > window.innerHeight + 1 || document.querySelector(".ab-lst:not(#sbList):not([style*=max-height]), #woScroll:not([style*=max-height]), #bigcal:not([style*=max-height])")) fit(); }, 1500);
   })();
   setInterval(function () { if (panel && !panel.hidden && !document.hidden) { var id = B[cur].id; if (!at[id] || Date.now() - at[id] > 45000) load(); else draw(); } }, 2000);
   /* ---------- Linienfarben: bearbeitbar in Optionen und per Excel (Blatt „Farben“) ---------- */
@@ -1532,7 +1573,8 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   var box = null, bat = null, probeOff = false;
   function svgBat(p, chg) {
     var col = (p <= 20 && !chg) ? "#c62828" : "currentColor", w = Math.max(0, Math.min(100, p)) * 0.17;
-    return '<svg viewBox="0 0 28 14" width="28" height="14" aria-hidden="true"><rect x="1" y="1" width="21" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="23.5" y="4.5" width="3" height="5" rx="1" fill="currentColor"/><rect x="3" y="3" width="' + w.toFixed(1) + '" height="8" rx="1.5" fill="' + col + '"/></svg>';
+    var bolt = chg ? '<path d="M13.6 1.8 7.6 8h3.9l-1.2 4.2 6.2-6.6h-4z" fill="currentColor" stroke="var(--bg)" stroke-width="1.7" stroke-linejoin="round" paint-order="stroke"/>' : "";
+    return '<svg viewBox="0 0 28 14" width="28" height="14" aria-hidden="true"><rect x="1" y="1" width="21" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="23.5" y="4.5" width="3" height="5" rx="1" fill="currentColor"/><rect x="3" y="3" width="' + w.toFixed(1) + '" height="8" rx="1.5" fill="' + col + '"/>' + bolt + '</svg>';
   }
   function svgWifi(on) {
     var c = on ? "currentColor" : "#c62828";
@@ -1543,7 +1585,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     var parts = [], c = navigator.connection || null;
     if (bat) {
       var p = Math.round(bat.level * 100);
-      parts.push('<span class="ds" title="Akku">' + svgBat(p, bat.charging) + '<span class="num">' + p + ' %' + (bat.charging ? " ⚡" : "") + '</span></span>');
+      parts.push('<span class="ds" title="Akku">' + svgBat(p, bat.charging) + '<span class="num">' + p + ' %</span></span>');
     }
     var typ = c && c.type ? c.type : "";
     var on = navigator.onLine !== false && !probeOff && typ !== "none";
@@ -1628,7 +1670,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     obst: "Äpfel|🍎;Birnen|🍐;Bananen|🍌;Orangen|🍊;Mandarinen|🍊;Zitronen|🍋;Limetten|🍋;Trauben|🍇;Erdbeeren|🍓;Himbeeren|🍓;Blaubeeren|🫐;Kiwi|🥝;Ananas|🍍;Mango|🥭;Honigmelone|🍈;Wassermelone|🍉;Pfirsiche|🍑;Nektarinen|🍑;Kirschen|🍒;Pflaumen|🍑;Avocado|🥑;Tomaten|🍅;Cocktailtomaten|🍅;Gurke|🥒;Paprika|🫑;Karotten|🥕;Kartoffeln|🥔;Süßkartoffeln|🍠;Zwiebeln|🧅;Frühlingszwiebeln|🧅;Knoblauch|🧄;Brokkoli|🥦;Blumenkohl|@bk;Zucchini|🥒;Aubergine|🍆;Champignons|🍄;Spinat|🥬;Salat|🥬;Eisbergsalat|🥬;Rucola|🥬;Feldsalat|🥬;Kohlrabi|🥬;Lauch|🥬;Sellerie|🥬;Radieschen|🥕;Rote Bete|🍠;Mais|🌽;Erbsen|🫛;Grüne Bohnen|🫛;Ingwer|🫚;Petersilie|🌿;Schnittlauch|🌿;Basilikum|🌿;Dill|🌿;Rosenkohl|🥬;Weißkohl|🥬;Rotkohl|🥬;Fenchel|🥬;Kürbis|🎃;Spargel|🥬;Gemüsekiste|🥕",
     back: "Brot|🍞;Toast|🍞;Toastbrot|🍞;Vollkornbrot|🍞;Brötchen|🥖;Baguette|🥖;Brezeln|🥨;Laugenbrötchen|🥨;Croissants|🥐;Kuchen|🍰;Muffins|🧁;Tortillas|🫓;Wraps|🌯;Fladenbrot|🫓;Knäckebrot|🍞;Zwieback|🍞;Hefe|🧁;Waffeln|🧇",
     milch: "Milch|🥛;Hafermilch|🥛;Butter|🧈;Margarine|🧈;Sahne|🥛;Schmand|🥛;Joghurt|🥣;Naturjoghurt|🥣;Fruchtjoghurt|🥣;Quark|🥣;Magerquark|@qu;Skyr|🥣;Frischkäse|🧀;Käse|🧀;Gouda|🧀;Emmentaler|🧀;Mozzarella|🧀;Parmesan|🧀;Feta|🧀;Camembert|🧀;Reibekäse|🧀;Eier|🥚;Kondensmilch|🥛;Pudding|🍮;Milchreis|🍚",
-    fleisch: "Hähnchen|🍗;Hähnchenbrust|🍗;Putenbrust|🍗;Hackfleisch|🥩;Rindfleisch|🥩;Schweinefleisch|🥩;Steak|🥩;Schnitzel|🥩;Würstchen|🌭;Bratwurst|🌭;Salami|🥓;Schinken|🥓;Speck|🥓;Aufschnitt|🥓;Leberwurst|🥓;Lachs|🐟;Fischstäbchen|🐟;Forelle|🐟;Garnelen|🦐",
+    fleisch: "Hähnchen|🍗;Hähnchenbrust|🍗;Putenbrust|🍗;Hackfleisch|🥩;Rindfleisch|🥩;Schweinefleisch|🥩;Steak|🥩;Schnitzel|🥩;Würstchen|🌭;Bratwurst|🌭;Salami|@sa;Schinken|@sc;Speck|🥓;Aufschnitt|🥓;Leberwurst|🥓;Lachs|🐟;Fischstäbchen|🐟;Forelle|🐟;Garnelen|🦐",
     tk: "Tiefkühlpizza|🍕;Tiefkühlgemüse|🥦;Pommes|🍟;Eiscreme|🍨;Tiefkühlbeeren|🍓;Rahmspinat|🥬;Kartoffelecken|🥔;Kroketten|🥔;Hähnchennuggets|🍗;Gemüsepfanne|🥦",
     vorrat: "Nudeln|🍝;Spaghetti|🍝;Tortellini|🍝;Spätzle|🍝;Gnocchi|🍝;Reis|🍚;Basmatireis|🍚;Couscous|🍚;Haferflocken|🥣;Müsli|🥣;Cornflakes|🥣;Mehl|🌾;Zucker|🥄;Vanillezucker|🥄;Backpulver|🧁;Paniermehl|🥖;Maisstärke|🌽;Linsen|🫘;Kichererbsen|🫘;Kidneybohnen|🫘;Dosenmais|🌽;Dosentomaten|🥫;Passierte Tomaten|🥫;Tomatenmark|🥫;Kokosmilch|🥥;Thunfisch|🥫;Suppe|🥫;Kartoffelpüree|🥔;Semmelknödel|🥔;Nüsse|🥜;Mandeln|🥜;Walnüsse|🥜;Rosinen|🍇;Honig|🍯;Marmelade|🍓;Nuss-Nougat-Creme|🍫;Erdnussbutter|🥜;Pesto|🌿",
     wuerz: "Salz|🧂;Pfeffer|🧂;Paprikapulver|🌶️;Zimt|🧂;Curry|🧂;Oregano|🌿;Olivenöl|🫒;Sonnenblumenöl|🌻;Essig|🧴;Balsamico|🧴;Senf|🧴;Ketchup|🍅;Mayonnaise|🧴;Sojasoße|🧴;Brühe|🥣;Gemüsebrühe|🥣;Tomatensoße|🍅;Salatdressing|🥗;Grillsoße|🧴",
@@ -1641,7 +1683,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   var CAT_LIST = [];
   Object.keys(DATA).forEach(function (c) { DATA[c].split(";").forEach(function (s) { var p = s.split("|"); CAT_LIST.push({n: p[0], e: p[1], c: c}); }); });
   function norm(s) { return String(s || "").toLowerCase().replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss").replace(/[^a-z0-9]/g, ""); }
-  var SVGS = {"@qu": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><path d=\"M13 23l4.200 32q.6 4 4.600 4h20.400q4 0 4.600-4L51 23z\" fill=\"#fdfdfb\" stroke=\"#a9b8c9\" stroke-width=\"2.200\" stroke-linejoin=\"round\"/><path d=\"M14.400 33h35.200l-2 15H16.400z\" fill=\"#3f86d6\"/><path d=\"M32 36.500c2.800 3.300 4.200 5.200 4.200 7.200a4.200 4.200 0 0 1-8.400 0c0-2 1.400-3.900 4.200-7.200z\" fill=\"#fff\"/><rect x=\"10\" y=\"13\" width=\"44\" height=\"11\" rx=\"3.500\" fill=\"#2a63ad\" stroke=\"#1e4a85\" stroke-width=\"2\"/><path d=\"M15 17.200h34\" stroke=\"#6ea5e6\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>", "@bk": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><path d=\"M9 34C6 52 18 60 32 60s26-8 23-26c-5 8-14 12-23 12S14 42 9 34z\" fill=\"#6cb846\" stroke=\"#3f8a2e\" stroke-width=\"2.200\" stroke-linejoin=\"round\"/><path d=\"M32 59V47M22 55l5-7M42 55l-5-7\" stroke=\"#3f8a2e\" stroke-width=\"2\" stroke-linecap=\"round\"/><g fill=\"#f7f0d8\" stroke=\"#d6c99b\" stroke-width=\"2.400\"><circle cx=\"19\" cy=\"31\" r=\"10\"/><circle cx=\"45\" cy=\"31\" r=\"10\"/><circle cx=\"32\" cy=\"22\" r=\"12\"/><circle cx=\"25\" cy=\"38\" r=\"10\"/><circle cx=\"39\" cy=\"38\" r=\"10\"/></g><g fill=\"#f7f0d8\"><circle cx=\"19\" cy=\"31\" r=\"9\"/><circle cx=\"45\" cy=\"31\" r=\"9\"/><circle cx=\"32\" cy=\"22\" r=\"11\"/><circle cx=\"25\" cy=\"38\" r=\"9\"/><circle cx=\"39\" cy=\"38\" r=\"9\"/></g><path d=\"M25 20q3-4 7-3M41 32q-3 3-7 2M17 33q3 2 6 0\" stroke=\"#e3d8b0\" stroke-width=\"2\" stroke-linecap=\"round\" fill=\"none\"/></svg>"};
+  var SVGS = {"@sa": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><g transform=\"rotate(-28 30 26)\"><path d=\"M6 25q-4 1-3 4t3 3\" fill=\"none\" stroke=\"#8a6a3b\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"6\" y=\"17\" width=\"44\" height=\"18\" rx=\"9\" fill=\"#b3382f\" stroke=\"#7a201b\" stroke-width=\"2.200\"/><path d=\"M12 21.500h30\" stroke=\"#d1685c\" stroke-width=\"2\" stroke-linecap=\"round\"/><g fill=\"#f6d9cf\"><circle cx=\"17\" cy=\"28\" r=\"1.700\"/><circle cx=\"26\" cy=\"24\" r=\"1.600\"/><circle cx=\"33\" cy=\"29\" r=\"1.800\"/><circle cx=\"41\" cy=\"25\" r=\"1.600\"/><circle cx=\"22\" cy=\"30\" r=\"1.300\"/><circle cx=\"38\" cy=\"31\" r=\"1.300\"/></g></g><circle cx=\"44\" cy=\"44\" r=\"14\" fill=\"#8e5a3a\" stroke=\"#6e4128\" stroke-width=\"2.200\"/><circle cx=\"44\" cy=\"44\" r=\"11.500\" fill=\"#c9473c\"/><g fill=\"#f6d9cf\"><circle cx=\"39\" cy=\"40\" r=\"2\"/><circle cx=\"47\" cy=\"38.500\" r=\"1.800\"/><circle cx=\"49\" cy=\"47\" r=\"2\"/><circle cx=\"41\" cy=\"49\" r=\"1.800\"/><circle cx=\"44\" cy=\"44\" r=\"1.400\"/></g></svg>", "@sc": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><g transform=\"rotate(-30 30 34)\"><path d=\"M48 31q9-1 9 6t-7 6\" fill=\"none\" stroke=\"none\"/><rect x=\"46\" y=\"29\" width=\"14\" height=\"9\" rx=\"3\" fill=\"#f4ecd8\" stroke=\"#b9a984\" stroke-width=\"2\"/><circle cx=\"61\" cy=\"30.500\" r=\"4\" fill=\"#f4ecd8\" stroke=\"#b9a984\" stroke-width=\"2\"/><circle cx=\"61\" cy=\"37.500\" r=\"4\" fill=\"#f4ecd8\" stroke=\"#b9a984\" stroke-width=\"2\"/><path d=\"M8 34c0-12 10-19 24-19 10 0 17 6 17 19s-7 19-17 19C18 53 8 46 8 34z\" fill=\"#dd7f74\" stroke=\"#a5453c\" stroke-width=\"2.200\"/><path d=\"M12 28c3-7 10-9 19-9\" fill=\"none\" stroke=\"#efa89e\" stroke-width=\"2.200\" stroke-linecap=\"round\"/><ellipse cx=\"14\" cy=\"34\" rx=\"6\" ry=\"12\" fill=\"#f6b1b1\" stroke=\"#a5453c\" stroke-width=\"2\"/><path d=\"M12 30q3 2 4 6\" fill=\"none\" stroke=\"#fce1de\" stroke-width=\"1.800\" stroke-linecap=\"round\"/><path d=\"M26 22q-2 12 2 28M36 20q2 14-2 31\" fill=\"none\" stroke=\"#b9584e\" stroke-width=\"1.600\" stroke-linecap=\"round\" opacity=\".7\"/></g></svg>", "@qu": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><path d=\"M13 23l4.200 32q.6 4 4.600 4h20.400q4 0 4.600-4L51 23z\" fill=\"#fdfdfb\" stroke=\"#a9b8c9\" stroke-width=\"2.200\" stroke-linejoin=\"round\"/><path d=\"M14.400 33h35.200l-2 15H16.400z\" fill=\"#3f86d6\"/><path d=\"M32 36.500c2.800 3.300 4.200 5.200 4.200 7.200a4.200 4.200 0 0 1-8.400 0c0-2 1.400-3.900 4.200-7.200z\" fill=\"#fff\"/><rect x=\"10\" y=\"13\" width=\"44\" height=\"11\" rx=\"3.500\" fill=\"#2a63ad\" stroke=\"#1e4a85\" stroke-width=\"2\"/><path d=\"M15 17.200h34\" stroke=\"#6ea5e6\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>", "@bk": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><path d=\"M9 34C6 52 18 60 32 60s26-8 23-26c-5 8-14 12-23 12S14 42 9 34z\" fill=\"#6cb846\" stroke=\"#3f8a2e\" stroke-width=\"2.200\" stroke-linejoin=\"round\"/><path d=\"M32 59V47M22 55l5-7M42 55l-5-7\" stroke=\"#3f8a2e\" stroke-width=\"2\" stroke-linecap=\"round\"/><g fill=\"#f7f0d8\" stroke=\"#d6c99b\" stroke-width=\"2.400\"><circle cx=\"19\" cy=\"31\" r=\"10\"/><circle cx=\"45\" cy=\"31\" r=\"10\"/><circle cx=\"32\" cy=\"22\" r=\"12\"/><circle cx=\"25\" cy=\"38\" r=\"10\"/><circle cx=\"39\" cy=\"38\" r=\"10\"/></g><g fill=\"#f7f0d8\"><circle cx=\"19\" cy=\"31\" r=\"9\"/><circle cx=\"45\" cy=\"31\" r=\"9\"/><circle cx=\"32\" cy=\"22\" r=\"11\"/><circle cx=\"25\" cy=\"38\" r=\"9\"/><circle cx=\"39\" cy=\"38\" r=\"9\"/></g><path d=\"M25 20q3-4 7-3M41 32q-3 3-7 2M17 33q3 2 6 0\" stroke=\"#e3d8b0\" stroke-width=\"2\" stroke-linecap=\"round\" fill=\"none\"/></svg>"};
   function setIcon(i, e) {
     if (SVGS[e]) { var m = document.createElement("img"); m.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(SVGS[e]); m.alt = ""; m.className = "ek-svg"; i.appendChild(m); }
     else i.textContent = e;
