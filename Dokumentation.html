@@ -1,0 +1,484 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Familien-Dashboard: Handbuch</title><style>
+@page { size: A4; margin: 22mm 18mm 22mm 18mm; }
+:root { --ink:#1b2733; --muted:#5b6b7a; --acc:#1d5e78; --line:#d7dee5; --soft:#eef3f6; }
+* { box-sizing: border-box; }
+body { font-family: "Inter", "DejaVu Sans", sans-serif; font-size: 10pt; line-height: 1.5; color: var(--ink); margin:0; }
+h1 { font-size: 20pt; color: var(--acc); margin: 0 0 10pt; padding-bottom: 6pt; border-bottom: 2px solid var(--acc); break-before: page; break-after: avoid; }
+h2 { font-size: 13.5pt; margin: 18pt 0 6pt; color: var(--ink); break-after: avoid; }
+h3 { font-size: 11pt; margin: 12pt 0 4pt; color: var(--acc); break-after: avoid; }
+p { margin: 0 0 7pt; } ul, ol { margin: 0 0 8pt; padding-left: 18pt; } li { margin-bottom: 3pt; }
+code { font-family: "DejaVu Sans Mono", monospace; font-size: 8.8pt; background: var(--soft); padding: 0 3px; border-radius: 3px; }
+table { width: 100%; border-collapse: collapse; margin: 6pt 0 10pt; font-size: 9pt; break-inside: auto; }
+tr { break-inside: avoid; } th { text-align: left; background: var(--acc); color: #fff; padding: 5pt 7pt; font-weight: 600; }
+td { padding: 5pt 7pt; border-bottom: 1px solid var(--line); vertical-align: top; } tr:nth-child(even) td { background: #f7fafb; }
+.note { background: #fff7e0; border-left: 3px solid #e0a800; padding: 6pt 9pt; border-radius: 3px; }
+a { color: inherit; text-decoration: none; }
+@media screen {
+  html { scroll-behavior: smooth; } body { max-width: 820px; margin: 0 auto; padding: 16px 16px 60px; font-size: 16px; }
+  h1 { break-before: auto; margin-top: 44px; font-size: 26px; } h2 { font-size: 20px; } h3 { font-size: 17px; }
+  code { font-size: 14px; } p, li, td, code { overflow-wrap: anywhere; } table { display: block; overflow-x: auto; font-size: 14px; }
+  .cover { height: auto; padding: 40px 0 10px; } .cover h1 { font-size: 40px; margin: 0; }
+  .toc { break-before: auto; } .toc .d, .toc .p { display: none; } .toc a { padding: 5px 0; } .toc .l1 { font-size: 16px; } .toc .l2 { font-size: 15px; }
+  .up { position: fixed; right: 14px; bottom: 14px; background: var(--acc); color: #fff !important; padding: 9px 14px; border-radius: 999px; font-size: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
+}
+@media print { .up { display: none; } }
+.cover { height: 235mm; display: flex; flex-direction: column; justify-content: center; }
+.cover .k { font-size: 10pt; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 10pt; }
+.cover h1 { all: unset; display: block; font-size: 36pt; line-height: 1.1; font-weight: 700; color: var(--acc); }
+.cover .s { font-size: 14pt; color: var(--muted); margin-top: 12pt; max-width: 120mm; }
+.cover .v { margin-top: 40pt; font-size: 10pt; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10pt; width: 90mm; }
+.toc { break-before: page; } .toc h1 { break-before: auto; }
+.toc a { display: flex; align-items: baseline; gap: 6pt; padding: 2.2pt 0; }
+.toc .l1 { font-weight: 600; margin-top: 7pt; font-size: 10.5pt; } .toc .l2 { padding-left: 16pt; font-size: 9.5pt; color: #34444f; }
+.toc .d { flex: 1; border-bottom: 1px dotted #9aa8b4; transform: translateY(-3px); } .toc .p { min-width: 18pt; text-align: right; font-variant-numeric: tabular-nums; }
+</style></head><body><section class="cover"><div class="k">Handbuch</div><h1>Familien-Dashboard</h1><div class="s">Bedienung, Einstellungen und Technik: alles, was man zum Verstehen und Benutzen braucht.</div><div class="v">Dashboard-Version 5.3<br>Stand: 21.11.2026</div></section><section class="toc"><h1 id="inhalt">Inhaltsverzeichnis</h1><a class="l1" href="#ueberblick"><span>1 Überblick</span><span class="d"></span><span class="p">4</span></a><a class="l2" href="#bausteine"><span>1.1 Die Bausteine</span><span class="d"></span><span class="p">4</span></a><a class="l2" href="#geraete"><span>1.2 Welche Daten liegen wo?</span><span class="d"></span><span class="p">4</span></a><a class="l1" href="#bedienung"><span>2 Grundbedienung</span><span class="d"></span><span class="p">5</span></a><a class="l2" href="#aufbau"><span>2.1 Aufbau der Seite</span><span class="d"></span><span class="p">5</span></a><a class="l2" href="#gruss"><span>2.2 Tagesgruß</span><span class="d"></span><span class="p">5</span></a><a class="l2" href="#vollbild"><span>2.3 Vollbild, Wachhalten, Rückkehr</span><span class="d"></span><span class="p">5</span></a><a class="l2" href="#adressen"><span>2.4 Adressen der Reiter</span><span class="d"></span><span class="p">6</span></a><a class="l2" href="#status"><span>2.5 WLAN- und Akku-Anzeige</span><span class="d"></span><span class="p">6</span></a><a class="l2" href="#nachtmodus"><span>2.6 Nachtmodus</span><span class="d"></span><span class="p">6</span></a><a class="l2" href="#neustart"><span>2.7 Nächtlicher Neustart</span><span class="d"></span><span class="p">6</span></a><a class="l1" href="#reiter"><span>3 Die Reiter im Detail</span><span class="d"></span><span class="p">7</span></a><a class="l2" href="#uebersicht"><span>3.1 Übersicht</span><span class="d"></span><span class="p">7</span></a><a class="l2" href="#kalender"><span>3.2 Kalender</span><span class="d"></span><span class="p">7</span></a><a class="l2" href="#wetter"><span>3.3 Wetter</span><span class="d"></span><span class="p">7</span></a><a class="l2" href="#kita"><span>3.4 Kita</span><span class="d"></span><span class="p">8</span></a><a class="l2" href="#abfahrten"><span>3.5 Abfahrten</span><span class="d"></span><span class="p">8</span></a><a class="l2" href="#einkauf"><span>3.6 Einkauf</span><span class="d"></span><span class="p">9</span></a><a class="l2" href="#bilder"><span>3.7 Bilder</span><span class="d"></span><span class="p">10</span></a><a class="l1" href="#optionen"><span>4 Optionen</span><span class="d"></span><span class="p">11</span></a><a class="l2" href="#opt-kita"><span>4.1 Kita-Pläne hochladen</span><span class="d"></span><span class="p">11</span></a><a class="l2" href="#opt-io"><span>4.2 Import und Export</span><span class="d"></span><span class="p">11</span></a><a class="l2" href="#opt-zeiten"><span>4.3 Zeiten</span><span class="d"></span><span class="p">12</span></a><a class="l2" href="#opt-farben"><span>4.4 Farben</span><span class="d"></span><span class="p">12</span></a><a class="l2" href="#opt-einkauf"><span>4.5 Einkauf: Reihenfolge</span><span class="d"></span><span class="p">12</span></a><a class="l2" href="#opt-verbindung"><span>4.6 Verbindung zum Google-Script</span><span class="d"></span><span class="p">12</span></a><a class="l2" href="#opt-version"><span>4.7 Version und Akku</span><span class="d"></span><span class="p">12</span></a><a class="l2" href="#opt-doku"><span>4.8 Dokumentation</span><span class="d"></span><span class="p">13</span></a><a class="l1" href="#vorlesen"><span>5 Vorlesen im Detail</span><span class="d"></span><span class="p">14</span></a><a class="l2" href="#vl-ablauf"><span>5.1 Ablauf</span><span class="d"></span><span class="p">14</span></a><a class="l2" href="#vl-termine"><span>5.2 Wie Termine vorgelesen werden</span><span class="d"></span><span class="p">14</span></a><a class="l2" href="#vl-arbeit"><span>5.3 Der Arbeitskalender</span><span class="d"></span><span class="p">14</span></a><a class="l2" href="#vl-schluss"><span>5.4 Schlussgruß</span><span class="d"></span><span class="p">15</span></a><a class="l1" href="#technik"><span>6 Technik: Speicher und Aktualisierung</span><span class="d"></span><span class="p">16</span></a><a class="l2" href="#t-speicher"><span>6.1 Lokaler Speicher und gemeinsamer Speicher</span><span class="d"></span><span class="p">16</span></a><a class="l2" href="#t-dokumente"><span>6.2 Gemeinsame Dokumente</span><span class="d"></span><span class="p">16</span></a><a class="l2" href="#t-lokal"><span>6.3 Nur lokal gespeichert (pro Gerät)</span><span class="d"></span><span class="p">16</span></a><a class="l2" href="#t-intervalle"><span>6.4 Aktualisierungsintervalle</span><span class="d"></span><span class="p">17</span></a><a class="l1" href="#script"><span>7 Das Google-Script</span><span class="d"></span><span class="p">18</span></a><a class="l2" href="#s-aktionen"><span>7.1 Was das Script kann</span><span class="d"></span><span class="p">18</span></a><a class="l2" href="#s-sicherheit"><span>7.2 Sicherheit</span><span class="d"></span><span class="p">18</span></a><a class="l2" href="#s-gemini"><span>7.3 Gemini und Modelle</span><span class="d"></span><span class="p">18</span></a><a class="l2" href="#s-neu"><span>7.4 Nach Änderungen am Script</span><span class="d"></span><span class="p">18</span></a><a class="l1" href="#einrichtung"><span>8 Einrichten, Aktualisieren, Besonderheiten</span><span class="d"></span><span class="p">19</span></a><a class="l2" href="#e-kurz"><span>8.1 Einrichtung in Kurzfassung</span><span class="d"></span><span class="p">19</span></a><a class="l2" href="#e-anzeige"><span>8.2 Anzeige auf den Geräten</span><span class="d"></span><span class="p">19</span></a><a class="l2" href="#e-update"><span>8.3 Neue Version einspielen</span><span class="d"></span><span class="p">19</span></a><a class="l2" href="#e-grenzen"><span>8.4 Grenzen und Besonderheiten</span><span class="d"></span><span class="p">19</span></a><a class="l1" href="#fehler"><span>9 Fehlersuche</span><span class="d"></span><span class="p">21</span></a><a class="l1" href="#anhang"><span>10 Anhang</span><span class="d"></span><span class="p">22</span></a><a class="l2" href="#a-begriffe"><span>10.1 Begriffe</span><span class="d"></span><span class="p">22</span></a><a class="l2" href="#a-kalender"><span>10.2 Die sechs Kalender</span><span class="d"></span><span class="p">22</span></a></section><h1 id="ueberblick">1 Überblick</h1>
+<p>Das Familien-Dashboard ist eine Anzeige für ein Wandtablet im Querformat, die sich auch auf Handy und Notebook öffnen lässt. Sie zeigt Termine, Wetter, Kita-Pläne, Abfahrten, die Einkaufsliste und Bilder. Alles ist auf Deutsch, hell oder dunkel, und für Berührung ausgelegt.</p>
+
+<h2 id="bausteine">1.1 Die Bausteine</h2>
+<table>
+<tr><th>Baustein</th><th>Aufgabe</th></tr>
+<tr><td><b>Dashboard-Seite</b> (<code>index.html</code> bei GitHub Pages)</td><td>Die eigentliche Anzeige. Sie läuft im Browser des jeweiligen Geräts. Zusammen mit <code>manifest.webmanifest</code> und den beiden Symbolen <code>icon-192.png</code> und <code>icon-512.png</code> macht sie das Dashboard als Web-App installierbar.</td></tr>
+<tr><td><b>Google-Script</b> (<code>Backend.gs</code>)</td><td>Das gemeinsame Gedächtnis. Es liest die Google-Kalender, speichert Einstellungen, Pläne und die Einkaufsliste für alle Geräte (in einer Datei im Google Drive), holt die VGN-Abfahrten und lässt Gemini Fotos der Kita-Pläne in Text umwandeln.</td></tr>
+<tr><td><b>Gemini</b></td><td>Liest die Kita-Pläne aus Foto oder PDF. Nur dafür ist ein kostenloser Schlüssel nötig.</td></tr>
+<tr><td><b>Open-Meteo</b></td><td>Liefert das Wetter für Nürnberg. Kostenlos, ohne Schlüssel.</td></tr>
+<tr><td><b>VAG-Schnittstelle</b></td><td>Liefert die Abfahrten der VGN-Haltestellen, über das Google-Script.</td></tr>
+</table>
+
+<h2 id="geraete">1.2 Welche Daten liegen wo?</h2>
+<ul>
+<li><b>Für alle Geräte gleich</b> (im Google Drive, über das Script): Kalenderfarben, Linienfarben, Zitate, Orte, Ignorierliste, Sonderwörter, Kita-Pläne, Einkaufsliste mit gemerkten Kategorien, Reihenfolge der Einkaufskategorien, die Zeiten (Diashow, Rückkehr zur Übersicht, Nachtmodus).</li>
+<li><b>Nur auf dem jeweiligen Gerät</b>: Link und Schlüssel zum Script, die Startseite, ausgeblendete Kalender in der Legende, die zuletzt gewählte Haltestelle bei den Abfahrten und die Bilder der Diashow.</li>
+</ul>
+<p class="note">Wichtig: Jede App und jeder Browser hat einen eigenen Speicher. Link und Schlüssel müssen deshalb auf jedem Gerät und in jeder App einmal eingetragen werden.</p>
+
+<h1 id="bedienung">2 Grundbedienung</h1>
+
+<h2 id="aufbau">2.1 Aufbau der Seite</h2>
+<ul>
+<li><b>Reiterleiste:</b> Auf dem Tablet senkrecht und mittig am linken Rand, auf dem Handy als Zeile oben. Reiter: Übersicht, Kalender, Wetter, Kita, Abfahrten, Einkauf, Bilder, Optionen (Zahnrad). Auf dem Handy gibt es den Reiter „Bilder“ nicht.</li>
+<li><b>Kopfzeile:</b> Tagesgruß mit Übersetzung, Datum groß und die Uhrzeit rechts. Auf dem Handy steht der Gruß über der vollen Breite, darunter nebeneinander Datum und Uhr. In der Einkaufsliste ist die Kopfzeile auf dem Handy ausgeblendet, damit die Liste mehr Platz hat.</li>
+<li><b>Fußbereich:</b> Kleine Statusanzeigen (Aktualisierungszeiten) und, wenn der Browser es erlaubt, ein Vollbild-Knopf. Auf dem Tablet erscheinen oben rechts außerdem WLAN und Akku.</li>
+<li><b>Kein Scrollen:</b> Auf dem Tablet soll die Seite nicht scrollen. Listen in Kästen (Kalender, Abfahrten, Wochenplan) werden automatisch so hoch gemacht, dass alles ins Fenster passt, und scrollen bei Bedarf innen.</li>
+</ul>
+
+<h2 id="gruss">2.2 Tagesgruß</h2>
+<p>Jeden Tag begrüßt das Dashboard in einer anderen Sprache oder einem anderen Dialekt, 81 insgesamt (zum Beispiel Fränkisch, Englisch, Bairisch, Italienisch, Schwäbisch …). Bei Fremdsprachen steht die deutsche Entsprechung daneben, bei anderen Schriften auch die Lautschrift. Die Reihenfolge ist fest berechnet, damit sich nichts wiederholt. Die Tageszeit bestimmt die Form:</p>
+<table>
+<tr><th>Zeit</th><th>Gruß</th></tr>
+<tr><td>5:00 bis 10:59 Uhr</td><td>Morgen</td></tr>
+<tr><td>11:00 bis 16:59 Uhr</td><td>Tag</td></tr>
+<tr><td>17:00 bis 21:59 Uhr</td><td>Abend</td></tr>
+<tr><td>22:00 bis 4:59 Uhr</td><td>Nacht</td></tr>
+</table>
+
+<h2 id="vollbild">2.3 Vollbild, Wachhalten, Rückkehr</h2>
+<ul>
+<li><b>Vollbild:</b> Der Knopf erscheint nur, wenn der Browser es für die Seite erlaubt. In Kiosk-Apps (FreeKiosk, Fully Kiosk) und als installierte Web-App ist die Seite ohnehin im Vollbild.</li>
+<li><b>Bildschirm wach halten:</b> Das Dashboard bittet den Browser, den Bildschirm nicht auszuschalten (Screen Wake Lock). Ob das klappt, hängt vom Gerät und Browser ab.</li>
+<li><b>Zurück zur Übersicht:</b> Wenn eine Zeit lang nichts angetippt wird, springt das Dashboard von selbst zur Übersicht. Die Zeit stellst du unter Optionen › Zeiten ein (Standard 5 Minuten, wählbar 1, 2, 5, 10, 15, 30 Minuten oder „Nie“). Läuft gerade die Diashow, bleibt sie an.</li>
+<li><b>Startseite:</b> Welcher Reiter nach dem Öffnen erscheint, legst du pro Gerät fest (Optionen › Zeiten › Startseite). Es ist kein globaler Wert.</li>
+</ul>
+
+<h2 id="adressen">2.4 Adressen der Reiter</h2>
+<p>Jeder Reiter hat eine eigene Adresse hinter dem <code>#</code>. Das ist praktisch für Lesezeichen und Kiosk-Apps:</p>
+<p><code>#uebersicht</code>, <code>#kalender</code>, <code>#wetter</code>, <code>#kita</code>, <code>#abfahrten</code>, <code>#einkauf</code>, <code>#bilder</code>, <code>#admin</code> (Optionen).</p>
+<p>Zum Einrichten eines Geräts lässt sich die Verbindung zum Script auch in die Adresse schreiben: <code>…/dashboard/#u=SCRIPT-LINK&amp;k=PASSWORT</code>. Nach dem ersten Öffnen verschwindet das wieder aus der Adresszeile.</p>
+
+<h2 id="status">2.5 WLAN- und Akku-Anzeige</h2>
+<ul>
+<li>Nur auf dem Tablet und dem Notebook sichtbar, auf dem Handy ausgeblendet.</li>
+<li><b>Netzwerk:</b> Das Dashboard zeigt „WLAN“, „LAN“, „Mobil“ oder „Online“, je nachdem, was der Browser meldet. Da Browser ein abgeschaltetes WLAN oft spät melden, prüft das Dashboard zusätzlich alle 15 Sekunden mit einer kleinen Anfrage (6 Sekunden Wartezeit). Schlägt sie fehl, steht „Offline“ in Rot.</li>
+<li><b>Akku:</b> Prozent und Ladesymbol, jede Minute neu abgefragt. Gibt der Browser den Akkustand nicht heraus, fehlt die Anzeige. Unter Optionen (ganz unten) steht, ob die Akku-Anzeige aktiv ist.</li>
+</ul>
+
+<h2 id="nachtmodus">2.6 Nachtmodus</h2>
+<p>Unter Optionen › Zeiten › Nachtmodus gibt es „Aus“ und „Von Sonnenunter- bis aufgang“. Ist er an, schaltet das Dashboard nach Sonnenuntergang auf das dunkle Erscheinungsbild und morgens nach Sonnenaufgang zurück auf das helle. Die Zeiten für Nürnberg werden im Gerät berechnet (kein Internet nötig) und alle 30 Sekunden geprüft. Bei „Aus“ folgt das Dashboard der Einstellung des Systems.</p>
+
+<h2 id="neustart">2.7 Nächtlicher Neustart</h2>
+<p>Einmal pro Nacht, zwischen 3:00 und 3:59 Uhr, lädt die Seite sich von selbst neu. So werden alle Daten aufgefrischt und neue Versionen der Seite geholt. Das Dashboard merkt sich pro Gerät, dass der Neustart für den Tag schon stattgefunden ist, und lädt nicht mehrfach.</p>
+
+<h1 id="reiter">3 Die Reiter im Detail</h1>
+
+<h2 id="uebersicht">3.1 Übersicht</h2>
+<ul>
+<li><b>Heute und morgen:</b> Alle Termine der beiden Tage, nach Kalender sortiert (Arbeit, Gemeinsame Zeit, Persönlich, Geburtstage, Veranstaltungen, Feiertage). Ganztägige Termine erscheinen als farbige Balken, Termine mit Uhrzeit mit Zeit und farbigem Punkt. Beim Kalender „Gemeinsame Zeit“ wird auch eine Uhrzeit im Titel („10 Uhr“, „11:30 Uhr“, „18-21 Uhr“) zum Sortieren genutzt.</li>
+<li><b>Wetterkarte:</b> Aktuelle Lage für Nürnberg (siehe 3.3).</li>
+<li><b>Zitat des Tages:</b> Aus der Zitatliste (Optionen › Excel-Import) wird jeden Tag ein anderes Zitat gewählt, nach einer festen Berechnung ohne Wiederholung, bis die Liste durch ist. Ist die Liste leer, fehlt die Karte.</li>
+<li><b>Vorlesen:</b> Der Knopf liest die heutigen Termine und das Wetter mit der Sprachausgabe des Geräts vor (Einzelheiten in Kapitel 5). Er erscheint nur, wenn der Browser Sprachausgabe kann. Beim Vorlesen heißt der Knopf „Stopp“.</li>
+</ul>
+
+<h2 id="kalender">3.2 Kalender</h2>
+<ul>
+<li><b>Zeitraum:</b> Fünf Wochen ab dem Montag der aktuellen Woche, mit Kalenderwochen links. Heute ist hervorgehoben, vergangene Tage sind ausgegraut, Wochenenden getönt. Die Zeile über dem Kalender zeigt von-bis-Datum.</li>
+<li><b>Sechs Kalender:</b> Arbeit, Gemeinsame Zeit, Persönlich, Geburtstage, Veranstaltungen, Feiertage. Die Google-Kalender sind in der Seite fest hinterlegt.</li>
+<li><b>Legende:</b> Jeder Kalender hat einen Knopf mit seiner Farbe. Antippen blendet ihn im Kalender aus oder wieder ein. Das gilt nur für dieses Gerät und nur für die Kalenderansicht. Auf der Übersicht bleiben alle Termine sichtbar.</li>
+<li><b>Farben:</b> Ein Termin trägt die Farbe, die er in Google Kalender hat (die elf Google-Terminfarben). Hat er keine eigene, gilt die Farbe des Kalenders. Die Kalenderfarben änderst du unter Optionen › Farben.</li>
+<li><b>Geburtstage:</b> Wiederholen sich jährlich.</li>
+<li><b>Aktualisierung:</b> Alle 5 Minuten, außerdem beim Wechsel zur Seite, wenn der letzte Abruf länger als eine Minute her ist. Die Seite fragt dafür bei jedem Abruf fünf Wochen ab. Schlägt es fehl, steht ein Hinweis, und der zuletzt geladene Stand bleibt sichtbar.</li>
+<li><b>Tooltip:</b> Beim Darüberfahren mit der Maus zeigt ein Termin Titel, Ort und Kalender.</li>
+</ul>
+
+<h2 id="wetter">3.3 Wetter</h2>
+<ul>
+<li><b>Quelle:</b> Open-Meteo für Nürnberg, Zeitzone Berlin.</li>
+<li><b>Aktuell:</b> Temperatur (keine gefühlte Temperatur) und Wetterlage, alle 15 Minuten neu abgefragt.</li>
+<li><b>Stundenverlauf:</b> Temperatur und Regenwahrscheinlichkeit der nächsten Stunden, mit Regenmenge.</li>
+<li><b>Tagesvorhersage:</b> Mehrere Tage mit Höchst- und Tiefstwert, Wetterlage und Regenwahrscheinlichkeit. Die Tage sind in Morgen (6 bis 12 Uhr), Mittag (12 bis 18 Uhr) und Abend (18 bis 22 Uhr) unterteilt.</li>
+<li><b>Aktualisierung:</b> Die Vorhersage wird zu jeder vollen Stunde neu geladen. Misslingt der Abruf, versucht das Dashboard es alle 5 Minuten wieder und zeigt bis dahin den letzten Stand mit der Uhrzeit.</li>
+</ul>
+
+<h2 id="kita">3.4 Kita</h2>
+<p>Oben stehen drei Reiter: <b>Wochenplan</b>, <b>Monatsplan</b> und <b>Speiseplan</b>. Die Pläne werden als Text dargestellt, nicht als Foto. Das Hochladen geschieht unter Optionen (siehe 4.1).</p>
+<h3 id="kita-woche">Wochenplan</h3>
+<ul>
+<li>Der Wochenplan ist eine <b>laufende Tagesliste</b>. Gezeigt werden gestern und alle späteren Tage. Ältere Tage verschwinden von selbst. Gestern bleibt ausgegraut sichtbar.</li>
+<li>Neue Tage hängen sich hinten an. Nach Freitag, dem 20.11., geht es also direkt mit Montag, dem 23.11., weiter. Eine Überschrift mit „Wochenplan von … bis …“ gibt es nicht mehr.</li>
+<li>Lädst du einen Tag erneut hoch, wird er mit dem neuen Inhalt überschrieben.</li>
+<li>Über der Liste stehen das Wochenthema und der Hinweis der Woche, in der der erste sichtbare Tag liegt.</li>
+<li>Solange ein neu hochgeladener Plan noch nicht in Text umgewandelt ist, bleibt der bisherige sichtbar. Darunter steht ein Hinweis, dass der neue Plan noch nicht umgewandelt ist, mit dem Foto und dem Knopf „In Text umwandeln“.</li>
+</ul>
+<h3 id="kita-monat">Monatsplan</h3>
+<ul><li>Ein neuer Monatsplan ersetzt den alten. Auch hier bleibt der bisherige Plan sichtbar, bis die Umwandlung geklappt hat.</li></ul>
+<h3 id="kita-speise">Speiseplan</h3>
+<ul>
+<li>Speisepläne werden Woche für Woche ergänzt. Jede hochgeladene Kalenderwoche kommt zu den vorhandenen dazu, nur dieselbe Woche wird überschrieben.</li>
+<li>Eine abgelaufene Woche wird mit Beginn der neuen Woche gelöscht.</li>
+<li>Die Kürzel für Allergene werden nicht angezeigt.</li>
+</ul>
+<h3 id="kita-knoepfe">Knöpfe über den Plänen</h3>
+<ul>
+<li><b>PDF öffnen:</b> Zeigt die hochgeladene Datei.</li>
+<li><b>In Text umwandeln:</b> Wiederholt die Umwandlung (Foto/PDF → Text), wenn sie beim Hochladen nicht geklappt hat.</li>
+<li><b>Neuen … hochladen:</b> Führt zum Hochladen (Optionen).</li>
+</ul>
+
+<h2 id="abfahrten">3.5 Abfahrten</h2>
+<ul>
+<li><b>Zwei Haltestellen:</b> Nürnberg-Dutzendteich und Komotauer Straße. Die Auswahl merkt sich das Gerät.</li>
+<li><b>Dutzendteich:</b> Links „S-Bahn Richtung Hbf“ (auch Schwabach und Roth), rechts „Nür-Dutzendteich“ mit Bus und Straßenbahn der nächsten 120 Minuten.</li>
+<li><b>Komotauer Straße:</b> „Richtung Hbf“ und „Andere Richtungen“.</li>
+<li><b>Spalten:</b> Linie, Richtung, geplante Zeit („Soll“) und tatsächliche Zeit („Tatsächlich“) sowie „in Minuten“. Weicht die tatsächliche von der geplanten Zeit ab, stehen beide untereinander. Auf dem Handy ist die Darstellung kompakter: Linie, Richtung, rechts oben die Soll-Zeit und darunter die tatsächliche Zeit. „in Minuten“ steht unter der Richtung. Gleich bleibt die Soll-Zeit allein.</li>
+<li><b>Rot:</b> „in Minuten“ wird unter 10 Minuten rot.</li>
+<li><b>Lange Richtungsnamen:</b> Auf dem Tablet werden die Spalten so verteilt, dass möglichst alles lesbar bleibt. Auf dem Handy läuft zu langer Text als Laufschrift unendlich durch.</li>
+<li><b>Linienfarben:</b> Linie 43 und 65 teilen sich eine Farbe, ebenso 44 und 45. Bus, Straßenbahn und S-Bahn haben eigene Farben. Andere Buslinien in einem Kasten bekommen der Reihe nach die zwei Reservefarben „Bus 1“ und „Bus 2“, sortiert nach Liniennummer. Alle Farben änderst du unter Optionen › Farben.</li>
+<li><b>Aktualisierung:</b> Wird der Reiter angezeigt, werden die Daten neu geholt, sobald sie älter als 45 Sekunden sind.</li>
+<li><b>Links:</b> „Im neuen Tab öffnen“ funktioniert in jedem Fall, auch wenn die Daten nicht geladen werden konnten.</li>
+</ul>
+
+<h2 id="einkauf">3.6 Einkauf</h2>
+<p>Die Einkaufsliste ist eine gemeinsame Liste für alle Geräte, nach dem Vorbild von Bring.</p>
+<h3 id="einkauf-liste">Die Liste</h3>
+<ul>
+<li>Jeder Artikel ist eine Kachel mit Symbol und Name, dazu eventuell Menge oder Notiz.</li>
+<li><b>Antippen = erledigt.</b> Der Artikel verschwindet. Unten erscheint 6 Sekunden lang „Rückgängig“.</li>
+<li><b>Lange drücken</b> (etwa eine halbe Sekunde) öffnet die Details: Menge, Notiz und Kategorie ändern.</li>
+<li>Die Liste ist nach Kategorien sortiert, in der Reihenfolge, die du unter Optionen festlegst. Die Kategorien selbst werden nicht angezeigt.</li>
+<li>Derselbe Artikel darf mehrfach vorkommen (zum Beispiel zweimal Blumenkohl).</li>
+<li>Auf dem Handy sind es drei Kacheln nebeneinander. Die Kopfzeile ist ausgeblendet. Das Hochformat wird, soweit der Browser es erlaubt, festgehalten (siehe 8.4).</li>
+</ul>
+<h3 id="einkauf-eingabe">Artikel hinzufügen</h3>
+<ol>
+<li>Unten am Rand liegt die Zeile „Ich brauche …“ mit einem Plus. Ein Tipp darauf öffnet die Eingabemaske, der Cursor steht schon im Feld.</li>
+<li>Beim Tippen erscheinen Vorschläge als Kacheln (aus einem Katalog mit rund 260 Artikeln, auch bei Tippfehlern). Passt nichts, steht der getippte Text selbst als Kachel dabei.</li>
+<li>Ein Tipp auf eine Kachel (oder Enter) fügt den Artikel hinzu. Die Maske wechselt zu „Details zu …“ mit Schnellauswahl (1, 2, 3, 4, 6, 250 g, 500 g, 1 kg, 1 l, Bio), einem Feld für eigene Menge oder Notiz und der Kategorie. Zahlen und Mengen schließen sich gegenseitig aus, „Bio“ lässt sich dazu wählen.</li>
+<li>Der Cursor steht sofort in „Nächster Artikel …“. Tippst du dort weiter, zeigt die Maske wieder Vorschläge.</li>
+<li>Schließen: „Fertig“, Tipp neben die Maske, Esc oder Enter bei leerem Feld.</li>
+</ol>
+<p>Gemerkt wird die Kategorie, die du einem Artikel gibst, damit er künftig dort einsortiert wird.</p>
+<h3 id="einkauf-symbole">Symbole</h3>
+<p>Die meisten Artikel haben ein Emoji. Magerquark und Blumenkohl haben eigene gezeichnete Symbole im Emoji-Stil.</p>
+
+<h2 id="bilder">3.7 Bilder</h2>
+<ul>
+<li>Nur auf Tablet und Notebook.</li>
+<li>Zwei Sammlungen: <b>Familie</b> und <b>Bahn</b>. Mit „Ordner wählen“ wählst du pro Sammlung einen Ordner mit Fotos. Beim ersten Mal ist das nötig, danach bleiben die Bilder in diesem Browser gespeichert.</li>
+<li>Die Bilder werden dabei verkleinert (längste Seite höchstens 1920 Pixel) und im Browser des Geräts abgelegt (IndexedDB). Es wird nichts hochgeladen. Pro Sammlung höchstens 400 Bilder.</li>
+<li><b>Diashow:</b> Ein Tipp auf „Familie“ oder „Bahn“ startet sie im Vollbild, in zufälliger Reihenfolge mit weichem Übergang. Das Aufnahmedatum aus den Bilddaten (EXIF) steht unten rechts.</li>
+<li><b>Bedienung:</b> Ein Tipp blendet die Steuerung für 4 Sekunden ein: „‹ Zurück“, „Pause“, „Weiter ›“, „Wechsel alle … Sekunden“ (5, 10, 15, 20, 30, 60) und „Schließen“. Mit Pfeiltasten und Esc geht es auch von der Tastatur.</li>
+<li>Die Dauer pro Bild stellst du auch unter Optionen › Zeiten ein. Sie gilt für alle Geräte.</li>
+</ul>
+
+<h1 id="optionen">4 Optionen</h1>
+<p>Die Optionen liegen auf dem Tablet in zwei Spalten, auf dem Handy untereinander. Änderungen gelten sofort und, soweit nicht anders angegeben, für alle Geräte.</p>
+
+<h2 id="opt-kita">4.1 Kita-Pläne hochladen</h2>
+<p>Drei Knöpfe: Wochenplan, Monatsplan und Speiseplan hochladen. Du wählst ein Foto oder ein PDF. Das Dashboard schickt es an das Google-Script, Gemini liest den Text, und der Plan erscheint im Reiter Kita. Das dauert etwa eine halbe Minute. Bei einem PDF werden die Seiten zuerst in Bilder umgewandelt (höchstens fünf Seiten pro Umwandlung). Prüfe den Text kurz auf Fehler.</p>
+<h3 id="umwandlung">Wenn die Umwandlung nicht klappt</h3>
+<ul>
+<li>Der Plan wird zuerst gespeichert, dann umgewandelt. Misslingt die Umwandlung, steht darüber eine Meldung mit der Ursache, und der bisherige Plan bleibt sichtbar. „In Text umwandeln“ im Reiter Kita wiederholt sie, ohne neu hochzuladen.</li>
+<li><b>503 „high demand“:</b> Gemini ist überlastet. Das Dashboard versucht es automatisch bis zu dreimal, mit wachsender Pause und 75 Sekunden Wartezeit pro Versuch. Das Script probiert zusätzlich Ersatzmodelle. Hilft das nicht, später noch einmal versuchen.</li>
+<li><b>404 „model not found / no longer available“:</b> Der Modellname im Script ist veraltet (siehe 7.3).</li>
+<li><b>429:</b> Das Tageslimit der kostenlosen Stufe ist erreicht.</li>
+<li><b>„Zeitüberschreitung“:</b> Gemini hat zu lange nicht geantwortet. Meist hängt es mit Überlastung zusammen.</li>
+</ul>
+
+<h2 id="opt-io">4.2 Import und Export</h2>
+<h3 id="excel-import">Excel-Import: Zitate und Vorlesen</h3>
+<p>Du lädst eine Excel-Datei hoch. Sie darf diese Blätter enthalten (erste Zeile = Überschrift):</p>
+<table>
+<tr><th>Blatt</th><th>Spalten</th><th>Wirkung</th></tr>
+<tr><td>Zitate</td><td>Zitat, Autor</td><td>Liste für „Zitat des Tages“</td></tr>
+<tr><td>Orte</td><td>Kürzel, Name</td><td>Vorlesen: Kürzel (zum Beispiel FF) → Ort („Frankfurt“)</td></tr>
+<tr><td>Ignorieren</td><td>Terminanfang</td><td>Arbeitstermine, die mit diesem Text beginnen, werden nicht vorgelesen</td></tr>
+<tr><td>Sonderwörter</td><td>Wort, Lesart, Art</td><td>Eigene Vorlese-Regeln (Art: Tätigkeit, Ziel, Aktion, Satz, Ersetzen; siehe Kapitel 5)</td></tr>
+<tr><td>Farben</td><td>Kalender, Farbe</td><td>Kalenderfarben (und Linienfarben)</td></tr>
+</table>
+<p>Vorhandene Blätter ersetzen die jeweilige Liste. Fehlende Blätter lassen die Liste, wie sie ist. Die Karte zeigt, wie viele Zitate geladen sind.</p>
+<h3 id="excel-export">Sicherung (Export)</h3>
+<p>„Einstellungen als Excel sichern“ speichert Zitate, Orte, Ignorierliste, Sonderwörter und Farben in einer Excel-Datei. Mit dem Import lässt sich alles wieder einspielen. Mache nach größeren Änderungen eine Sicherung.</p>
+
+<h2 id="opt-zeiten">4.3 Zeiten</h2>
+<table>
+<tr><th>Einstellung</th><th>Werte</th><th>Standard</th><th>Gilt für</th></tr>
+<tr><td>Diashow: Wechsel alle</td><td>5, 10, 15, 20, 30, 60 Sekunden</td><td>15 Sekunden</td><td>alle Geräte</td></tr>
+<tr><td>Zurück zur Übersicht nach</td><td>1, 2, 5, 10, 15, 30 Minuten, Nie</td><td>5 Minuten</td><td>alle Geräte</td></tr>
+<tr><td>Nachtmodus</td><td>Aus, Von Sonnenunter- bis aufgang</td><td>Aus</td><td>alle Geräte</td></tr>
+<tr><td>Startseite</td><td>Übersicht, Kalender, Wetter, Kita, Abfahrten, Einkauf, Bilder</td><td>Übersicht</td><td><b>nur dieses Gerät</b></td></tr>
+</table>
+
+<h2 id="opt-farben">4.4 Farben</h2>
+<ul>
+<li><b>Kalenderfarben:</b> Arbeit, Gemeinsame Zeit, Persönlich, Geburtstage, Veranstaltungen, Feiertage. Farbfeld antippen und wählen. Gilt auf allen Geräten.</li>
+<li><b>Linienfarben:</b> Linie 43 und 65, Linie 44 und 45, Bus 1, Bus 2, Straßenbahn, S-Bahn. Bus 1 und Bus 2 sind die Reserve für andere Buslinien.</li>
+<li>Farben lassen sich auch per Excel (Blatt „Farben“) setzen.</li>
+</ul>
+
+<h2 id="opt-einkauf">4.5 Einkauf: Reihenfolge</h2>
+<p>Zwölf Kategorien in der Reihenfolge, in der die Einkaufsliste sortiert wird: Obst &amp; Gemüse, Brot &amp; Backwaren, Milch, Käse &amp; Eier, Fleisch, Wurst &amp; Fisch, Tiefkühl, Vorrat &amp; Konserven, Gewürze, Öle &amp; Soßen, Süßes &amp; Snacks, Getränke, Haushalt &amp; Drogerie, Baby &amp; Kind, Sonstiges. Mit ▲ und ▼ verschiebst du eine Kategorie, „Standard-Reihenfolge“ stellt die Ausgangsreihenfolge wieder her. Ideal ist die Reihenfolge, in der du durch den Laden gehst. Gilt für alle Geräte.</p>
+
+<h2 id="opt-verbindung">4.6 Verbindung zum Google-Script</h2>
+<p>Hier trägst du den Link des Scripts (endet auf <code>/exec</code>) und den Schlüssel (dein Script-Passwort) ein. „Speichern“ übernimmt beides, „Verbindung testen“ prüft sie. Die Eingabe gilt nur auf diesem Gerät. Wetter braucht keine Verbindung.</p>
+
+<h2 id="opt-version">4.7 Version und Akku</h2>
+<p>Unten steht die Version der Seite mit Datum und Uhrzeit. Daran siehst du, ob ein Gerät die neueste Version geladen hat. Darunter steht der Status der Akku-Anzeige.</p>
+
+<h2 id="opt-doku">4.8 Dokumentation</h2>
+<p>Dieses Handbuch liegt als PDF bei der Seite und lässt sich unter Optionen laden („Dokumentation herunterladen“).</p>
+
+<h1 id="vorlesen">5 Vorlesen im Detail</h1>
+<p>Der Knopf „Vorlesen“ auf der Übersicht liest die heutigen Termine und das Wetter vor. Kalender, die du in der Legende des Kalenders ausgeblendet hast, werden dabei nicht vorgelesen. Er nutzt die Sprachausgabe des Browsers mit einer deutschen Stimme (lokale Stimmen werden bevorzugt, Tempo 0,95). Klappt es nicht, erscheint eine Meldung mit der Zahl der gefundenen Stimmen. Dann die Lautstärke und die Spracheinstellungen am Gerät prüfen. In manchen Kiosk-Apps ist keine Sprachausgabe vorhanden.</p>
+
+<h2 id="vl-ablauf">5.1 Ablauf</h2>
+<ol>
+<li>Gruß der Tageszeit („Guten Morgen.“ usw.) und das Datum.</li>
+<li>Anzahl der Termine, dann jeder Termin einzeln, in der Reihenfolge der Kalender.</li>
+<li>Wetter: aktuelle Temperatur, Tageshöchst- und -tiefstwert, Wetterlage und Regenwahrscheinlichkeit der nächsten Stunden (unter 5 Prozent: „Es wird kein Regen erwartet.“).</li>
+<li>Schlussgruß.</li>
+</ol>
+
+<h2 id="vl-termine">5.2 Wie Termine vorgelesen werden</h2>
+<table>
+<tr><th>Termin</th><th>Gesprochen</th></tr>
+<tr><td>Geburtstag</td><td>„Geburtstag: Name.“</td></tr>
+<tr><td>Feiertag</td><td>„Feiertag: Name.“</td></tr>
+<tr><td>Termin mit Uhrzeit</td><td>„Um 17 Uhr 30: Titel.“</td></tr>
+<tr><td>Ganztägig</td><td>„Ganztägig: Titel.“</td></tr>
+<tr><td>Arbeitstermin</td><td>Wird in einen Satz mit Christians Dienst umgebaut (5.3).</td></tr>
+</table>
+
+<h2 id="vl-arbeit">5.3 Der Arbeitskalender</h2>
+<p>Termine im Kalender „Arbeit“ haben meist die Form <code>05:55-16:03 FF, LL</code>. Daraus wird: „Christian fährt heute von 5 Uhr 55 bis 16 Uhr 3 nach Frankfurt und Leipzig.“</p>
+<ul>
+<li><b>Orte:</b> Kürzel kommen aus der Tabelle „Orte“. Unbekannte Kürzel werden Buchstabe für Buchstabe gelesen.</li>
+<li><b>Ruhe/Urlaub:</b> „Christian hat heute Ruhe.“ bzw. „… Urlaub.“</li>
+<li><b>Fahrtrainer:</b> Steht „Fahrtrainer“ im Titel (außer „Fahrtrainer Treff“), heißt es „… nach Ort als Fahrtrainer“.</li>
+<li><b>Ignorieren:</b> Arbeitstermine, die mit einem Text der Ignorierliste beginnen, werden übersprungen. Ab Werk: „Regelmäßiges Update DF“, „DiSi Sprint“, „VÖ Einsatzplan“ und „Wünsche“.</li>
+<li><b>Sonderwörter</b> (Tabelle „Sonderwörter“, Art in Klammern). Ab Werk:</li>
+</ul>
+<table>
+<tr><th>Wort</th><th>Lesart</th><th>Art</th></tr>
+<tr><td>RFU</td><td>Weiterbildung</td><td>Tätigkeit</td></tr>
+<tr><td>EiB's</td><td>Azubis</td><td>Tätigkeit</td></tr>
+<tr><td>Ber</td><td>Bereitschaft</td><td>Tätigkeit</td></tr>
+<tr><td>Ao, Am</td><td>in die Abstellanlage</td><td>Ziel</td></tr>
+<tr><td>NNRF</td><td>eine Drehfahrt</td><td>Aktion</td></tr>
+<tr><td>aus Nacht</td><td>kommt heute aus der Nachtschicht</td><td>Satz</td></tr>
+<tr><td>(Wunsch)</td><td>(wird überhört)</td><td>Ersetzen</td></tr>
+<tr><td>TS R</td><td>TS</td><td>Ersetzen</td></tr>
+</table>
+<p>Die Arten im Überblick: <b>Tätigkeit</b> („Christian hat heute … Weiterbildung“), <b>Ziel</b> (wird wie ein Ort behandelt), <b>Aktion</b> („macht …“), <b>Satz</b> (ganzer Satz), <b>Ersetzen</b> (Text wird vorher ersetzt oder entfernt).</p>
+<p>Andere Arbeitseinträge ohne bekanntes Muster werden mit „Heute: Titel“ gelesen, bei Termin mit Uhrzeit „um 17 Uhr“.</p>
+
+<h2 id="vl-schluss">5.4 Schlussgruß</h2>
+<p>Der Schlussgruß richtet sich nach dem Tag. Die erste passende Regel gilt:</p>
+<ol>
+<li>Nachts (22 bis 5 Uhr): „Schlaft gut.“</li>
+<li>Fahrtrainer-Dienst: „Christian, viel Spaß mit deinen Fahrschülern.“</li>
+<li>Fahrdienst: „Christian, komm gut hin und gut wieder heim.“</li>
+<li>Ruhe oder Urlaub: „Genießt den freien Tag.“</li>
+<li>Regenwahrscheinlichkeit ab 40 Prozent: „Nehmt heute einen Schirm mit.“</li>
+<li>Tiefstwert bis 0 Grad: „Zieht euch warm an, es wird frostig.“</li>
+<li>Sonne, klar oder heiter ohne Wolken und Regen: „Genießt die Sonne.“</li>
+<li>Sonst ein wechselnder motivierender Satz.</li>
+</ol>
+<p>Danach folgt je nach Tageszeit: „Habt einen guten Start in den Tag.“, „Lasst euch den Rest des Tages gut gelingen.“ oder „Habt einen schönen Abend.“</p>
+
+<h1 id="technik">6 Technik: Speicher und Aktualisierung</h1>
+
+<h2 id="t-speicher">6.1 Lokaler Speicher und gemeinsamer Speicher</h2>
+<p>Das Dashboard speichert alles zuerst im Browser des Geräts und gleicht es mit dem Google-Script ab. So geht nichts verloren, wenn die Verbindung kurz fehlt.</p>
+<ul>
+<li><b>Schreiben:</b> Eine Änderung wird sofort lokal gespeichert und an das Script geschickt. Das Script legt sie in einer Datei im Google Drive ab („Familien-Dashboard-Daten.json“).</li>
+<li><b>Lesen:</b> Alle 2 Minuten und immer, wenn die Seite wieder sichtbar wird, holt das Dashboard den gemeinsamen Stand und übernimmt Änderungen anderer Geräte.</li>
+<li><b>Ohne Verbindung:</b> Die Seite arbeitet mit dem lokalen Stand weiter. Der Kalender zeigt dann eine Meldung, und Wetter und Abfahrten melden „nicht verfügbar“.</li>
+<li><b>Konflikte:</b> Es gilt immer der zuletzt gespeicherte Stand.</li>
+</ul>
+
+<h2 id="t-dokumente">6.2 Gemeinsame Dokumente</h2>
+<table>
+<tr><th>Pfad</th><th>Inhalt</th></tr>
+<tr><td><code>settings/colors</code>, <code>settings/linecolors</code></td><td>Kalender- und Linienfarben</td></tr>
+<tr><td><code>settings/times</code></td><td>Diashow-Dauer, Rückkehr zur Übersicht, Nachtmodus</td></tr>
+<tr><td><code>settings/zitate</code>, <code>settings/vorlesen</code></td><td>Zitate, Orte, Ignorierliste, Sonderwörter</td></tr>
+<tr><td><code>settings/einkaufreihenfolge</code></td><td>Reihenfolge der Einkaufskategorien</td></tr>
+<tr><td><code>kita/plan</code>, <code>kita/monatsplan</code>, <code>kita/speiseplan</code></td><td>Hochgeladene Pläne (Foto/PDF-Verweis, Text, Vorgängerplan)</td></tr>
+<tr><td><code>kita/tage</code></td><td>Laufende Tagesliste des Wochenplans</td></tr>
+<tr><td><code>kita/speisen</code></td><td>Gesammelte Speisepläne mehrerer Wochen</td></tr>
+<tr><td><code>einkauf/liste</code>, <code>einkauf/merk</code></td><td>Artikel der Einkaufsliste und gemerkte Kategorien</td></tr>
+</table>
+
+<h2 id="t-lokal">6.3 Nur lokal gespeichert (pro Gerät)</h2>
+<table>
+<tr><th>Schlüssel</th><th>Bedeutung</th></tr>
+<tr><td><code>fd:cfg</code></td><td>Link und Schlüssel zum Script</td></tr>
+<tr><td><code>fd:start</code></td><td>Startseite dieses Geräts</td></tr>
+<tr><td><code>fd:db:…</code></td><td>Lokale Kopie der gemeinsamen Dokumente</td></tr>
+<tr><td><code>familien-dashboard-einstellungen</code></td><td>Ausgeblendete Kalender in der Legende, lokale Farbwerte</td></tr>
+<tr><td><code>abSel</code>, <code>abLines2:…</code></td><td>Letzte Haltestelle, bekannte Buslinien (für die Reservefarben)</td></tr>
+<tr><td><code>fd:rl</code></td><td>Datum des letzten Nachtneustarts</td></tr>
+<tr><td>IndexedDB</td><td>Bilder der Diashow, Fotos der Kita-Pläne</td></tr>
+</table>
+<p class="note">Wer den Browserspeicher einer App löscht, verliert Link/Schlüssel, die Startseite und die Bilder dieses Geräts. Die gemeinsamen Daten bleiben im Google Drive erhalten.</p>
+
+<h2 id="t-intervalle">6.4 Aktualisierungsintervalle</h2>
+<table>
+<tr><th>Was</th><th>Wie oft</th></tr>
+<tr><td>Uhr, Datum, Gruß</td><td>jede Sekunde geprüft, Anzeige zur vollen Minute</td></tr>
+<tr><td>Termine neu zeichnen</td><td>zur vollen Stunde und beim Tageswechsel</td></tr>
+<tr><td>Kalender (Google)</td><td>alle 5 Minuten</td></tr>
+<tr><td>Wetter-Vorhersage</td><td>stündlich, bei Fehlern alle 5 Minuten neuer Versuch</td></tr>
+<tr><td>Aktuelle Temperatur</td><td>alle 15 Minuten</td></tr>
+<tr><td>Abfahrten</td><td>bei offenem Reiter, wenn die Daten älter als 45 Sekunden sind</td></tr>
+<tr><td>Gemeinsamer Speicher</td><td>alle 2 Minuten und beim Sichtbarwerden</td></tr>
+<tr><td>Netzwerkprüfung</td><td>alle 15 Sekunden</td></tr>
+<tr><td>Akku</td><td>jede Minute</td></tr>
+<tr><td>Nachtmodus</td><td>alle 30 Sekunden</td></tr>
+<tr><td>Neustart</td><td>einmal pro Nacht um 3 Uhr</td></tr>
+</table>
+
+<h1 id="script">7 Das Google-Script</h1>
+
+<h2 id="s-aktionen">7.1 Was das Script kann</h2>
+<table>
+<tr><th>Aktion</th><th>Wirkung</th></tr>
+<tr><td><code>cal</code></td><td>Termine eines Google-Kalenders für einen Zeitraum</td></tr>
+<tr><td><code>getall</code></td><td>Liefert alle gemeinsamen Dokumente</td></tr>
+<tr><td><code>set</code>, <code>delete</code></td><td>Schreibt oder löscht ein Dokument (nur Pfade aus Buchstaben, Ziffern, „-“, „_“ und „/“, höchstens 80 Zeichen)</td></tr>
+<tr><td><code>abf</code></td><td>Abfahrten einer VGN-Haltestelle von der VAG-Schnittstelle</td></tr>
+<tr><td><code>convert</code></td><td>Textumwandlung mit Gemini (bis zu 5 Bilder pro Aufruf)</td></tr>
+</table>
+
+<h2 id="s-sicherheit">7.2 Sicherheit</h2>
+<ul>
+<li>Jede Anfrage braucht das Script-Passwort (<code>SCHLUESSEL</code>). Ohne Passwort kommt nur „Schluessel falsch“.</li>
+<li>Das Script läuft unter deinem Google-Konto („Ausführen als: Ich“), die Web-App ist für „Jeder“ freigegeben. Der Schutz ist das Passwort. Gib Link und Passwort nicht weiter.</li>
+<li>Wenn beides doch bekannt geworden ist: Passwort im Script ändern, neu bereitstellen und auf allen Geräten neu eintragen.</li>
+<li>Die Dashboard-Seite selbst ist öffentlich erreichbar, enthält aber keine privaten Daten.</li>
+</ul>
+
+<h2 id="s-gemini">7.3 Gemini und Modelle</h2>
+<ul>
+<li>Der Schlüssel steht in <code>GEMINI_KEY</code>. Er ist kostenlos (aistudio.google.com/apikey). Die kostenlose Stufe hat Tageslimits, die für ein paar Pläne pro Woche reichen. Google darf Eingaben der kostenlosen Stufe zur Verbesserung seiner Dienste verwenden.</li>
+<li><code>GEMINI_MODEL</code> ist das bevorzugte Modell, <code>GEMINI_ERSATZ</code> die Liste der Ersatzmodelle. Bei Überlastung (503/429) oder wenn ein Modell nicht mehr angeboten wird (404) probiert das Script das nächste.</li>
+<li>Der Modellname veraltet gelegentlich. Dann in <code>GEMINI_MODEL</code> einen aktuellen Namen eintragen, speichern und neu bereitstellen.</li>
+</ul>
+
+<h2 id="s-neu">7.4 Nach Änderungen am Script</h2>
+<p>Bereitstellen › Bereitstellungen verwalten › Stift › Version: „Neue Version“ › Bereitstellen. Der Link bleibt gleich. Beim ersten Mal und wenn Berechtigungen fehlen („UrlFetchApp.fetch … nicht erforderliche Berechtigung“): im Script die Funktion <b>berechtigungen</b> ausführen und die Fenster bestätigen (Erweitert › Zulassen).</p>
+
+<h1 id="einrichtung">8 Einrichten, Aktualisieren, Besonderheiten</h1>
+
+<h2 id="e-kurz">8.1 Einrichtung in Kurzfassung</h2>
+<ol>
+<li><b>Gemini-Schlüssel</b> holen (aistudio.google.com/apikey, „API-Schlüssel erstellen“).</li>
+<li><b>Google-Script</b> anlegen (script.google.com › Neues Projekt), den Inhalt von <code>Backend.gs</code> einfügen, <code>SCHLUESSEL</code> (eigenes Passwort, mindestens 20 Zeichen) und <code>GEMINI_KEY</code> ausfüllen, speichern, Funktion „berechtigungen“ ausführen, dann Bereitstellen › Neue Bereitstellung › Web-App (Ausführen als: Ich, Zugriff: Jeder). Die URL (endet auf <code>/exec</code>) notieren.</li>
+<li><b>GitHub:</b> Konto, Repository „dashboard“ (öffentlich), die vier Dateien <code>index.html</code>, <code>manifest.webmanifest</code>, <code>icon-192.png</code>, <code>icon-512.png</code> hochladen, unter Settings › Pages „main“ und „/ (root)“ wählen. Adresse: <code>https://BENUTZERNAME.github.io/dashboard/</code>.</li>
+<li><b>Geräte verbinden:</b> Entweder die Adresse mit <code>#u=SCRIPT-LINK&amp;k=PASSWORT</code> einmal öffnen oder unter Optionen › Verbindung zum Google-Script Link und Schlüssel eintragen, „Speichern“ und „Verbindung testen“.</li>
+</ol>
+<p>Die ausführliche Schritt-für-Schritt-Anleitung (Datei „Anleitung-Einrichtung“) beschreibt jeden Klick.</p>
+
+<h2 id="e-anzeige">8.2 Anzeige auf den Geräten</h2>
+<ul>
+<li><b>FreeKiosk, Fully Kiosk:</b> Die Adresse als Start-URL eintragen. Verbindung einmal in der App einrichten.</li>
+<li><b>Samsung Internet:</b> Adresse öffnen, Menü › Seite hinzufügen zu › Startbildschirm. Das Dashboard startet dann als eigene App im Vollbild.</li>
+<li><b>Handy als Web-App:</b> Das Manifest startet die Seite im Modus „standalone“. Die obere Statusleiste des Handys bleibt dabei sichtbar.</li>
+<li><b>Firefox:</b> Zum Testen reicht die normale Adresse.</li>
+</ul>
+
+<h2 id="e-update">8.3 Neue Version einspielen</h2>
+<ol>
+<li>Im Repository <code>dashboard</code> auf github.com: Add file › Upload files.</li>
+<li>Die neue <code>index.html</code> hineinziehen (gleicher Name ersetzt die alte), Commit changes.</li>
+<li>Nach ein bis zwei Minuten ist sie online. Auf dem Tablet neu laden (nach unten wischen oder App neu starten).</li>
+<li>Prüfen: Optionen › ganz unten steht die Versionsnummer mit Datum und Uhrzeit.</li>
+</ol>
+<p>Was du selbst änderst (Farben, Zitate, Orte, Kita-Pläne, Zeiten, Excel-Einstellungen), brauchst du nicht hochzuladen. Das gilt sofort für alle Geräte. Die Dokumentation (PDF) liegt neben der <code>index.html</code> im Repository und wird bei Änderungen am Handbuch ebenfalls ersetzt.</p>
+
+<h2 id="e-grenzen">8.4 Grenzen und Besonderheiten</h2>
+<ul>
+<li><b>Hochformat in der Einkaufsliste:</b> Die Sperre des Querformats funktioniert nur, wenn der Browser sie erlaubt. Meist klappt es nur in einer installierten Web-App, in einem normalen Browser-Tab oft nicht.</li>
+<li><b>Vorlesen</b> hängt von den Stimmen des Geräts ab. In Kiosk-Apps ist es nicht immer verfügbar.</li>
+<li><b>Bilder</b> liegen pro Gerät. Sie lassen sich nicht zwischen Geräten teilen.</li>
+<li><b>Akku und WLAN</b> hängen davon ab, was der Browser meldet. Manche Browser geben den Akkustand nicht heraus.</li>
+<li><b>Gemini:</b> Tageslimits und gelegentliche Überlastung. Pläne lassen sich später erneut umwandeln.</li>
+<li><b>Abfahrten:</b> Kommen von der VAG-Schnittstelle. Fällt sie aus, erscheint „Abfahrten konnten nicht geladen werden“.</li>
+<li><b>Kalender:</b> Die Kalender sind in der Seite fest eingetragen. Ein anderer Google-Kalender braucht eine Änderung an der Seite.</li>
+<li><b>Wetterort:</b> Nürnberg fest eingestellt. Der Nachtmodus rechnet mit denselben Koordinaten.</li>
+</ul>
+
+<h1 id="fehler">9 Fehlersuche</h1>
+<table>
+<tr><th>Meldung oder Beobachtung</th><th>Ursache und Abhilfe</th></tr>
+<tr><td>„Schluessel falsch“, Kalender leer</td><td>Passwort im Dashboard stimmt nicht mit dem im Script überein. Optionen › Verbindung prüfen.</td></tr>
+<tr><td>„Bitte zuerst den Link eintragen“</td><td>Auf diesem Gerät ist noch kein Script-Link gespeichert.</td></tr>
+<tr><td>„Verbindung klappt nicht“</td><td>Link, Schlüssel und Freigabe „Jeder“ prüfen. Nach Änderungen am Script neu bereitstellen.</td></tr>
+<tr><td>Kalender zeigt „nicht verfügbar“</td><td>Keine Verbindung oder Script nicht bereitgestellt. Hinweis unter dem Kalender lesen.</td></tr>
+<tr><td>Wetter „nicht verfügbar“</td><td>Open-Meteo gerade nicht erreichbar. Das Dashboard versucht es alle 5 Minuten neu.</td></tr>
+<tr><td>„Abfahrten konnten nicht geladen werden“</td><td>VAG-Schnittstelle oder Script nicht erreichbar. „Im neuen Tab öffnen“ geht trotzdem.</td></tr>
+<tr><td>Umwandlung: 503 „high demand“</td><td>Gemini überlastet. Später mit „In Text umwandeln“ wiederholen.</td></tr>
+<tr><td>Umwandlung: 404 „model not found“</td><td>Modellname im Script ist veraltet. <code>GEMINI_MODEL</code> aktualisieren und neu bereitstellen.</td></tr>
+<tr><td>Umwandlung: „Gemini-Schluessel fehlt“</td><td><code>GEMINI_KEY</code> im Script eintragen.</td></tr>
+<tr><td>Umwandlung: „Zeitüberschreitung“</td><td>Meist Überlastung bei Gemini. Später erneut versuchen.</td></tr>
+<tr><td>Kein Ton beim Vorlesen</td><td>Lautstärke und Systemsprache prüfen, deutsche Stimme installieren. Die Meldung nennt die Zahl der gefundenen Stimmen.</td></tr>
+<tr><td>Anzeige zeigt altes Aussehen</td><td>Seite neu laden. Version unter Optionen prüfen. Es kann 1 bis 2 Minuten dauern, bis GitHub die neue Datei ausliefert.</td></tr>
+<tr><td>Einstellungen auf einem Gerät weg</td><td>Browserspeicher gelöscht. Verbindung neu eintragen, die gemeinsamen Daten kommen von selbst zurück.</td></tr>
+<tr><td>WLAN steht auf „Offline“, obwohl es geht</td><td>Die Prüfung erreicht die Seite nicht. Kurz warten, sie läuft alle 15 Sekunden.</td></tr>
+</table>
+
+<h1 id="anhang">10 Anhang</h1>
+
+<h2 id="a-begriffe">10.1 Begriffe</h2>
+<table>
+<tr><th>Begriff</th><th>Bedeutung</th></tr>
+<tr><td>Dashboard</td><td>Die Anzeigeseite (<code>index.html</code>)</td></tr>
+<tr><td>Script, Backend</td><td>Das Google Apps Script (<code>Backend.gs</code>)</td></tr>
+<tr><td>Bereitstellung</td><td>Veröffentlichung einer Script-Version als Web-App. Nach Änderungen nötig</td></tr>
+<tr><td>Repository</td><td>Dein Ordner bei GitHub, aus dem die Seite ausgeliefert wird</td></tr>
+<tr><td>Kiosk-App</td><td>App, die eine Seite im Vollbild ohne Bedienleisten zeigt (FreeKiosk, Fully Kiosk)</td></tr>
+<tr><td>Web-App</td><td>Auf den Startbildschirm gelegte Seite, die sich wie eine App öffnet</td></tr>
+<tr><td>Soll / Tatsächlich</td><td>Geplante und tatsächliche Abfahrtszeit</td></tr>
+<tr><td>DS-100-Kürzel</td><td>Betriebsstellenkürzel der Bahn (zum Beispiel FF = Frankfurt), für das Vorlesen des Arbeitskalenders</td></tr>
+</table>
+
+<h2 id="a-kalender">10.2 Die sechs Kalender</h2>
+<table>
+<tr><th>Kalender</th><th>Standardfarbe</th><th>Bemerkung</th></tr>
+<tr><td>Arbeit</td><td>Indigo</td><td>Dienste, werden vorgelesen (5.3)</td></tr>
+<tr><td>Gemeinsame Zeit</td><td>Blau</td><td>Uhrzeit im Titel wird zum Sortieren genutzt</td></tr>
+<tr><td>Persönlich</td><td>Gelb</td><td></td></tr>
+<tr><td>Geburtstage</td><td>Rosa</td><td>Wiederholen sich jährlich</td></tr>
+<tr><td>Veranstaltungen</td><td>Grün</td><td></td></tr>
+<tr><td>Feiertage</td><td>Violett</td><td>Deutsche Feiertage aus Google</td></tr>
+</table>
+<p>Die gespeicherten Farben unter Optionen haben Vorrang vor den Standardfarben.</p>
+<a class="up" href="#inhalt">↑ Inhalt</a></body></html>
