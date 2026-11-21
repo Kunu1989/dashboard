@@ -411,7 +411,6 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ek-shop.on { background: var(--accent); color: #fff; }
 #ekShC { display: none; }
 
-.ek-chips { display: none; }
 .ek-bar { justify-content: flex-end; pointer-events: none; }
 .ek-bar .ek-add { pointer-events: auto; width: 64px; height: 56px; }
 /* breite Bildschirme / Querformat: Eingabe oben im Dialog, damit die Bildschirmtastatur sie nicht verdeckt */
@@ -850,7 +849,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 6.1 &middot; vom 21.11.2026, 18:10 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 6.2 &middot; vom 21.11.2026, 21:39 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1853,7 +1852,36 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
   /* ---------- Eingabemaske (wie Bring): Vorschläge, danach Details ---------- */
   var cur = null, qT = null, qDirty = false;
-  var CHIPS = ["1", "2", "3", "4", "6", "250 g", "500 g", "1 kg", "1 l", "Bio"];
+  /* Vorschläge pro Artikel (gemeinsam für beide Läden): DET[normName] = {n: Name, v: [Texte]} */
+  var DET = {}, dPending = 0;
+  function cleanDet(v) {
+    var o = v; if (typeof v === "string") { try { o = JSON.parse(v); } catch (e) { o = {}; } }
+    var r = {}; if (!o || typeof o !== "object" || Array.isArray(o)) return r;
+    Object.keys(o).slice(0, 2000).forEach(function (k) {
+      var x = o[k]; if (!x || typeof x.n !== "string" || !Array.isArray(x.v)) return;
+      var kk = norm(x.n), seen = {}, vv = []; if (!kk) return;
+      x.v.forEach(function (t) { t = String(t == null ? "" : t).replace(/\s+/g, " ").trim().slice(0, 30); var tk = t.toLowerCase(); if (t && !seen[tk] && vv.length < 12) { seen[tk] = 1; vv.push(t); } });
+      if (vv.length) r[kk] = {n: x.n.slice(0, 60), v: vv};
+    });
+    return r;
+  }
+  function saveDet() { if (!db) return; dPending++; db.doc("einkauf/details").set({d: JSON.stringify(DET)}).catch(function () {}).then(function () { dPending--; }); }
+  function buildChips() {
+    var x = cur && byId(cur), d = x && DET[norm(x.n)]; el.chips.textContent = "";
+    (d ? d.v : []).forEach(function (t) { var b = document.createElement("button"); b.type = "button"; b.className = "ek-chip"; b.setAttribute("data-c", t); b.textContent = t; el.chips.appendChild(b); });
+    el.chips.hidden = !el.chips.children.length; syncChips();
+  }
+  /* Was du bei einem Artikel eintippst, wird sofort als Vorschlag für diesen Artikel gemerkt */
+  function learnCur() {
+    var x = cur && byId(cur); if (!x || !x.q) return; var k = norm(x.n); if (!k) return;
+    var d = DET[k] || (DET[k] = {n: x.n, v: []}), ch = false;
+    x.q.split(/\s*,\s*/).forEach(function (t) {
+      t = t.trim().slice(0, 30); if (!t) return;
+      if (!d.v.some(function (u) { return u.toLowerCase() === t.toLowerCase(); }) && d.v.length < 12) { d.v.push(t); ch = true; }
+    });
+    if (!d.v.length) delete DET[k];
+    if (ch) { saveDet(); buildChips(); }
+  }
   function tileEl(n, e, letter, small) {
     var t = document.createElement("button"); t.type = "button"; t.className = "ek-t"; t.setAttribute("data-n", n);
     var i = document.createElement("i"); setIcon(i, e); if (letter) i.className = "ek-letter"; t.appendChild(i);
@@ -1879,7 +1907,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       el.sg.hidden = true; el.hint.hidden = true; el.det.hidden = false;
       el.shT.textContent = "Details zu " + x.n; el.shQ.value = x.q || "";
       el.shC.textContent = ""; order.filter(function (c) { return CAT_NAME[c]; }).forEach(function (c) { var o = document.createElement("option"); o.value = c; o.textContent = CAT_NAME[c]; el.shC.appendChild(o); });
-      el.shC.value = catOf(x); syncChips();
+      el.shC.value = catOf(x); buildChips();
     } else { el.sg.hidden = true; el.det.hidden = true; el.hint.hidden = false; }
     el.input.placeholder = x ? "Nächster Artikel …" : "z.B. Brot";
     el.close.textContent = x ? "Fertig" : "Abbrechen";
@@ -1893,11 +1921,11 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     try { (editQ ? el.shQ : el.input).focus(); } catch (e) {}
   }
   function closeSheet() {
-    flushItem(); el.sheet.hidden = true; el.sheet.style.top = ""; el.sheet.style.height = ""; cur = null;
+    learnCur(); flushItem(); el.sheet.hidden = true; el.sheet.style.top = ""; el.sheet.style.height = ""; cur = null;
     try { el.input.blur(); } catch (e) {}
   }
   function pickItem(name) {
-    flushItem(); var id = addItem(name); if (!id) return;
+    learnCur(); flushItem(); var id = addItem(name); if (!id) return;
     cur = id; el.input.value = ""; refreshSheet(); try { el.input.focus(); } catch (e) {}
   }
   function placeBar() {
@@ -1941,13 +1969,14 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     el.chips.addEventListener("click", function (e) {
       var b = e.target.closest(".ek-chip"), x = cur && byId(cur); if (!b || !x) return;
       var c = b.getAttribute("data-c"), p = x.q ? x.q.split(/\s*,\s*/).filter(Boolean) : [], i = p.indexOf(c);
-      if (i >= 0) p.splice(i, 1); else { if (c !== "Bio") p = p.filter(function (v) { return v === "Bio" || CHIPS.indexOf(v) < 0; }); p.push(c); }
+      if (i >= 0) p.splice(i, 1); else p.push(c);
       x.q = p.join(", ").slice(0, 60); el.shQ.value = x.q; syncChips(); render(); saveList();
     });
     el.shQ.addEventListener("input", function () {
       var x = cur && byId(cur); if (!x) return; x.q = el.shQ.value.slice(0, 60); syncChips(); render(); qDirty = true; clearTimeout(qT); qT = setTimeout(flushItem, 600);
     });
-    el.shQ.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); flushItem(); try { el.input.focus(); } catch (x) {} } });
+    el.shQ.addEventListener("change", learnCur);
+    el.shQ.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); learnCur(); flushItem(); try { el.input.focus(); } catch (x) {} } });
     el.shC.addEventListener("change", function () {
       var x = cur && byId(cur); if (!x) return; x.c = el.shC.value; cats[norm(x.n)] = x.c; saveMerk(); saveList(); render();
     });
@@ -1975,6 +2004,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       db = d; if (!d) return;
       d.doc("einkauf/liste").onSnapshot(function (s) { if (pending) return; if (s && s.exists) { var nl = cleanList((s.data() || {}).items); if (JSON.stringify(nl) !== JSON.stringify(list)) { list = nl; render(); } } });
       d.doc("einkauf/merk").onSnapshot(function (s) { if (mPending || mT) return; if (s && s.exists) { var o = s.data() || {}; counts = parseObj(o.counts); cats = parseObj(o.cats); Object.keys(cats).forEach(function (k) { if (cats[k] === "fleisch" && BY[k] && (BY[k].c === "wurst" || BY[k].c === "fisch")) cats[k] = BY[k].c; }); } });
+      d.doc("einkauf/details").onSnapshot(function (s) { if (dPending) return; if (s && s.exists) { var nd = cleanDet((s.data() || {}).d); if (JSON.stringify(nd) !== JSON.stringify(DET)) { DET = nd; if (cur) buildChips(); } } });
       d.doc("einkauf/katalog").onSnapshot(function (s) { if (kPending) return; var raw = s && s.exists ? toRaw(s.data() || {}) : null, sg = JSON.stringify(raw); if (sg !== catSig) { catSig = sg; setCatalog(raw); render(); } });
       d.doc("settings/einkaufreihenfolge").onSnapshot(function (s) { if (oPending) return; if (s && s.exists) { var no = cleanOrder((s.data() || {}).order); if (no.join() !== order.join()) { order = no; renderOrder(); render(); } } });
     });
@@ -2017,6 +2047,21 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     return res.slice(0, 1500);
   }
   window.__ekCatalog = {
+    detailRows: function () {
+      var r = curRaw(), seen = {}, out = [];
+      r.aldi.concat(r.norma).forEach(function (x) { var k = norm(x.n); if (k && !seen[k]) { seen[k] = 1; out.push([x.n, DET[k] ? DET[k].v.join("; ") : ""]); } });
+      Object.keys(DET).forEach(function (k) { if (!seen[k]) out.push([DET[k].n, DET[k].v.join("; ")]); });
+      return out;
+    },
+    importDetails: function (rows) {
+      var nd = {}, n = 0;
+      rows.forEach(function (r) {
+        var name = String(r[0] == null ? "" : r[0]).replace(/\s+/g, " ").trim().slice(0, 60), k = norm(name); if (!k) return;
+        var v = String(r[1] == null ? "" : r[1]).split(/[;\n]/);
+        var o = cleanDet({x: {n: name, v: v}}); if (o[k]) { nd[k] = o[k]; n++; }
+      });
+      DET = nd; saveDet(); buildChips(); return n;
+    },
     rows: function (key) { return curRaw()[key].map(function (x) { return [x.n, SVGS[x.e] ? "(Bild)" : x.e]; }); },
     importRows: function (aRows, nRows, oRows) {
       var r = curRaw(), out = {a: 0, n: 0};
@@ -3805,7 +3850,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
         add("Orte", ["Kürzel", "Gesprochener Name"], Object.keys(STATIONS).sort().map(function (c) { return [c, STATIONS[c]]; }), [14, 44]);
         add("Ignorieren", ["Terminanfang (wird nicht vorgelesen)"], IGN_ALL.map(function (t) { return [t]; }), [50]);
         add("Sonderwörter", ["Wort im Kalender", "Wird gelesen als", "Art"], SPEC, [22, 44, 16]);
-        if (window.__ekCatalog) { var ekh = ["Artikel (Reihenfolge der Zeilen = Reihenfolge in der Einkaufsliste)", "Symbol"]; add("Einkauf Aldi", ekh, window.__ekCatalog.rows("aldi"), [60, 12]); add("Einkauf Norma", ekh, window.__ekCatalog.rows("norma"), [60, 12]); }
+        if (window.__ekCatalog) { var ekh = ["Artikel (Reihenfolge der Zeilen = Reihenfolge in der Einkaufsliste)", "Symbol"]; add("Einkauf Aldi", ekh, window.__ekCatalog.rows("aldi"), [60, 12]); add("Einkauf Norma", ekh, window.__ekCatalog.rows("norma"), [60, 12]); add("Einkauf Details", ["Artikel (gilt für Aldi und Norma)", "Vorschläge (mit Semikolon getrennt, zum Beispiel: Kräuter; Natur)"], window.__ekCatalog.detailRows(), [40, 60]); }
         add("Farben", ["Kalender", "Farbe"], ORDER.map(function (k) { return [CALS[k].name, calColor(k)]; }).concat(window.__lineColors ? window.__lineColors.rows() : []), [24, 14]);
         var d = new Date(), pad = function (n) { return (n < 10 ? "0" : "") + n; };
         var name = "Familien-Dashboard-Sicherung-" + d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + ".xlsx";
@@ -3861,16 +3906,18 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       Promise.all([loadXlsx(), f.arrayBuffer()]).then(function (v) {
         var X = v[0], wb = X.read(new Uint8Array(v[1]), {type: "array"}), done = [], doneP = [];
         var zr = sheetRows(X, wb, "Zitate");
-        if (zr === null && wb.SheetNames.length && !sheetRows(X, wb, "Farben") && !sheetRows(X, wb, "Einkauf") && !sheetRows(X, wb, "Einkauf Aldi") && !sheetRows(X, wb, "Einkauf Norma") && !sheetRows(X, wb, "Orte") && !sheetRows(X, wb, "Ignorieren") && !sheetRows(X, wb, "Sonderwörter")) {
+        if (zr === null && wb.SheetNames.length && !sheetRows(X, wb, "Farben") && !sheetRows(X, wb, "Einkauf") && !sheetRows(X, wb, "Einkauf Aldi") && !sheetRows(X, wb, "Einkauf Norma") && !sheetRows(X, wb, "Einkauf Details") && !sheetRows(X, wb, "Orte") && !sheetRows(X, wb, "Ignorieren") && !sheetRows(X, wb, "Sonderwörter")) {
           var r0 = X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1, defval: ""});
           if (r0.length && /^zitat$/i.test(String(r0[0][0]).trim())) r0.shift();
           zr = r0;
         }
         var list = null;
         if (zr !== null && zr.length) { list = cleanQ(zr); if (!list.length) throw "keine"; }
-        else if (zr !== null && !(sheetRows(X, wb, "Einkauf") || sheetRows(X, wb, "Einkauf Aldi") || sheetRows(X, wb, "Einkauf Norma") || sheetRows(X, wb, "Farben") || sheetRows(X, wb, "Orte") || sheetRows(X, wb, "Ignorieren") || sheetRows(X, wb, "Sonderwörter"))) throw "keine";
+        else if (zr !== null && !(sheetRows(X, wb, "Einkauf") || sheetRows(X, wb, "Einkauf Aldi") || sheetRows(X, wb, "Einkauf Norma") || sheetRows(X, wb, "Einkauf Details") || sheetRows(X, wb, "Farben") || sheetRows(X, wb, "Orte") || sheetRows(X, wb, "Ignorieren") || sheetRows(X, wb, "Sonderwörter"))) throw "keine";
         var eka = sheetRows(X, wb, "Einkauf Aldi"), ekn = sheetRows(X, wb, "Einkauf Norma"), eko = sheetRows(X, wb, "Einkauf");
         if ((eka !== null || ekn !== null || eko !== null) && window.__ekCatalog) { var ekr = window.__ekCatalog.importRows(eka, ekn, eko); if (ekr.a) doneP.push(ekr.a + " Artikel Aldi"); if (ekr.n) doneP.push(ekr.n + " Artikel Norma"); }
+        var ekd = sheetRows(X, wb, "Einkauf Details");
+        if (ekd !== null && window.__ekCatalog) { var ekn2 = window.__ekCatalog.importDetails(ekd); doneP.push(ekn2 + " Artikel mit Vorschlägen"); }
         var orte = sheetRows(X, wb, "Orte"), ign = sheetRows(X, wb, "Ignorieren"), sond = sheetRows(X, wb, "Sonderwörter"), far = sheetRows(X, wb, "Farben");
         if (far !== null) {
           var nf = 0;
