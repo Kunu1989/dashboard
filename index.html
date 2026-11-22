@@ -357,7 +357,8 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ie-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; padding: 6px 0; }
 .ie-l { flex: 0 0 96px; font-weight: 700; }
 /* Einkauf */
-.ek-count { font-size: 14px; color: var(--muted); }
+#ekCount { display: none; }
+#ekCard .card-head { flex-wrap: nowrap; align-items: center; }
 .ek-grid { align-content: start; display: grid; grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 8px; margin-top: 8px; }
 .ek-t { font: inherit; font-size: 14px; font-weight: 600; line-height: 1.15; text-align: center; padding: 10px 6px 8px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; word-break: normal; overflow-wrap: break-word; hyphens: auto; -webkit-hyphens: auto; display: flex; flex-direction: column; align-items: center; }
 .ek-t i { display: block; font-style: normal; font-size: 28px; line-height: 1.2; margin-bottom: 4px; }
@@ -854,7 +855,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 6.4 &middot; vom 22.11.2026, 06:17 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 6.6 &middot; vom 22.11.2026, 06:28 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1814,7 +1815,6 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       el.list.appendChild(t);
     });
     el.empty.hidden = items.length > 0;
-    el.count.textContent = items.length ? items.length + (items.length === 1 ? " Artikel" : " Artikel") : "";
   }
   function byId(id) { var r = null; list.forEach(function (x) { if (x.id === id) r = x; }); return r; }
   function resolve(name) {
@@ -1960,7 +1960,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     });
   }
   function start() {
-    el = {list: $("ekList"), empty: $("ekEmpty"), count: $("ekCount"), toast: $("ekToast"), toastT: $("ekToastT"), bar: $("ekBar"),
+    el = {list: $("ekList"), empty: $("ekEmpty"), toast: $("ekToast"), toastT: $("ekToastT"), bar: $("ekBar"),
       sheet: $("ekSheet"), sg: $("ekSg"), det: $("ekDet"), hint: $("ekSgHint"), shT: $("ekShT"), chips: $("ekChips"), shQ: $("ekShQ"), shC: $("ekShC"),
       input: $("ekInput"), close: $("ekClose"), form: $("ekForm")};
     if (!el.list) return;
@@ -2048,10 +2048,10 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     catSig = JSON.stringify(catRaw ? {aldi: catRaw.aldi, norma: catRaw.norma} : null);
     kPending++; db.doc("einkauf/katalog").set({aldi: ser(r.aldi), norma: ser(r.norma)}).catch(function () {}).then(function () { kPending--; });
   }
-  function parseRows(rows, key) {
+  function parseRows(rows, old3) {
     var seen = {}, res = [];
     rows.forEach(function (r) {
-      var old = r.length >= 3, n = String(r[old ? 1 : 0] == null ? "" : r[old ? 1 : 0]).replace(/\s+/g, " ").trim().slice(0, 60), k = norm(n); if (!k) return;
+      var old = !!old3 && r.length >= 3, n = String(r[old ? 1 : 0] == null ? "" : r[old ? 1 : 0]).replace(/\s+/g, " ").trim().slice(0, 60), k = norm(n); if (!k) return;
       var e = String(r[old ? 2 : 1] == null ? "" : r[old ? 2 : 1]).trim(), b = BY[k];
       if (!/[^\x00-\x7f]/.test(e) || e.length > 8) e = b ? b.e : "🛒";
       if (seen[k] != null) res[seen[k]] = {n: n, e: e}; else { seen[k] = res.length; res.push({n: n, e: e}); }
@@ -2074,11 +2074,24 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       });
       DET = nd; saveDet(); buildChips(); return n;
     },
-    rows: function (key) { return curRaw()[key].map(function (x) { return [x.n, SVGS[x.e] ? "(Bild)" : x.e]; }); },
+    rows: function (key) { return curRaw()[key].map(function (x) { var d = DET[norm(x.n)]; return [x.n, SVGS[x.e] ? "(Bild)" : x.e, d ? d.v.join("; ") : ""]; }); },
     importRows: function (aRows, nRows, oRows) {
       var r = curRaw(), out = {a: 0, n: 0};
-      if (oRows && !aRows && !nRows) { aRows = oRows; nRows = oRows; }
-      var a = aRows ? parseRows(aRows) : null, n = nRows ? parseRows(nRows) : null;
+            var a = aRows ? parseRows(aRows, false) : null, n = nRows ? parseRows(nRows, false) : null;
+      if (oRows && !aRows && !nRows) { a = parseRows(oRows, true); n = a; }
+      var hasD = [aRows, nRows].some(function (rs) { return rs && rs.some(function (r) { return r.length >= 3; }); });
+      if (hasD) {
+        var nd = {}, seenA = {};
+        var take = function (rows, skip) {
+          (rows || []).forEach(function (r) {
+            var name = String(r[0] == null ? "" : r[0]).replace(/\s+/g, " ").trim().slice(0, 60), k = norm(name); if (!k) return;
+            if (skip) { if (seenA[k]) return; } else seenA[k] = 1;
+            var o = cleanDet({x: {n: name, v: String(r[2] == null ? "" : r[2]).split(/[;\n]/)}}); if (o[k]) nd[k] = o[k];
+          });
+        };
+        take(aRows, false); take(nRows, true);
+        DET = nd; saveDet(); buildChips(); out.d = Object.keys(nd).length;
+      }
       if (a && a.length) { r.aldi = a; out.a = a.length; }
       if (n && n.length) { r.norma = n; out.n = n.length; }
       if (!out.a && !out.n) return out;
@@ -3858,12 +3871,12 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
         if (!dl) { bmsg("Speichern ist in dieser Ansicht nicht möglich.", "err"); return; }
         var wb = X.utils.book_new();
         function add(name, head, rows, w) { var ws = X.utils.aoa_to_sheet([head].concat(rows)); ws["!cols"] = w.map(function (x) { return {wch: x}; }); X.utils.book_append_sheet(wb, ws, name); }
+        if (window.__ekCatalog) { add("Einkauf Aldi", ["Artikel (Reihenfolge der Zeilen = Reihenfolge in der Einkaufsliste)", "Symbol", "Vorschläge für die Details (mit Semikolon getrennt, gilt auch für Norma)"], window.__ekCatalog.rows("aldi"), [50, 12, 50]); add("Einkauf Norma", ["Artikel (Reihenfolge der Zeilen = Reihenfolge in der Einkaufsliste)", "Symbol", "Vorschläge (übernimmt Aldi; zählt nur für Artikel, die es bei Aldi nicht gibt)"], window.__ekCatalog.rows("norma"), [50, 12, 50]); }
         add("Zitate", ["Zitat", "Autor"], QUOTES, [110, 40]);
+        add("Farben", ["Kalender", "Farbe"], ORDER.map(function (k) { return [CALS[k].name, calColor(k)]; }).concat(window.__lineColors ? window.__lineColors.rows() : []), [24, 14]);
         add("Orte", ["Kürzel", "Gesprochener Name"], Object.keys(STATIONS).sort().map(function (c) { return [c, STATIONS[c]]; }), [14, 44]);
         add("Ignorieren", ["Terminanfang (wird nicht vorgelesen)"], IGN_ALL.map(function (t) { return [t]; }), [50]);
         add("Sonderwörter", ["Wort im Kalender", "Wird gelesen als", "Art"], SPEC, [22, 44, 16]);
-        if (window.__ekCatalog) { var ekh = ["Artikel (Reihenfolge der Zeilen = Reihenfolge in der Einkaufsliste)", "Symbol"]; add("Einkauf Aldi", ekh, window.__ekCatalog.rows("aldi"), [60, 12]); add("Einkauf Norma", ekh, window.__ekCatalog.rows("norma"), [60, 12]); add("Einkauf Details", ["Artikel (gilt für Aldi und Norma)", "Vorschläge (mit Semikolon getrennt, zum Beispiel: Kräuter; Natur)"], window.__ekCatalog.detailRows(), [40, 60]); }
-        add("Farben", ["Kalender", "Farbe"], ORDER.map(function (k) { return [CALS[k].name, calColor(k)]; }).concat(window.__lineColors ? window.__lineColors.rows() : []), [24, 14]);
         var d = new Date(), pad = function (n) { return (n < 10 ? "0" : "") + n; };
         var name = "Familien-Dashboard-Sicherung-" + d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + ".xlsx";
         return dl.save({filename: name, data: new Uint8Array(X.write(wb, {type: "array", bookType: "xlsx"}))}).then(function () { bmsg("Sicherung gespeichert.", "ok"); }, function (e) { bmsg(e && e.code === "declined" ? "Abgebrochen." : "Die Sicherung konnte nicht gespeichert werden.", "err"); });
@@ -3927,9 +3940,9 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
         if (zr !== null && zr.length) { list = cleanQ(zr); if (!list.length) throw "keine"; }
         else if (zr !== null && !(sheetRows(X, wb, "Einkauf") || sheetRows(X, wb, "Einkauf Aldi") || sheetRows(X, wb, "Einkauf Norma") || sheetRows(X, wb, "Einkauf Details") || sheetRows(X, wb, "Farben") || sheetRows(X, wb, "Orte") || sheetRows(X, wb, "Ignorieren") || sheetRows(X, wb, "Sonderwörter"))) throw "keine";
         var eka = sheetRows(X, wb, "Einkauf Aldi"), ekn = sheetRows(X, wb, "Einkauf Norma"), eko = sheetRows(X, wb, "Einkauf");
-        if ((eka !== null || ekn !== null || eko !== null) && window.__ekCatalog) { var ekr = window.__ekCatalog.importRows(eka, ekn, eko); if (ekr.a) doneP.push(ekr.a + " Artikel Aldi"); if (ekr.n) doneP.push(ekr.n + " Artikel Norma"); }
+        if ((eka !== null || ekn !== null || eko !== null) && window.__ekCatalog) { var ekr = window.__ekCatalog.importRows(eka, ekn, eko); if (ekr.a) doneP.push(ekr.a + " Artikel Aldi"); if (ekr.n) doneP.push(ekr.n + " Artikel Norma"); if (ekr.d) doneP.push(ekr.d + " Artikel mit Vorschlägen"); }
         var ekd = sheetRows(X, wb, "Einkauf Details");
-        if (ekd !== null && window.__ekCatalog) { var ekn2 = window.__ekCatalog.importDetails(ekd); doneP.push(ekn2 + " Artikel mit Vorschlägen"); }
+        if (ekd !== null && eka === null && window.__ekCatalog) { var ekn2 = window.__ekCatalog.importDetails(ekd); doneP.push(ekn2 + " Artikel mit Vorschlägen"); }
         var orte = sheetRows(X, wb, "Orte"), ign = sheetRows(X, wb, "Ignorieren"), sond = sheetRows(X, wb, "Sonderwörter"), far = sheetRows(X, wb, "Farben");
         if (far !== null) {
           var nf = 0;
