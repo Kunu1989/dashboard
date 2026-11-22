@@ -442,6 +442,82 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ek-sorting .ek-t.ek-src { opacity: .35; }
 .ek-ghost { position: fixed; z-index: 80; margin: 0; pointer-events: none; opacity: .92; box-shadow: 0 8px 22px rgba(0,0,0,.28); transform: scale(1.05); }
 .ek-t.mq small.ek-note { display: block; margin: 2px 0 0; padding: 0; background: none; border-radius: 0; color: var(--muted); font-size: 12px; font-weight: 500; }
+
+/* Preise */
+.pr-open { font: inherit; font-size: 14px; font-weight: 700; padding: 7px 12px; border: 2px solid var(--accent); border-radius: 18px; background: var(--accent-soft); color: var(--accent); cursor: pointer; white-space: nowrap; flex: 0 0 auto; }
+#ekCard .card-head { gap: 8px; }
+#ekCard .card-head h2 { flex: 1 1 auto; min-width: 0; }
+.pr-search { width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); margin: 10px 0 6px; }
+.pr-leg { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--muted); margin: 4px 0 8px; }
+.pr-leg i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.pr-leg i.g { background: #E1F3E8; border: 1px solid #1f8a4c; }
+.pr-leg i.o { background: #FDEBD3; border: 1px solid #B25E00; }
+.pr-h { display: grid; grid-template-columns: minmax(0, 1fr); font-size: 12px; font-weight: 700; color: var(--muted); padding: 0 2px 4px; }
+.pr-hn { display: none; }
+.pr-hc, .pr-c { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.pr-hc span { text-align: center; }
+.pr-body { display: flex; flex-direction: column; }
+.pr-r { display: block; width: 100%; text-align: left; font: inherit; color: inherit; background: none; border: 0; border-top: 1px solid var(--line); padding: 9px 0; cursor: pointer; }
+.pr-r:first-child { border-top: 0; }
+.pr-n { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 5px; }
+.pr-n b { font-size: 15px; }
+.pr-n small { font-size: 12px; color: var(--muted); }
+.pr-p { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 8px; padding: 5px 2px; background: var(--surface-2); min-height: 44px; min-width: 0; }
+.pr-p b { font-size: 12px; font-weight: 700; white-space: nowrap; }
+.pr-p small { font-size: 10px; color: var(--muted); }
+.pr-p em { font-style: normal; font-size: 10px; font-weight: 800; line-height: 1.2; margin-top: 2px; }
+.pr-p.no b { color: var(--muted); font-weight: 400; }
+.pr-p.best { background: #E1F3E8; color: #17703c; }
+.pr-p.best small { color: #17703c; }
+.pr-p.off { background: #FDEBD3; color: #9a4f00; }
+.pr-p.off small { color: #9a4f00; }
+.pr-e .pr-n b { color: var(--muted); font-weight: 600; }
+.pr-new { font: inherit; font-weight: 700; color: var(--accent); background: none; border: 0; border-top: 1px solid var(--line); padding: 14px 0 6px; text-align: left; cursor: pointer; }
+.pr-lab { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); font-weight: 600; margin: 10px 0; }
+.pr-lab input, .pr-f input { font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); width: 100%; box-sizing: border-box; min-width: 0; }
+.pr-mk { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+.pr-m { font: inherit; color: inherit; text-align: left; border: 0; border-radius: 12px; background: var(--surface-2); padding: 10px 12px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pr-m .pr-mn { font-size: 12px; font-weight: 700; color: var(--muted); }
+.pr-m b { font-size: 20px; }
+.pr-m small { font-size: 11px; color: var(--muted); }
+.pr-m em { font-style: normal; font-size: 12px; font-weight: 800; margin-top: 2px; }
+.pr-m.best { background: #E1F3E8; color: #17703c; }
+.pr-m.best .pr-mn, .pr-m.best small { color: #17703c; }
+.pr-m.off { background: #FDEBD3; color: #9a4f00; }
+.pr-m.off .pr-mn, .pr-m.off small { color: #9a4f00; }
+.pr-sheet { justify-content: flex-start; }
+.pr-pn { width: min(100%, 560px); max-height: 100%; overflow-y: auto; box-sizing: border-box; background: var(--surface); color: var(--ink); border-radius: 0 0 18px 18px; padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 14px; }
+.pr-pn h3 { margin: 0 0 6px; font-size: 18px; }
+.pr-f { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+.pr-f label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); font-weight: 600; min-width: 0; }
+.pr-bt { display: flex; gap: 10px; align-items: center; margin: 12px 0 4px; }
+.pr-ok { width: auto; padding: 11px 20px; font-size: 16px; }
+:root[data-theme="dark"] .pr-p.best, :root[data-theme="dark"] .pr-m.best { background: #173a28; color: #7fdba3; }
+:root[data-theme="dark"] .pr-p.best small, :root[data-theme="dark"] .pr-m.best small, :root[data-theme="dark"] .pr-m.best .pr-mn { color: #7fdba3; }
+:root[data-theme="dark"] .pr-p.off, :root[data-theme="dark"] .pr-m.off { background: #3b2a14; color: #ffb86b; }
+:root[data-theme="dark"] .pr-p.off small, :root[data-theme="dark"] .pr-m.off small, :root[data-theme="dark"] .pr-m.off .pr-mn { color: #ffb86b; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pr-p.best, :root:not([data-theme="light"]) .pr-m.best { background: #173a28; color: #7fdba3; }
+  :root:not([data-theme="light"]) .pr-p.best small, :root:not([data-theme="light"]) .pr-m.best small, :root:not([data-theme="light"]) .pr-m.best .pr-mn { color: #7fdba3; }
+  :root:not([data-theme="light"]) .pr-p.off, :root:not([data-theme="light"]) .pr-m.off { background: #3b2a14; color: #ffb86b; }
+  :root:not([data-theme="light"]) .pr-p.off small, :root:not([data-theme="light"]) .pr-m.off small, :root:not([data-theme="light"]) .pr-m.off .pr-mn { color: #ffb86b; }
+}
+@media (min-width: 701px) {
+  .pr-h { grid-template-columns: minmax(150px, 1.3fr) minmax(0, 5fr); gap: 10px; }
+  .pr-hn { display: block; }
+  .pr-r { display: grid; grid-template-columns: minmax(150px, 1.3fr) minmax(0, 5fr); gap: 10px; align-items: center; }
+  .pr-n { flex-direction: column; gap: 0; margin: 0; align-items: flex-start; }
+  .pr-p b { font-size: 14px; } .pr-p small, .pr-p em { font-size: 11px; }
+  .pr-mk { grid-template-columns: repeat(5, 1fr); }
+  #prCard { max-width: 980px; }
+}
+@media (max-width: 480px) {
+  #ekCard .card-head { gap: 6px; }
+  #ekCard .card-head h2 { font-size: 17px; }
+  .pr-open { padding: 6px 9px; font-size: 13px; border-width: 1.5px; }
+  #ekCard .ek-shop { padding-left: 10px; padding-right: 10px; }
+}
+@media (max-width: 380px) { #ekCard .card-head h2 { font-size: 15px; } .pr-open { padding: 6px 7px; font-size: 12px; } }
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 @media (max-width: 700px) {
@@ -870,7 +946,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 7.2 &middot; vom 22.11.2026, 11:30 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 7.3 &middot; vom 22.11.2026, 21:01 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -2092,7 +2168,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     function shopUI() { SHOPS.forEach(function (k) { var b = $(k === "aldi" ? "ekShopA" : "ekShopN"); if (b) { b.classList.toggle("on", shop === k); b.setAttribute("aria-pressed", shop === k ? "true" : "false"); } }); }
     [["ekShopA", "aldi"], ["ekShopN", "norma"]].forEach(function (p) { var b = $(p[0]); if (b) b.addEventListener("click", function () { shop = p[1]; try { localStorage.setItem("fd:ekshop", shop); } catch (e) {} shopUI(); render(); }); });
     shopUI(); renderOrder(); render(); placeBar();
-    sortUI();
+    sortUI(); prInit();
     window.addEventListener("resize", placeBar); window.addEventListener("orientationchange", function () { setTimeout(placeBar, 300); });
     window.addEventListener("hashchange", function () { setTimeout(placeBar, 60); setTimeout(placeBar, 400); }); setInterval(placeBar, 1500);
     if (window.visualViewport) { window.visualViewport.addEventListener("resize", fitSheet); window.visualViewport.addEventListener("scroll", fitSheet); }
@@ -2144,9 +2220,146 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       d.doc("einkauf/liste").onSnapshot(function (s) { if (pending) return; if (s && s.exists) { var nl = cleanList((s.data() || {}).items); if (JSON.stringify(nl) !== JSON.stringify(list)) { list = nl; render(); } } });
       d.doc("einkauf/merk").onSnapshot(function (s) { if (mPending || mT) return; if (s && s.exists) { var o = s.data() || {}; counts = parseObj(o.counts); cats = parseObj(o.cats); Object.keys(cats).forEach(function (k) { if (cats[k] === "fleisch" && BY[k] && (BY[k].c === "wurst" || BY[k].c === "fisch")) cats[k] = BY[k].c; }); } });
       d.doc("einkauf/details").onSnapshot(function (s) { if (dPending) return; if (s && s.exists) { var nd = cleanDet((s.data() || {}).d); if (JSON.stringify(nd) !== JSON.stringify(DET)) { DET = nd; if (cur) buildChips(); } } });
+      d.doc("einkauf/preise").onSnapshot(function (s) { if (prPending) return; if (s && s.exists) { prSeeded = true; var np = cleanPr((s.data() || {}).d); if (JSON.stringify(np) !== JSON.stringify(PR)) { PR = np; prRefresh(); } } });
       d.doc("einkauf/katalog").onSnapshot(function (s) { if (kPending) return; var raw = s && s.exists ? toRaw(s.data() || {}) : null, sg = JSON.stringify(raw); if (sg !== catSig) { catSig = sg; setCatalog(raw); render(); } });
       d.doc("settings/einkaufreihenfolge").onSnapshot(function (s) { if (oPending) return; if (s && s.exists) { var no = cleanOrder((s.data() || {}).order); if (no.join() !== order.join()) { order = no; renderOrder(); render(); } } });
     });
+  }
+
+  /* ---------- Preise: letzter Preis je Markt und Angebote (Dokument einkauf/preise, Reiter Einkauf › € Preise) ---------- */
+  var MK = [["aldi", "Aldi"], ["norma", "Norma"], ["lidl", "Lidl"], ["edeka", "Edeka"], ["netto", "Netto"]], PR = {}, prPending = 0, prQ = "", prKey = null, prSeeded = false, prEl = {}, prMk = null, prNew = {};
+  /* Startdaten aus dem ersten Kassenbon (Aldi Süd, 20.11.2026): Name, Größe, Preis je Stück, Normalpreis (bei Rabatt) */
+  var PR_SEED = [["Haferflocken", "", 0.69], ["Milch", "H-Milch 1,5 %, 1 l", 0.85], ["Gehackte Tomaten", "", 0.59], ["Erbsen mit Möhren", "", 0.89], ["Champignons", "ganz", 1.09], ["Frühstücksbackware", "", 1.39], ["Cashewkerne", "XXL", 4.99], ["Bergader", "250 g", 2.99], ["Pizzateig", "XXL, 550 g", 1.29], ["Herzhaft Geflügel/Rind", "", 1.99], ["Rougette Ofenkäse", "", 3.99], ["Prosciutto Cotto", "240 g", 1.99], ["Tomatenmark", "", 0.89], ["Clementinen", "1 kg", 1.89], ["Paprika Mix", "500 g", 1.59], ["Gurke", "Stück", 0.79], ["Magerquark", "500 g", 1.19], ["Hackfleisch", "Rind, 5 % Fett", 3.84, 5.49], ["Eier", "18 Stück, Bodenhaltung", 4.19]];
+  function p2(n) { return (n < 10 ? "0" : "") + n; }
+  function isoToday() { var d = new Date(); return d.getFullYear() + "-" + p2(d.getMonth() + 1) + "-" + p2(d.getDate()); }
+  function okIso(s) { return typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s)); }
+  function fmtD(s, full) { if (!okIso(s)) return ""; var y = s.slice(0, 4); return s.slice(8, 10) + "." + s.slice(5, 7) + "." + (full ? y : y === isoToday().slice(0, 4) ? "" : y.slice(2)); }
+  function fmtP(n) { return n.toFixed(2).replace(".", ",") + " €"; }
+  function numP(v) { var s = String(v == null ? "" : v).replace(",", ".").replace(/[^0-9.]/g, ""), n = parseFloat(s); return isFinite(n) && n > 0 && n < 10000 ? Math.round(n * 100) / 100 : null; }
+  function anyDate(v) {
+    if (v instanceof Date && !isNaN(v)) return v.getFullYear() + "-" + p2(v.getMonth() + 1) + "-" + p2(v.getDate());
+    if (typeof v === "number" && v > 20000 && v < 80000) { var d = new Date(Math.round((v - 25569) * 86400000)); return d.getUTCFullYear() + "-" + p2(d.getUTCMonth() + 1) + "-" + p2(d.getUTCDate()); }
+    var s = String(v == null ? "" : v).trim(), m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/);
+    if (m) { var y = +m[3]; if (y < 100) y += 2000; s = y + "-" + p2(+m[2]) + "-" + p2(+m[1]); }
+    return okIso(s) ? s : "";
+  }
+  function prEsc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function cleanPr(v) {
+    var o = v; if (typeof v === "string") { try { o = JSON.parse(v || "{}"); } catch (e) { o = {}; } }
+    if (!o || typeof o !== "object" || Array.isArray(o)) return {};
+    var r = {}, today = isoToday();
+    Object.keys(o).slice(0, 800).forEach(function (k) {
+      var x = o[k]; if (!x || typeof x.n !== "string") return;
+      var n = x.n.replace(/\s+/g, " ").trim().slice(0, 60), key = norm(n); if (!key || r[key]) return;
+      var it = {n: n, u: typeof x.u === "string" ? x.u.replace(/\s+/g, " ").trim().slice(0, 30) : "", m: {}, o: {}}, has = false;
+      MK.forEach(function (mk) {
+        var a = x.m && x.m[mk[0]], b = x.o && x.o[mk[0]], p, q, rg, bis;
+        if (a && (p = numP(a.p)) && okIso(a.d)) { it.m[mk[0]] = {p: p, d: a.d}; if ((rg = numP(a.r)) && rg > p) it.m[mk[0]].r = rg; has = true; }
+        if (b && (q = numP(b.p))) { bis = okIso(b.b) ? b.b : ""; if (!bis || bis >= today) { it.o[mk[0]] = {p: q, b: bis}; has = true; } }
+      });
+      if (has) r[key] = it;
+    });
+    return r;
+  }
+  function seedPr() { var o = {}; PR_SEED.forEach(function (s) { var it = {n: s[0], u: s[1], m: {aldi: {p: s[2], d: "2026-11-20"}}, o: {}}; if (s[3]) it.m.aldi.r = s[3]; o[norm(s[0])] = it; }); return cleanPr(o); }
+  function savePr() { if (!db) return; prPending++; db.doc("einkauf/preise").set({d: JSON.stringify(PR)}).catch(function () {}).then(function () { prPending--; }); }
+  function offerOf(it, m) { var o = it.o[m]; return o && (!o.b || o.b >= isoToday()) ? o : null; }
+  function bestP(it) { var ps = MK.map(function (mk) { return it.m[mk[0]] ? it.m[mk[0]].p : null; }).filter(function (p) { return p != null; }); return ps.length > 1 ? Math.min.apply(null, ps) : null; }
+  function prItem(k) { return PR[k] || {n: BY[k] ? BY[k].n : prNew[k] || k, u: "", m: {}, o: {}}; }
+  function prRow(k, it, empty) {
+    var best = bestP(it), cells = "";
+    MK.forEach(function (mk) {
+      var m = it.m[mk[0]], o = offerOf(it, mk[0]), c = "pr-p" + (o ? " off" : m && best != null && m.p === best ? " best" : "") + (!m && !o ? " no" : "");
+      cells += '<span class="' + c + '">' + (m ? "<b>" + fmtP(m.p) + "</b><small>" + fmtD(m.d) + "</small>" : "<b>–</b>") + (o ? "<em>% " + fmtP(o.p) + (o.b ? "<br>bis " + fmtD(o.b) : "") + "</em>" : "") + "</span>";
+    });
+    return '<button type="button" class="pr-r' + (empty ? " pr-e" : "") + '" data-k="' + prEsc(k) + '"><span class="pr-n"><b>' + prEsc(it.n) + "</b>" + (it.u ? "<small>" + prEsc(it.u) + "</small>" : "") + '</span><span class="pr-c">' + cells + "</span></button>";
+  }
+  function prList() {
+    var q = norm(prQ), keys = Object.keys(PR).filter(function (k) { return !q || k.indexOf(q) >= 0; }).sort(function (a, b) { return PR[a].n.localeCompare(PR[b].n, "de"); }), h = "";
+    keys.forEach(function (k) { h += prRow(k, PR[k], false); });
+    if (q) {
+      var n = 0; CAT_LIST.forEach(function (x) { if (n < 12 && x.k.indexOf(q) >= 0 && !PR[x.k]) { n++; h += prRow(x.k, {n: x.n, u: "", m: {}, o: {}}, true); } });
+      if (!PR[q] && !BY[q]) h += '<button type="button" class="pr-new" data-n="' + prEsc(prQ.trim().slice(0, 60)) + '">„' + prEsc(prQ.trim().slice(0, 60)) + '“ neu anlegen</button>';
+    }
+    prEl.body.innerHTML = h || '<p class="ek-empty">Noch keine Preise. Suche oben einen Artikel und trage Preise ein, oder lade Kassenbons hoch.</p>';
+  }
+  function prCard() {
+    var it = prItem(prKey), best = bestP(it), h = "";
+    MK.forEach(function (mk) {
+      var m = it.m[mk[0]], o = offerOf(it, mk[0]), c = "pr-m" + (o ? " off" : m && best != null && m.p === best ? " best" : "");
+      h += '<button type="button" class="' + c + '" data-m="' + mk[0] + '"><span class="pr-mn">' + mk[1] + "</span><b>" + (m ? fmtP(m.p) : "–") + "</b><small>" + (m ? "zuletzt " + fmtD(m.d, true) + (m.r ? " · statt " + fmtP(m.r) : "") : "noch nicht eingetragen") + "</small>" + (o ? "<em>Angebot " + fmtP(o.p) + (o.b ? " bis " + fmtD(o.b, true) : "") + "</em>" : "") + "</button>";
+    });
+    prEl.cardT.textContent = it.n; prEl.cardU.value = it.u; prEl.mk.innerHTML = h;
+    prEl.cardU.dataset.k = prKey;
+  }
+  function prShow(mode) {
+    var on = mode !== "off", card = $("ekCard"), bar = $("ekBar"), tt = $("ekToast");
+    if (card) card.hidden = on; if (bar) bar.hidden = on; if (tt && on) tt.hidden = true;
+    prEl.sec.hidden = !on;
+    prEl.listV.hidden = mode !== "list"; prEl.cardV.hidden = mode !== "card";
+    if (mode === "list") { prKey = null; prList(); } else if (mode === "card") prCard();
+  }
+  function prRefresh() { if (!prEl.sec || prEl.sec.hidden) return; if (!prEl.cardV.hidden) prCard(); else prList(); }
+  function prCommit(k, it) {
+    if (Object.keys(it.m).length || Object.keys(it.o).length) PR[k] = it; else delete PR[k];
+    savePr();
+  }
+  function prSheet(m) {
+    prMk = m; var it = prItem(prKey), x = it.m[m], o = it.o[m], nm = "";
+    MK.forEach(function (mk) { if (mk[0] === m) nm = mk[1]; });
+    $("prShT").textContent = it.n + " bei " + nm;
+    $("prP").value = x ? String(x.p).replace(".", ",") : ""; $("prD").value = x ? x.d : isoToday(); $("prR").value = x && x.r ? String(x.r).replace(".", ",") : "";
+    $("prO").value = o ? String(o.p).replace(".", ",") : ""; $("prB").value = o && o.b ? o.b : "";
+    $("prSheet").hidden = false; try { $("prP").focus(); } catch (e) {}
+  }
+  function prSave() {
+    var it = prItem(prKey), m = prMk, p = numP($("prP").value), q = numP($("prO").value);
+    if (p) { it.m[m] = {p: p, d: okIso($("prD").value) ? $("prD").value : isoToday()}; var rg = numP($("prR").value); if (rg && rg > p) it.m[m].r = rg; } else delete it.m[m];
+    if (q) it.o[m] = {p: q, b: okIso($("prB").value) ? $("prB").value : ""}; else delete it.o[m];
+    prCommit(prKey, it); $("prSheet").hidden = true; prCard();
+  }
+  function prInit() {
+    var card = $("ekCard"); if (!card || prEl.sec) return;
+    var head = card.querySelector(".card-head"), sh = head && head.querySelector(".ek-shops");
+    var b = document.createElement("button"); b.type = "button"; b.id = "prOpen"; b.className = "pr-open"; b.textContent = "€ Preise";
+    if (head) head.insertBefore(b, sh || null);
+    var sec = document.createElement("section"); sec.className = "card"; sec.id = "prCard"; sec.hidden = true; sec.setAttribute("aria-labelledby", "prTitle");
+    sec.innerHTML = '<div id="prListV"><div class="card-head"><h2 id="prTitle">Preise</h2><button type="button" id="prBack" class="pr-open">← Liste</button></div>' +
+      '<input id="prSearch" class="pr-search" type="search" placeholder="Artikel suchen oder anlegen …" autocomplete="off" enterkeyhint="search" aria-label="Artikel suchen">' +
+      '<div class="pr-leg"><span><i class="g"></i>günstigster zuletzt</span><span><i class="o"></i>im Angebot (%)</span><span>kleine Zahl = Datum</span></div>' +
+      '<div class="pr-h"><span class="pr-hn"></span><span class="pr-hc">' + MK.map(function (m) { return "<span>" + m[1] + "</span>"; }).join("") + '</span></div><div id="prBody" class="pr-body"></div>' +
+      '<p class="ek-hint">Tippe auf einen Artikel, um Preise und Angebote einzutragen. Die Preise stammen aus deinen Kassenbons und deiner Eingabe, die Angebote aus den Prospekten oder deiner Eingabe.</p></div>' +
+      '<div id="prCardV" hidden><div class="card-head"><h2 id="prCardT"></h2><button type="button" id="prBack2" class="pr-open">← Preise</button></div>' +
+      '<label class="pr-lab">Packung / Größe<input id="prU" type="text" maxlength="30" placeholder="z. B. 250 g" autocomplete="off"></label><div id="prMk" class="pr-mk"></div>' +
+      '<p class="ek-hint">Tippe auf einen Markt, um den Preis oder ein Angebot einzutragen, auch wenn du den Artikel dort noch nicht gekauft hast.</p>' +
+      '<button type="button" id="prDel" class="ek-del">Alle Preise dieses Artikels löschen</button></div>';
+    card.parentNode.insertBefore(sec, card.nextSibling);
+    var sh2 = document.createElement("div"); sh2.id = "prSheet"; sh2.className = "ek-sheet pr-sheet"; sh2.hidden = true;
+    sh2.innerHTML = '<div class="pr-pn" role="dialog" aria-modal="true" aria-label="Preis eintragen"><h3 id="prShT"></h3>' +
+      '<div class="pr-f"><label>Preis (€)<input id="prP" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></label><label>Datum<input id="prD" type="date"></label></div>' +
+      '<label class="pr-lab">Normalpreis, falls reduziert gekauft (optional)<input id="prR" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></label>' +
+      '<div class="pr-f"><label>Angebot (€)<input id="prO" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></label><label>gilt bis<input id="prB" type="date"></label></div>' +
+      '<div class="pr-bt"><button type="button" id="prOk" class="ek-add pr-ok">Speichern</button><button type="button" id="prNo" class="pr-open">Abbrechen</button></div>' +
+      '<p class="ek-hint">Preis und Angebot leer lassen und speichern löscht beide Einträge für diesen Markt.</p></div>';
+    document.body.appendChild(sh2);
+    prEl = {sec: sec, listV: $("prListV"), cardV: $("prCardV"), body: $("prBody"), cardT: $("prCardT"), cardU: $("prU"), mk: $("prMk")};
+    b.addEventListener("click", function () { prQ = ""; $("prSearch").value = ""; prShow("list"); try { window.scrollTo(0, 0); } catch (e) {} });
+    $("prBack").addEventListener("click", function () { prShow("off"); });
+    $("prBack2").addEventListener("click", function () { prShow("list"); });
+    $("prSearch").addEventListener("input", function () { prQ = this.value; prList(); });
+    prEl.body.addEventListener("click", function (e) {
+      var n = e.target.closest(".pr-new"); if (n) { var nm = n.getAttribute("data-n"); prKey = norm(nm); if (!PR[prKey] && !BY[prKey]) prNew[prKey] = nm; prShow("card"); return; }
+      var r = e.target.closest(".pr-r"); if (r) { prKey = r.getAttribute("data-k"); prShow("card"); }
+    });
+    prEl.mk.addEventListener("click", function (e) { var m = e.target.closest(".pr-m"); if (m) prSheet(m.getAttribute("data-m")); });
+    prEl.cardU.addEventListener("change", function () { var it = prItem(prKey); it.u = this.value.replace(/\s+/g, " ").trim().slice(0, 30); if (PR[prKey]) { PR[prKey].u = it.u; savePr(); } else { prCommit(prKey, it); } });
+    $("prDel").addEventListener("click", function () { delete PR[prKey]; savePr(); prShow("list"); });
+    $("prOk").addEventListener("click", prSave);
+    $("prNo").addEventListener("click", function () { $("prSheet").hidden = true; });
+    sh2.addEventListener("click", function (e) { if (e.target === sh2) sh2.hidden = true; });
+    sh2.addEventListener("keydown", function (e) { if (e.key === "Escape") sh2.hidden = true; if (e.key === "Enter" && e.target.tagName === "INPUT" && e.target.type !== "date") { e.preventDefault(); prSave(); } });
+    window.addEventListener("hashchange", function () { if ((location.hash || "").slice(1) !== "einkauf" && !prEl.sec.hidden) prShow("off"); });
+    if (!Object.keys(PR).length && !prSeeded) { PR = seedPr(); }
   }
 
   /* ---------- Excel-Sicherung: Blätter „Einkauf Aldi“ und „Einkauf Norma“ (Artikel, Symbol) ---------- */
@@ -2202,6 +2415,33 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       DET = nd; saveDet(); buildChips(); return n;
     },
     rows: function (key) { return curRaw()[key].map(function (x) { var d = DET[norm(x.n)]; return [x.n, SVGS[x.e] ? "(Bild)" : x.e, d ? d.v.join("; ") : ""]; }); },
+    priceRows: function () {
+      var out = []; Object.keys(PR).sort(function (a, b) { return PR[a].n.localeCompare(PR[b].n, "de"); }).forEach(function (k) { var it = PR[k]; MK.forEach(function (mk) { var m = it.m[mk[0]]; if (m) out.push([it.n, it.u, mk[1], m.p, fmtD(m.d, true), m.r || ""]); }); });
+      return out;
+    },
+    offerRows: function () {
+      var out = []; Object.keys(PR).sort(function (a, b) { return PR[a].n.localeCompare(PR[b].n, "de"); }).forEach(function (k) { var it = PR[k]; MK.forEach(function (mk) { var o = it.o[mk[0]]; if (o) out.push([it.n, mk[1], o.p, fmtD(o.b, true)]); }); });
+      return out;
+    },
+    importPrices: function (pRows, oRows) {
+      var base = JSON.parse(JSON.stringify(PR)), res = {p: 0, o: 0};
+      function find(v) { var k = norm(v), r = null; MK.forEach(function (mk) { if (norm(mk[1]) === k) r = mk[0]; }); return r; }
+      function item(name) { var n = String(name == null ? "" : name).replace(/\s+/g, " ").trim().slice(0, 60), k = norm(n); if (!k) return null; return base[k] || (base[k] = {n: n, u: "", m: {}, o: {}}); }
+      if (pRows) {
+        Object.keys(base).forEach(function (k) { base[k].m = {}; });
+        pRows.forEach(function (r) {
+          var it = item(r[0]), mk = find(r[2]), p = numP(r[3]); if (!it || !mk || !p) return;
+          if (r[1] != null && String(r[1]).trim()) it.u = String(r[1]).trim().slice(0, 30);
+          it.m[mk] = {p: p, d: anyDate(r[4]) || isoToday()}; var rg = numP(r[5]); if (rg) it.m[mk].r = rg; res.p++;
+        });
+      }
+      if (oRows) {
+        Object.keys(base).forEach(function (k) { base[k].o = {}; });
+        oRows.forEach(function (r) { var it = item(r[0]), mk = find(r[1]), p = numP(r[2]); if (!it || !mk || !p) return; it.o[mk] = {p: p, b: anyDate(r[3])}; res.o++; });
+      }
+      PR = cleanPr(base); prSeeded = true; savePr(); prRefresh();
+      return res;
+    },
     importRows: function (aRows, nRows, oRows) {
       var r = curRaw(), out = {a: 0, n: 0};
             var a = aRows ? parseRows(aRows, false) : null, n = nRows ? parseRows(nRows, false) : null;
@@ -4004,6 +4244,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
         add("Orte", ["Kürzel", "Gesprochener Name"], Object.keys(STATIONS).sort().map(function (c) { return [c, STATIONS[c]]; }), [14, 44]);
         add("Ignorieren", ["Terminanfang (wird nicht vorgelesen)"], IGN_ALL.map(function (t) { return [t]; }), [50]);
         add("Sonderwörter", ["Wort im Kalender", "Wird gelesen als", "Art"], SPEC, [22, 44, 16]);
+        if (window.__ekCatalog && window.__ekCatalog.priceRows) { add("Preise", ["Artikel", "Größe", "Markt (Aldi, Norma, Lidl, Edeka oder Netto)", "Preis in Euro (letzter bezahlter oder gesehener)", "Datum", "Normalpreis in Euro (nur wenn reduziert gekauft)"], window.__ekCatalog.priceRows(), [28, 22, 22, 22, 14, 22]); add("Angebote", ["Artikel", "Markt (Aldi, Norma, Lidl, Edeka oder Netto)", "Angebotspreis in Euro", "gilt bis (Datum, leer = unbegrenzt)"], window.__ekCatalog.offerRows(), [28, 22, 18, 22]); }
         var d = new Date(), pad = function (n) { return (n < 10 ? "0" : "") + n; };
         var name = "Familien-Dashboard-Sicherung-" + d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + ".xlsx";
         return dl.save({filename: name, data: new Uint8Array(X.write(wb, {type: "array", bookType: "xlsx"}))}).then(function () { bmsg("Sicherung gespeichert.", "ok"); }, function (e) { bmsg(e && e.code === "declined" ? "Abgebrochen." : "Die Sicherung konnte nicht gespeichert werden.", "err"); });
@@ -4058,16 +4299,18 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       Promise.all([loadXlsx(), f.arrayBuffer()]).then(function (v) {
         var X = v[0], wb = X.read(new Uint8Array(v[1]), {type: "array"}), done = [], doneP = [];
         var zr = sheetRows(X, wb, "Zitate");
-        if (zr === null && wb.SheetNames.length && !sheetRows(X, wb, "Farben") && !sheetRows(X, wb, "Einkauf") && !sheetRows(X, wb, "Einkauf Aldi") && !sheetRows(X, wb, "Einkauf Norma") && !sheetRows(X, wb, "Einkauf Details") && !sheetRows(X, wb, "Orte") && !sheetRows(X, wb, "Ignorieren") && !sheetRows(X, wb, "Sonderwörter")) {
+        if (zr === null && wb.SheetNames.length && !sheetRows(X, wb, "Farben") && !sheetRows(X, wb, "Einkauf") && !sheetRows(X, wb, "Einkauf Aldi") && !sheetRows(X, wb, "Einkauf Norma") && !sheetRows(X, wb, "Einkauf Details") && !sheetRows(X, wb, "Preise") && !sheetRows(X, wb, "Angebote") && !sheetRows(X, wb, "Orte") && !sheetRows(X, wb, "Ignorieren") && !sheetRows(X, wb, "Sonderwörter")) {
           var r0 = X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1, defval: ""});
           if (r0.length && /^zitat$/i.test(String(r0[0][0]).trim())) r0.shift();
           zr = r0;
         }
         var list = null;
         if (zr !== null && zr.length) { list = cleanQ(zr); if (!list.length) throw "keine"; }
-        else if (zr !== null && !(sheetRows(X, wb, "Einkauf") || sheetRows(X, wb, "Einkauf Aldi") || sheetRows(X, wb, "Einkauf Norma") || sheetRows(X, wb, "Einkauf Details") || sheetRows(X, wb, "Farben") || sheetRows(X, wb, "Orte") || sheetRows(X, wb, "Ignorieren") || sheetRows(X, wb, "Sonderwörter"))) throw "keine";
+        else if (zr !== null && !(sheetRows(X, wb, "Einkauf") || sheetRows(X, wb, "Einkauf Aldi") || sheetRows(X, wb, "Einkauf Norma") || sheetRows(X, wb, "Einkauf Details") || sheetRows(X, wb, "Farben") || sheetRows(X, wb, "Orte") || sheetRows(X, wb, "Ignorieren") || sheetRows(X, wb, "Sonderwörter") || sheetRows(X, wb, "Preise") || sheetRows(X, wb, "Angebote"))) throw "keine";
         var eka = sheetRows(X, wb, "Einkauf Aldi"), ekn = sheetRows(X, wb, "Einkauf Norma"), eko = sheetRows(X, wb, "Einkauf");
         if ((eka !== null || ekn !== null || eko !== null) && window.__ekCatalog) { var ekr = window.__ekCatalog.importRows(eka, ekn, eko); if (ekr.a) doneP.push(ekr.a + " Artikel Aldi"); if (ekr.n) doneP.push(ekr.n + " Artikel Norma"); if (ekr.d) doneP.push(ekr.d + " Artikel mit Vorschlägen"); }
+        var prr = sheetRows(X, wb, "Preise"), pro = sheetRows(X, wb, "Angebote");
+        if ((prr !== null || pro !== null) && window.__ekCatalog && window.__ekCatalog.importPrices) { var prc = window.__ekCatalog.importPrices(prr, pro); if (prc.p) doneP.push(prc.p + " Preise"); if (prc.o) doneP.push(prc.o + " Angebote"); }
         var ekd = sheetRows(X, wb, "Einkauf Details");
         if (ekd !== null && eka === null && window.__ekCatalog) { var ekn2 = window.__ekCatalog.importDetails(ekd); doneP.push(ekn2 + " Artikel mit Vorschlägen"); }
         var orte = sheetRows(X, wb, "Orte"), ign = sheetRows(X, wb, "Ignorieren"), sond = sheetRows(X, wb, "Sonderwörter"), far = sheetRows(X, wb, "Farben");
