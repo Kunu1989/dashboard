@@ -427,6 +427,20 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ek-t.mq { box-shadow: 3px 3px 0 -1px var(--surface), 3px 3px 0 0 var(--line), 6px 6px 0 -1px var(--surface), 6px 6px 0 0 var(--line); }
 .ek-t.mq small { display: inline-block; margin-top: 0; padding: 3px 12px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 16px; font-weight: 800; }
 .ek-gap { flex: 1 1 auto; min-height: 6px; }
+
+/* Sortiermodus */
+.ek-foot { margin-top: 10px; display: flex; }
+.ek-sortbtn { font: inherit; font-size: 14px; font-weight: 700; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); cursor: pointer; }
+.ek-sortbtn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.ek-sortbar { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--accent-soft); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.ek-sortbar[hidden] { display: none; }
+.ek-sb-t { margin: 0; flex: 1 1 100%; font-size: 14px; }
+.ek-lern { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; flex: 1 1 auto; }
+.ek-lern input { width: 20px; height: 20px; accent-color: var(--accent); }
+.ek-sbfin { font: inherit; font-size: 14px; font-weight: 700; padding: 7px 16px; border: 0; border-radius: 999px; background: var(--accent); color: #fff; cursor: pointer; }
+.ek-sorting .ek-t { touch-action: none; cursor: grab; box-shadow: 0 0 0 2px var(--accent-soft); }
+.ek-sorting .ek-t.ek-src { opacity: .35; }
+.ek-ghost { position: fixed; z-index: 80; margin: 0; pointer-events: none; opacity: .92; box-shadow: 0 8px 22px rgba(0,0,0,.28); transform: scale(1.05); }
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 @media (max-width: 700px) {
@@ -855,7 +869,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 6.6 &middot; vom 22.11.2026, 06:28 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 6.7 &middot; vom 22.11.2026, 06:43 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1834,9 +1848,34 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     var t = el.list.querySelector('[data-i="' + id + '"]'); if (!t) return;
     t.classList.add("ek-new"); setTimeout(function () { t.classList.remove("ek-new"); }, 900);
   }
+  /* Reihenfolge im Katalog des Ladens ändern: Artikel direkt vor „beforeName“ bzw. direkt nach „afterName“ einsetzen */
+  var cT = null;
+  function saveCatSoon() { clearTimeout(cT); cT = setTimeout(saveCat, 1200); }
+  function moveInCat(key, name, beforeName, afterName, quiet) {
+    var r = curRaw(), arr = r[key], k = norm(name), x = null, i, j = -1;
+    for (i = 0; i < arr.length; i++) if (norm(arr[i].n) === k) { x = arr.splice(i, 1)[0]; break; }
+    if (!x) x = {n: name, e: "🛒"};
+    if (beforeName) { var kb = norm(beforeName); for (i = 0; i < arr.length; i++) if (norm(arr[i].n) === kb) { j = i; break; } }
+    else if (afterName) { var ka = norm(afterName); for (i = 0; i < arr.length; i++) if (norm(arr[i].n) === ka) { j = i + 1; break; } }
+    if (j < 0) arr.push(x); else arr.splice(j, 0, x);
+    r[key] = arr; setCatalog(r);
+    if (quiet) saveCatSoon(); else saveCat();
+  }
+  /* Lernen beim Abhaken (pro Laden, standardmäßig aus, pro Gerät eingestellt) */
+  var learnOn = {aldi: false, norma: false}, lastTick = {aldi: null, norma: null}, sortMode = false;
+  try { var lv = JSON.parse(localStorage.getItem("fd:eklern") || "{}"); learnOn.aldi = lv.aldi === true; learnOn.norma = lv.norma === true; } catch (e) {}
+  function learnTick(it) {
+    if (!learnOn[shop]) return;
+    var now = Date.now(), p = lastTick[shop]; lastTick[shop] = {n: it.n, t: now};
+    if (!p || now - p.t > 20 * 60000 || norm(p.n) === norm(it.n)) return;
+    var arr = curRaw()[shop], ip = -1, ix = -1;
+    arr.forEach(function (x, i) { var k = norm(x.n); if (k === norm(p.n)) ip = i; if (k === norm(it.n)) ix = i; });
+    if (ip >= 0 && ix === ip + 1) return;
+    moveInCat(shop, it.n, null, p.n, true);
+  }
   function removeItem(id) {
     var idx = -1; list.forEach(function (x, i) { if (x.id === id) idx = i; }); if (idx < 0) return;
-    var it = list.splice(idx, 1)[0]; saveList(); render();
+    var it = list.splice(idx, 1)[0]; learnTick(it); saveList(); render();
     undo = it; el.toastT.textContent = it.n + " entfernt"; el.toast.hidden = false;
     clearTimeout(undoT); undoT = setTimeout(function () { el.toast.hidden = true; undo = null; }, 6000);
   }
@@ -1959,6 +1998,81 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       box.appendChild(r);
     });
   }
+  /* ---------- Sortiermodus: Kacheln ziehen, die Reihenfolge gilt für den gewählten Laden (und steht in der Excel-Sicherung) ---------- */
+  var sortBar = null, sortBtn = null;
+  function shopName() { return shop === "norma" ? "Norma" : "Aldi"; }
+  function sortInfo() {
+    if (!sortBar) return;
+    sortBar.querySelector(".ek-sb-t").textContent = "Kachel gedrückt halten und an die richtige Stelle ziehen. Gilt für " + shopName() + ".";
+    var cb = sortBar.querySelector("input"); cb.checked = !!learnOn[shop];
+    sortBar.querySelector(".ek-lern span").textContent = "Beim Abhaken lernen (" + shopName() + ")";
+  }
+  function setSort(on) {
+    sortMode = !!on; el.list.classList.toggle("ek-sorting", sortMode);
+    sortBar.hidden = !sortMode; sortBtn.textContent = sortMode ? "Sortieren beenden" : "⇅ Sortieren"; sortBtn.setAttribute("aria-pressed", sortMode ? "true" : "false");
+    sortInfo();
+  }
+  function sortUI() {
+    var card = $("ekCard"), hint = card && card.querySelector(".ek-hint"); if (!card || !hint) return;
+    sortBar = document.createElement("div"); sortBar.className = "ek-sortbar"; sortBar.hidden = true;
+    sortBar.innerHTML = '<p class="ek-sb-t"></p><label class="ek-lern"><input type="checkbox"><span></span></label><button type="button" class="ek-sbfin">Fertig</button>';
+    card.insertBefore(sortBar, el.list);
+    var foot = document.createElement("div"); foot.className = "ek-foot";
+    sortBtn = document.createElement("button"); sortBtn.type = "button"; sortBtn.className = "ek-sortbtn"; sortBtn.textContent = "⇅ Sortieren"; sortBtn.setAttribute("aria-pressed", "false");
+    foot.appendChild(sortBtn); hint.parentNode.insertBefore(foot, hint.nextSibling);
+    sortBtn.addEventListener("click", function () { setSort(!sortMode); });
+    sortBar.querySelector(".ek-sbfin").addEventListener("click", function () { setSort(false); });
+    sortBar.querySelector("input").addEventListener("change", function (e) {
+      learnOn[shop] = e.target.checked; lastTick[shop] = null;
+      try { localStorage.setItem("fd:eklern", JSON.stringify(learnOn)); } catch (x) {}
+    });
+    [["ekShopA", "aldi"], ["ekShopN", "norma"]].forEach(function (p) { var b = $(p[0]); if (b) b.addEventListener("click", sortInfo); });
+    var drag = null;
+    function scrollers() { return [el.list, document.scrollingElement || document.documentElement]; }
+    function autoScroll(y) {
+      var lr = el.list.getBoundingClientRect(), box = el.list.scrollHeight > el.list.clientHeight + 2 ? lr : null, top = box ? Math.max(box.top, 0) : 0, bot = box ? Math.min(box.bottom, innerHeight) : innerHeight, d = 0;
+      if (y < top + 60) d = -12; else if (y > bot - 60) d = 12;
+      if (d) { if (box) el.list.scrollTop += d; else window.scrollBy(0, d); }
+    }
+    el.list.addEventListener("pointerdown", function (e) {
+      if (!sortMode) return; var t = e.target.closest(".ek-t"); if (!t) return;
+      drag = {t: t, x: e.clientX, y: e.clientY, on: false, id: e.pointerId, dx: 0, dy: 0};
+      try { el.list.setPointerCapture(e.pointerId); } catch (x) {}
+    });
+    el.list.addEventListener("pointermove", function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (!drag.on) {
+        if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) < 8) return;
+        drag.on = true; var r = drag.t.getBoundingClientRect(); drag.dx = e.clientX - r.left; drag.dy = e.clientY - r.top;
+        var g = drag.t.cloneNode(true); g.className += " ek-ghost"; g.style.width = r.width + "px"; g.style.height = r.height + "px"; document.body.appendChild(g); drag.g = g;
+        drag.t.classList.add("ek-src");
+      }
+      e.preventDefault();
+      drag.g.style.left = (e.clientX - drag.dx) + "px"; drag.g.style.top = (e.clientY - drag.dy) + "px";
+      drag.g.style.display = "none"; var u = document.elementFromPoint(e.clientX, e.clientY); drag.g.style.display = "";
+      var o = u && u.closest && u.closest(".ek-t");
+      if (o && o !== drag.t && el.list.contains(o)) {
+        var r2 = o.getBoundingClientRect(), after = e.clientX > r2.left + r2.width / 2;
+        el.list.insertBefore(drag.t, after ? o.nextSibling : o);
+      }
+      autoScroll(e.clientY);
+    });
+    function endDrag(e, cancel) {
+      if (!drag || (e && e.pointerId !== drag.id)) return; var d = drag; drag = null;
+      if (!d.on) return;
+      if (d.g && d.g.parentNode) d.g.parentNode.removeChild(d.g);
+      d.t.classList.remove("ek-src");
+      if (cancel) { render(); return; }
+      var it = byId(d.t.getAttribute("data-i")); if (!it) { render(); return; }
+      var nx = d.t.nextElementSibling, pv = d.t.previousElementSibling, nxI = nx && byId(nx.getAttribute("data-i")), pvI = pv && byId(pv.getAttribute("data-i"));
+      if (nxI && norm(nxI.n) !== norm(it.n)) moveInCat(shop, it.n, nxI.n, null, false);
+      else if (pvI && norm(pvI.n) !== norm(it.n)) moveInCat(shop, it.n, null, pvI.n, false);
+      render();
+    }
+    el.list.addEventListener("pointerup", function (e) { endDrag(e, false); });
+    el.list.addEventListener("pointercancel", function (e) { endDrag(e, true); });
+    el.list.addEventListener("contextmenu", function (e) { if (sortMode) e.preventDefault(); });
+  }
   function start() {
     el = {list: $("ekList"), empty: $("ekEmpty"), toast: $("ekToast"), toastT: $("ekToastT"), bar: $("ekBar"),
       sheet: $("ekSheet"), sg: $("ekSg"), det: $("ekDet"), hint: $("ekSgHint"), shT: $("ekShT"), chips: $("ekChips"), shQ: $("ekShQ"), shC: $("ekShC"),
@@ -1967,6 +2081,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     function shopUI() { SHOPS.forEach(function (k) { var b = $(k === "aldi" ? "ekShopA" : "ekShopN"); if (b) { b.classList.toggle("on", shop === k); b.setAttribute("aria-pressed", shop === k ? "true" : "false"); } }); }
     [["ekShopA", "aldi"], ["ekShopN", "norma"]].forEach(function (p) { var b = $(p[0]); if (b) b.addEventListener("click", function () { shop = p[1]; try { localStorage.setItem("fd:ekshop", shop); } catch (e) {} shopUI(); render(); }); });
     shopUI(); renderOrder(); render(); placeBar();
+    sortUI();
     window.addEventListener("resize", placeBar); window.addEventListener("orientationchange", function () { setTimeout(placeBar, 300); });
     window.addEventListener("hashchange", function () { setTimeout(placeBar, 60); setTimeout(placeBar, 400); }); setInterval(placeBar, 1500);
     if (window.visualViewport) { window.visualViewport.addEventListener("resize", fitSheet); window.visualViewport.addEventListener("scroll", fitSheet); }
@@ -1994,12 +2109,13 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     });
     $("ekShDel").addEventListener("click", function () { var k = cur; if (!k) return; cur = null; removeItem(k); refreshSheet(); el.toast.hidden = true; undo = null; });
     el.list.addEventListener("pointerdown", function (e) {
+      if (sortMode) return;
       var t = e.target.closest(".ek-t"); if (!t) return; lpFired = false; clearTimeout(lpT);
       lpT = setTimeout(function () { lpFired = true; openEntry(t.getAttribute("data-i"), true); }, 550);
     });
     ["pointerup", "pointerleave", "pointercancel", "scroll"].forEach(function (ev) { el.list.addEventListener(ev, function () { clearTimeout(lpT); }, true); });
     el.list.addEventListener("contextmenu", function (e) { if (e.target.closest(".ek-t")) e.preventDefault(); });
-    el.list.addEventListener("click", function (e) { var t = e.target.closest(".ek-t"); if (!t) return; if (lpFired) { lpFired = false; return; } removeItem(t.getAttribute("data-i")); });
+    el.list.addEventListener("click", function (e) { if (sortMode) return; var t = e.target.closest(".ek-t"); if (!t) return; if (lpFired) { lpFired = false; return; } removeItem(t.getAttribute("data-i")); });
     $("ekUndo").addEventListener("click", function () { if (!undo) return; if (!byId(undo.id)) list.push(undo); undo = null; el.toast.hidden = true; saveList(); render(); });
     var rs = $("ekOrderReset"); if (rs) rs.addEventListener("click", function () { order = CATS.map(function (c) { return c[0]; }); saveOrder(); renderOrder(); render(); });
     /* Auf dem Handy in der Einkaufsliste das Hochformat festhalten (klappt nur, wenn Browser bzw. installierte App es erlauben) */
