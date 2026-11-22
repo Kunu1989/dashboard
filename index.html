@@ -870,7 +870,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 6.9 &middot; vom 22.11.2026, 10:50 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 7.0 &middot; vom 22.11.2026, 11:10 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1606,7 +1606,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
 (function () {
   var box = null, bat = null, probeOff = false;
   function svgBat(p, chg) {
-    var col = (p <= 20 && !chg) ? "#c62828" : "currentColor", w = Math.max(0, Math.min(100, p)) * 0.17;
+    var col = (p < 20) ? "#c62828" : "currentColor", w = Math.max(0, Math.min(100, p)) * 0.17;
     var bolt = chg ? '<path d="M13.6 1.8 7.6 8h3.9l-1.2 4.2 6.2-6.6h-4z" fill="currentColor" stroke="var(--bg)" stroke-width="1.7" stroke-linejoin="round" paint-order="stroke"/>' : "";
     return '<svg viewBox="0 0 28 14" width="28" height="14" aria-hidden="true"><rect x="1" y="1" width="21" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="23.5" y="4.5" width="3" height="5" rx="1" fill="currentColor"/><rect x="3" y="3" width="' + w.toFixed(1) + '" height="8" rx="1.5" fill="' + col + '"/>' + bolt + '</svg>';
   }
@@ -1623,7 +1623,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     }
     var typ = c && c.type ? c.type : "";
     var on = navigator.onLine !== false && !probeOff && typ !== "none";
-    var txt = !on ? "Offline" : typ === "cellular" ? "Mobil" : typ === "ethernet" ? "LAN" : typ === "wifi" ? "WLAN" : typ ? "Online" : "WLAN";
+    var txt = !on ? "Offline" : typ === "cellular" ? "Mobil" : typ === "wifi" ? "WLAN" : "?";
     parts.push('<span class="ds' + (on ? "" : " off") + '" title="Netzwerk">' + svgWifi(on) + '<span>' + txt + '</span></span>');
     var h = parts.join("");
     if (box.__h !== h) { box.__h = h; box.innerHTML = h; }
