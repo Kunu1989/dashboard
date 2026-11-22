@@ -848,10 +848,10 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="ad-rows">
         <label class="ad-row"><span>Diashow: Wechsel alle</span><select id="adSec" aria-label="Sekunden pro Bild"></select></label>
         <label class="ad-row"><span>Zurück zur Übersicht nach</span><select id="adIdle" aria-label="Minuten bis zur Übersicht"></select></label>
-        <label class="ad-row"><span>Nachtmodus</span><select id="adNight" aria-label="Nachtmodus"><option value="0">Aus</option><option value="1">Von Sonnenunter- bis aufgang</option></select></label>
+        <label class="ad-row"><span>Nachtmodus (nur dieses Gerät)</span><select id="adNight" aria-label="Nachtmodus"><option value="0">Aus</option><option value="1">Von Sonnenunter- bis aufgang</option></select></label>
         <label class="ad-row"><span>Startseite (nur dieses Gerät)</span><select id="adStart" aria-label="Startseite dieses Geräts"></select></label>
       </div>
-      <p class="muted ad-note">Diese Zeiten gelten für alle Geräte, nur die Startseite gilt allein für dieses Gerät.</p>
+      <p class="muted ad-note">Diese Zeiten gelten für alle Geräte, nur Nachtmodus und Startseite gelten allein für dieses Gerät.</p>
     </section>
 <details class="card ad-fold" aria-labelledby="adTc">
       <summary class="card-head"><h2 id="adTc">Farben</h2><span class="ad-chev" aria-hidden="true"></span></summary>
@@ -870,7 +870,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 6.8 &middot; vom 22.11.2026, 06:56 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 6.9 &middot; vom 22.11.2026, 10:50 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1561,7 +1561,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   window.addEventListener("hashchange", function () { if (location.hash === "#abfahrten") select("dz"); });
 })();
 
-/* Zeiten (Diashow, Rücksprung zur Übersicht): global über db, lokal zwischengespeichert */
+/* Zeiten (Diashow, Rücksprung zur Übersicht): global über db, lokal zwischengespeichert. Nachtmodus: nur dieses Gerät (fd:night) */
 (function () {
   var KEY = "fd:times", t = {bilder: 15, idle: 5, night: 0}, db = null, tm = null;
   var BS = [5, 10, 15, 20, 30, 60], IS = [0, 1, 2, 5, 10, 15, 30];
@@ -1570,16 +1570,21 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     var b = Number(o.bilder), i = Number(o.idle);
     if (BS.indexOf(b) >= 0 && b !== t.bilder) { t.bilder = b; ch = true; }
     if (o.idle !== undefined && o.idle !== null && IS.indexOf(i) >= 0 && i !== t.idle) { t.idle = i; ch = true; }
-    if (o.night !== undefined && o.night !== null && (Number(o.night) === 0 || Number(o.night) === 1) && Number(o.night) !== t.night) { t.night = Number(o.night); ch = true; }
     return ch;
   }
   function store() { try { localStorage.setItem(KEY, JSON.stringify(t)); localStorage.setItem("bilderSek", String(t.bilder)); } catch (e) {} }
   try { var sv = JSON.parse(localStorage.getItem(KEY) || "null"); if (sv) apply(sv); } catch (e) {}
+  try { t.night = localStorage.getItem("fd:night") === "1" ? 1 : 0; } catch (e) {}
   store();
-  function save() { store(); clearTimeout(tm); tm = setTimeout(function () { tm = null; if (db) db.doc("settings/times").set({bilder: t.bilder, idle: t.idle, night: t.night}).catch(function () {}); }, 600); }
+  function save() { store(); clearTimeout(tm); tm = setTimeout(function () { tm = null; if (db) db.doc("settings/times").set({bilder: t.bilder, idle: t.idle}).catch(function () {}); }, 600); }
   window.__times = {
     get: function () { return {bilder: t.bilder, idle: t.idle, night: t.night}; },
-    set: function (o) { if (apply(o)) save(); }
+    set: function (o) {
+      if (o && o.night !== undefined && o.night !== null && (Number(o.night) === 0 || Number(o.night) === 1) && Number(o.night) !== t.night) {
+        t.night = Number(o.night); try { localStorage.setItem("fd:night", String(t.night)); } catch (e) {}
+      }
+      if (apply(o)) save();
+    }
   };
   window.__idleMs = function () { return t.idle * 60000; };
   window.addEventListener("bilder-sek", function (e) { var n = Number(e.detail); if (n !== t.bilder && apply({bilder: n})) save(); });
