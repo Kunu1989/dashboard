@@ -848,7 +848,7 @@ footer { font-size: 12px; color: var(--muted); }
       <div class="ad-rows">
         <label class="ad-row"><span>Diashow: Wechsel alle</span><select id="adSec" aria-label="Sekunden pro Bild"></select></label>
         <label class="ad-row"><span>Zurück zur Übersicht nach</span><select id="adIdle" aria-label="Minuten bis zur Übersicht"></select></label>
-        <label class="ad-row"><span>Nachtmodus (nur dieses Gerät)</span><select id="adNight" aria-label="Nachtmodus"><option value="0">Aus</option><option value="1">Von Sonnenunter- bis aufgang</option></select></label>
+        <label class="ad-row"><span>Nachtmodus (nur dieses Gerät)</span><select id="adNight" aria-label="Nachtmodus"><option value="3">Aus</option><option value="2">Ein</option><option value="0">Systemeinstellung</option><option value="1">Von Sonnenunter- bis aufgang</option></select></label>
         <label class="ad-row"><span>Startseite (nur dieses Gerät)</span><select id="adStart" aria-label="Startseite dieses Geräts"></select></label>
       </div>
       <p class="muted ad-note">Diese Zeiten gelten für alle Geräte, nur Nachtmodus und Startseite gelten allein für dieses Gerät.</p>
@@ -870,7 +870,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 7.0 &middot; vom 22.11.2026, 11:10 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 7.2 &middot; vom 22.11.2026, 11:30 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1574,13 +1574,13 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
   function store() { try { localStorage.setItem(KEY, JSON.stringify(t)); localStorage.setItem("bilderSek", String(t.bilder)); } catch (e) {} }
   try { var sv = JSON.parse(localStorage.getItem(KEY) || "null"); if (sv) apply(sv); } catch (e) {}
-  try { t.night = localStorage.getItem("fd:night") === "1" ? 1 : 0; } catch (e) {}
+  try { var nv = Number(localStorage.getItem("fd:night")); t.night = nv === 1 || nv === 2 || nv === 3 ? nv : 0; } catch (e) {}
   store();
   function save() { store(); clearTimeout(tm); tm = setTimeout(function () { tm = null; if (db) db.doc("settings/times").set({bilder: t.bilder, idle: t.idle}).catch(function () {}); }, 600); }
   window.__times = {
     get: function () { return {bilder: t.bilder, idle: t.idle, night: t.night}; },
     set: function (o) {
-      if (o && o.night !== undefined && o.night !== null && (Number(o.night) === 0 || Number(o.night) === 1) && Number(o.night) !== t.night) {
+      if (o && o.night !== undefined && o.night !== null && (Number(o.night) === 0 || Number(o.night) === 1 || Number(o.night) === 2 || Number(o.night) === 3) && Number(o.night) !== t.night) {
         t.night = Number(o.night); try { localStorage.setItem("fd:night", String(t.night)); } catch (e) {}
       }
       if (apply(o)) save();
@@ -1677,8 +1677,8 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   window.__sunTimes = sunTimes;
   function night() { var n = Date.now(), s = sunTimes(new Date()); return n < s.rise || n >= s.set; }
   function theme() {
-    var on = window.__times && window.__times.get().night === 1, r = document.documentElement;
-    if (on) { var v = night() ? "dark" : "light"; if (r.getAttribute("data-theme") !== v) r.setAttribute("data-theme", v); }
+    var nm = window.__times ? window.__times.get().night : 0, r = document.documentElement;
+    if (nm === 1 || nm === 2 || nm === 3) { var v = nm === 3 ? "light" : (nm === 2 || night()) ? "dark" : "light"; if (r.getAttribute("data-theme") !== v) r.setAttribute("data-theme", v); }
     else if (r.hasAttribute("data-theme")) r.removeAttribute("data-theme");
   }
   window.addEventListener("fd-times", theme);
