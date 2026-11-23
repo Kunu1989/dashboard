@@ -548,6 +548,40 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .pr-ui { margin: 4px 0 8px; }
 .pr-var { margin: 12px 0 4px; }
 @media (max-width: 380px) { .pr-p .pr-g { font-size: 9px; } }
+
+/* Entfernen-Knopf, Rückfrage, Eingabeblöcke, Rücksprung */
+.pr-trash { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: 0 0 auto; margin-left: auto; padding: 0; border-radius: 50%; border: 1.5px solid #c9453b; background: var(--surface); color: #c9453b; cursor: pointer; }
+.pr-trash + .pr-open { margin-left: 0; }
+.pr-conf { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 10px; padding: 12px; border-radius: 12px; border: 1px solid #f0b9b4; background: #fdeceb; color: #1b2430; font-size: 15px; }
+.pr-conf[hidden] { display: none; }
+.pr-confb { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.pr-cy { border: 0; border-radius: 999px; padding: 9px 16px; background: #c9453b; color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; }
+.pr-blk { margin: 10px 0; padding: 10px; border-radius: 12px; }
+.pr-blk.b0 { background: var(--surface-2, #f1f4f7); }
+.pr-blk.b1 { background: #FDEBD3; }
+.pr-blk.b2 { background: #fffaf3; border: 1.5px dashed #e0a35c; }
+.pr-bh { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-weight: 800; font-size: 15px; }
+.pr-blk.b1 .pr-bh, .pr-blk.b2 .pr-bh { color: #9a4f00; }
+.pr-no { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 13px; }
+.pr-blk.b1 .pr-no, .pr-blk.b2 .pr-no { background: #e8730c; }
+.pr-opt { margin-left: auto; font-weight: 500; font-size: 12px; color: var(--muted, #5b6675); }
+.pr-pn .pr-bt { position: sticky; bottom: 0; background: var(--surface); padding-top: 8px; }
+.pr-r.pr-flash { animation: prFlash 1.8s ease-out; }
+@keyframes prFlash { 0%, 45% { background: #FDEBD3; box-shadow: 0 0 0 6px #FDEBD3; } 100% { background: transparent; box-shadow: 0 0 0 6px transparent; } }
+:root[data-theme="dark"] .pr-conf { background: #3a1f1d; border-color: #7a3a35; color: #f1e6e5; }
+:root[data-theme="dark"] .pr-blk.b1 { background: #3b2a14; }
+:root[data-theme="dark"] .pr-blk.b2 { background: #2a2010; border-color: #a8691f; }
+:root[data-theme="dark"] .pr-blk.b1 .pr-bh, :root[data-theme="dark"] .pr-blk.b2 .pr-bh { color: #ffb86b; }
+:root[data-theme="dark"] .pr-r.pr-flash { animation-name: prFlashD; }
+@keyframes prFlashD { 0%, 45% { background: #3b2a14; box-shadow: 0 0 0 6px #3b2a14; } 100% { background: transparent; box-shadow: 0 0 0 6px transparent; } }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pr-conf { background: #3a1f1d; border-color: #7a3a35; color: #f1e6e5; }
+  :root:not([data-theme="light"]) .pr-blk.b1 { background: #3b2a14; }
+  :root:not([data-theme="light"]) .pr-blk.b2 { background: #2a2010; border-color: #a8691f; }
+  :root:not([data-theme="light"]) .pr-blk.b1 .pr-bh, :root:not([data-theme="light"]) .pr-blk.b2 .pr-bh { color: #ffb86b; }
+  :root:not([data-theme="light"]) .pr-r.pr-flash { animation-name: prFlashD; }
+}
+@media (prefers-reduced-motion: reduce) { .pr-r.pr-flash { animation: none; background: #FDEBD3; } }
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 @media (max-width: 700px) {
@@ -976,7 +1010,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 7.8 &middot; vom 23.11.2026, 10:38 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 7.9 &middot; vom 23.11.2026, 15:15 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -2258,7 +2292,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
 
   /* ---------- Preise: letzter Preis je Markt und Angebote (Dokument einkauf/preise, Reiter Einkauf › € Preise) ---------- */
-  var MK = [["aldi", "Aldi"], ["norma", "Norma"], ["lidl", "Lidl"], ["edeka", "Edeka"], ["netto", "Netto"]], PR = {}, prPending = 0, prQ = "", prKey = null, prSeeded = false, prEl = {}, prMk = null, prNew = {}, prNewU = {};
+  var MK = [["aldi", "Aldi"], ["norma", "Norma"], ["lidl", "Lidl"], ["edeka", "Edeka"], ["netto", "Netto"]], PR = {}, prPending = 0, prQ = "", prKey = null, prSeeded = false, prEl = {}, prMk = null, prNew = {}, prNewU = {}, prScroll = 0;
   /* Startdaten aus dem ersten Kassenbon (Aldi Süd, 20.11.2026): Name, Größe, Preis je Stück, Normalpreis (bei Rabatt) */
   var PR_SEED = [["Haferflocken", "", 0.69], ["Milch", "H-Milch 1,5 %, 1 l", 0.85], ["Gehackte Tomaten", "", 0.59], ["Erbsen mit Möhren", "", 0.89], ["Champignons", "ganz", 1.09], ["Frühstücksbackware", "", 1.39], ["Cashewkerne", "XXL", 4.99], ["Bergader", "250 g", 2.99], ["Pizzateig", "XXL, 550 g", 1.29], ["Herzhaft Geflügel/Rind", "", 1.99], ["Rougette Ofenkäse", "", 3.99], ["Prosciutto Cotto", "240 g", 1.99], ["Tomatenmark", "", 0.89], ["Clementinen", "1 kg", 1.89], ["Paprika Mix", "500 g", 1.59], ["Gurke", "Stück", 0.79], ["Magerquark", "500 g", 1.19], ["Hackfleisch", "Rind, 5 % Fett", 5.49], ["Eier", "18 Stück, Bodenhaltung", 4.19]];
   function p2(n) { return (n < 10 ? "0" : "") + n; }
@@ -2374,11 +2408,20 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     e.textContent = pk ? "Grundpreis wird pro " + (pk.fam === "stk" ? "Stück" : pk.fam === "kg" ? "Kilogramm" : "Liter") + " berechnet." : "Für einen Grundpreis die Menge angeben, z. B. „18 Stück“, „500 ml“, „1 l“ oder „250 g“.";
   }
   function prShow(mode) {
-    var on = mode !== "off", card = $("ekCard"), bar = $("ekBar"), tt = $("ekToast");
+    var on = mode !== "off", card = $("ekCard"), bar = $("ekBar"), tt = $("ekToast"), wasCard = !prEl.cardV.hidden, lastKey = prKey;
+    if (mode === "card" && !prEl.listV.hidden) prScroll = window.pageYOffset || 0;
+    if ($("prConf")) $("prConf").hidden = true;
     if (card) card.hidden = on; if (bar) bar.hidden = on; if (tt && on) tt.hidden = true;
     prEl.sec.hidden = !on;
     prEl.listV.hidden = mode !== "list"; prEl.cardV.hidden = mode !== "card";
-    if (mode === "list") { prKey = null; prList(); } else if (mode === "card") prCard();
+    if (mode === "list") {
+      prKey = null; prList();
+      if (wasCard && lastKey) {
+        var y = prScroll; try { window.scrollTo(0, y); } catch (e) {}
+        var row = prEl.body.querySelector('.pr-r[data-k="' + String(lastKey).replace(/["\\]/g, "") + '"]');
+        if (row) { row.classList.add("pr-flash"); setTimeout(function () { row.classList.remove("pr-flash"); }, 1800); }
+      }
+    } else if (mode === "card") prCard();
   }
   function prRefresh() { if (!prEl.sec || prEl.sec.hidden) return; if (!prEl.cardV.hidden) prCard(); else prList(); }
   function prCommit(k, it) {
@@ -2415,16 +2458,17 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       '<div class="pr-leg"><span><i class="g"></i>günstigster (Grundpreis)</span><span><i class="o"></i>im Angebot (%)</span><span>kleine Zahl = Datum</span></div>' +
       '<div class="pr-h"><span class="pr-hn"></span><span class="pr-hc">' + MK.map(function (m) { return "<span>" + m[1] + "</span>"; }).join("") + '</span></div><div id="prBody" class="pr-body"></div>' +
       '<p class="ek-hint">Tippe auf einen Artikel, um Preise und Angebote einzutragen. Die Preise stammen aus deinen Kassenbons und deiner Eingabe, die Angebote aus den Prospekten oder deiner Eingabe.</p></div>' +
-      '<div id="prCardV" hidden><div class="card-head"><h2 id="prCardT"></h2><button type="button" id="prBack2" class="pr-open">← Preise</button></div>' +
+      '<div id="prCardV" hidden><div class="card-head"><h2 id="prCardT"></h2><button type="button" id="prTrash" class="pr-trash" aria-label="Eintrag aus der Preisliste entfernen" title="Entfernen"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button><button type="button" id="prBack2" class="pr-open">← Preise</button></div>' +
+      '<div id="prConf" class="pr-conf" role="alertdialog" hidden><b id="prConfT"></b><span>Alle Preise und Angebote dieses Eintrags gehen verloren.</span><div class="pr-confb"><button type="button" id="prConfY" class="pr-cy">Ja, entfernen</button><button type="button" id="prConfN" class="pr-open">Abbrechen</button></div></div>' +
       '<label class="pr-lab">Packung / Hersteller<input id="prU" type="text" maxlength="30" placeholder="z. B. 18 Stück oder Milbona 1 l" autocomplete="off"></label><p id="prUi" class="ek-hint pr-ui"></p><div id="prMk" class="pr-mk"></div>' +
       '<p class="ek-hint">Tippe auf einen Markt, um den Preis oder ein Angebot einzutragen, auch wenn du den Artikel dort noch nicht gekauft hast.</p>' +
-      '<button type="button" id="prVar" class="pr-open pr-var">＋ Weitere Packung / weiterer Hersteller</button><button type="button" id="prDel" class="ek-del">Alle Preise dieses Artikels löschen</button></div>';
+      '<button type="button" id="prVar" class="pr-open pr-var">＋ Weitere Packung / weiterer Hersteller</button></div>';
     card.parentNode.insertBefore(sec, card.nextSibling);
     var sh2 = document.createElement("div"); sh2.id = "prSheet"; sh2.className = "ek-sheet pr-sheet"; sh2.hidden = true;
     sh2.innerHTML = '<div class="pr-pn" role="dialog" aria-modal="true" aria-label="Preis eintragen"><h3 id="prShT"></h3>' +
-      '<div class="pr-f"><label>Normaler Preis (€)<input id="prP" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></label><label>Datum<input id="prD" type="date"></label></div>' +
-      '<h4 class="pr-h4">Angebot</h4><div class="pr-f"><label class="pr-w">Angebotspreis (€)<input id="prO" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></label><label>gilt ab<input id="prA" type="date"></label><label>gilt bis<input id="prB" type="date"></label></div>' +
-      '<h4 class="pr-h4">Zweites Angebot (z. B. nächste Woche)</h4><div class="pr-f"><label class="pr-w">Angebotspreis (€)<input id="prO2" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></label><label>gilt ab<input id="prA2" type="date"></label><label>gilt bis<input id="prB2" type="date"></label></div>' +
+      '<div class="pr-blk b0"><div class="pr-bh"><span class="pr-no">1</span>Normaler Preis</div><div class="pr-f"><label>Preis (€)<input id="prP" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></label><label>Datum<input id="prD" type="date"></label></div></div>' +
+      '<div class="pr-blk b1"><div class="pr-bh"><span class="pr-no">2</span>Angebot</div><div class="pr-f"><label class="pr-w">Angebotspreis (€)<input id="prO" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></label><label>gilt ab<input id="prA" type="date"></label><label>gilt bis<input id="prB" type="date"></label></div></div>' +
+      '<div class="pr-blk b2"><div class="pr-bh"><span class="pr-no">3</span>Zweites Angebot<span class="pr-opt">optional</span></div><div class="pr-f"><label class="pr-w">Angebotspreis (€)<input id="prO2" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></label><label>gilt ab<input id="prA2" type="date"></label><label>gilt bis<input id="prB2" type="date"></label></div></div>' +
       '<div class="pr-bt"><button type="button" id="prOk" class="ek-add pr-ok">Speichern</button><button type="button" id="prNo" class="pr-open">Abbrechen</button></div>' +
       '<p class="ek-hint">„gilt ab“ leer = gilt sofort, „gilt bis“ leer = unbegrenzt. Alles leer lassen und speichern löscht die Einträge für diesen Markt.</p></div>';
     document.body.appendChild(sh2);
@@ -2441,7 +2485,9 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     prEl.cardU.addEventListener("input", function () { var u = this.value.replace(/\s+/g, " ").trim().slice(0, 30); if (PR[prKey]) PR[prKey].u = u; else prNewU[prKey] = u; prCard(); });
     prEl.cardU.addEventListener("change", function () { var u = this.value.replace(/\s+/g, " ").trim().slice(0, 30); if (PR[prKey]) { PR[prKey].u = u; savePr(); } else prNewU[prKey] = u; });
     $("prVar").addEventListener("click", function () { var nm = prItem(prKey).n; prKey = newVarKey(nm); prNew[prKey] = nm; prNewU[prKey] = ""; prShow("card"); try { prEl.cardU.focus(); } catch (e) {} });
-    $("prDel").addEventListener("click", function () { delete PR[prKey]; savePr(); prShow("list"); });
+    $("prTrash").addEventListener("click", function () { var it = prItem(prKey); $("prConfT").textContent = "„" + it.n + (it.u ? " · " + it.u : "") + "“ aus der Preisliste entfernen?"; $("prConf").hidden = false; });
+    $("prConfN").addEventListener("click", function () { $("prConf").hidden = true; });
+    $("prConfY").addEventListener("click", function () { var k = prKey; delete PR[k]; delete prNew[k]; delete prNewU[k]; savePr(); prShow("list"); });
     $("prOk").addEventListener("click", prSave);
     $("prNo").addEventListener("click", function () { $("prSheet").hidden = true; });
     sh2.addEventListener("click", function (e) { if (e.target === sh2) sh2.hidden = true; });
