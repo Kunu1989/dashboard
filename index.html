@@ -531,6 +531,12 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 :root[data-theme="dark"] .pr-k, :root[data-theme="dark"] .pr-p.off .pr-k { background: #2a2010; color: #ffb86b; border-color: #a8691f; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pr-k, :root:not([data-theme="light"]) .pr-p.off .pr-k { background: #2a2010; color: #ffb86b; border-color: #a8691f; } }
 @media (max-width: 380px) { .pr-k { font-size: 9px; } .pr-k s { font-size: 8.5px; } }
+
+/* Angebots-Pille auf der Kachel */
+.ek-t { position: relative; }
+.ek-off { position: absolute; top: -3px; right: -3px; min-width: 22px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 999px; background: #e8730c; color: #fff; font-size: 12px; font-weight: 800; line-height: 20px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.3); pointer-events: none; }
+:root[data-theme="dark"] .ek-off { background: #f08a2e; color: #1b1205; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ek-off { background: #f08a2e; color: #1b1205; } }
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 @media (max-width: 700px) {
@@ -959,7 +965,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 7.6 &middot; vom 23.11.2026, 05:27 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 7.7 &middot; vom 23.11.2026, 09:11 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1915,6 +1921,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       var t = document.createElement("button"); t.type = "button"; t.className = "ek-t"; t.setAttribute("data-i", it.id);
       var i = document.createElement("i"); setIcon(i, iconOf(it)); t.appendChild(i);
       t.appendChild(document.createTextNode(it.n));
+      if (hasOffer(it.n)) { var op = document.createElement("span"); op.className = "ek-off"; op.textContent = "%"; op.setAttribute("title", "Angebot"); t.appendChild(op); t.setAttribute("aria-label", it.n + ", im Angebot"); }
       if (it.q) {
         /* Eine reine Zahl unter den Details ist die Menge (Pille + Stapel), der Rest steht als graue Zeile */
         var qn = null, rest = [];
@@ -2233,7 +2240,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       d.doc("einkauf/liste").onSnapshot(function (s) { if (pending) return; if (s && s.exists) { var nl = cleanList((s.data() || {}).items); if (JSON.stringify(nl) !== JSON.stringify(list)) { list = nl; render(); } } });
       d.doc("einkauf/merk").onSnapshot(function (s) { if (mPending || mT) return; if (s && s.exists) { var o = s.data() || {}; counts = parseObj(o.counts); cats = parseObj(o.cats); Object.keys(cats).forEach(function (k) { if (cats[k] === "fleisch" && BY[k] && (BY[k].c === "wurst" || BY[k].c === "fisch")) cats[k] = BY[k].c; }); } });
       d.doc("einkauf/details").onSnapshot(function (s) { if (dPending) return; if (s && s.exists) { var nd = cleanDet((s.data() || {}).d); if (JSON.stringify(nd) !== JSON.stringify(DET)) { DET = nd; if (cur) buildChips(); } } });
-      d.doc("einkauf/preise").onSnapshot(function (s) { if (prPending) return; if (s && s.exists) { prSeeded = true; var np = cleanPr((s.data() || {}).d); if (JSON.stringify(np) !== JSON.stringify(PR)) { PR = np; prRefresh(); } prOffMerge(); } });
+      d.doc("einkauf/preise").onSnapshot(function (s) { if (prPending) return; if (s && s.exists) { prSeeded = true; var np = cleanPr((s.data() || {}).d); if (JSON.stringify(np) !== JSON.stringify(PR)) { PR = np; prRefresh(); render(); } prOffMerge(); } });
       d.doc("einkauf/katalog").onSnapshot(function (s) { if (kPending) return; var raw = s && s.exists ? toRaw(s.data() || {}) : null, sg = JSON.stringify(raw); if (sg !== catSig) { catSig = sg; setCatalog(raw); render(); } });
       d.doc("settings/einkaufreihenfolge").onSnapshot(function (s) { if (oPending) return; if (s && s.exists) { var no = cleanOrder((s.data() || {}).order); if (no.join() !== order.join()) { order = no; renderOrder(); render(); } } });
     });
@@ -2292,7 +2299,8 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     try { localStorage.setItem(flag, "1"); } catch (e) {}
     if (ch) { PR = cleanPr(PR); prSeeded = true; savePr(); prRefresh(); }
   }
-  function savePr() { if (!db) return; prPending++; db.doc("einkauf/preise").set({d: JSON.stringify(PR)}).catch(function () {}).then(function () { prPending--; }); }
+  function savePr() { try { render(); } catch (e) {} if (!db) return; prPending++; db.doc("einkauf/preise").set({d: JSON.stringify(PR)}).catch(function () {}).then(function () { prPending--; }); }
+  function hasOffer(name) { var it = PR[norm(name)]; if (!it) return false; return MK.some(function (mk) { return !!offerOf(it, mk[0]); }); }
   function offList(it, m) { var o = it.o[m]; return Array.isArray(o) ? o : o ? [o] : []; }
   function offerOf(it, m) { var t = isoToday(), r = null; offList(it, m).forEach(function (o) { if (!r && (!o.a || o.a <= t) && (!o.b || o.b >= t)) r = o; }); return r; }
   function nextOf(it, m) { var t = isoToday(), r = null; offList(it, m).forEach(function (o) { if (!r && o.a && o.a > t) r = o; }); return r; }
