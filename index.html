@@ -947,7 +947,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 7.4 &middot; vom 22.11.2026, 22:19 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 7.5 &middot; vom 22.11.2026, 22:39 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -2169,7 +2169,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     function shopUI() { SHOPS.forEach(function (k) { var b = $(k === "aldi" ? "ekShopA" : "ekShopN"); if (b) { b.classList.toggle("on", shop === k); b.setAttribute("aria-pressed", shop === k ? "true" : "false"); } }); }
     [["ekShopA", "aldi"], ["ekShopN", "norma"]].forEach(function (p) { var b = $(p[0]); if (b) b.addEventListener("click", function () { shop = p[1]; try { localStorage.setItem("fd:ekshop", shop); } catch (e) {} shopUI(); render(); }); });
     shopUI(); renderOrder(); render(); placeBar();
-    sortUI(); prInit();
+    sortUI(); prInit(); setTimeout(function () { if (!prPending) { if (!Object.keys(PR).length && !prSeeded) PR = seedPr(); prOffMerge(); } }, 12000);
     window.addEventListener("resize", placeBar); window.addEventListener("orientationchange", function () { setTimeout(placeBar, 300); });
     window.addEventListener("hashchange", function () { setTimeout(placeBar, 60); setTimeout(placeBar, 400); }); setInterval(placeBar, 1500);
     if (window.visualViewport) { window.visualViewport.addEventListener("resize", fitSheet); window.visualViewport.addEventListener("scroll", fitSheet); }
@@ -2221,7 +2221,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       d.doc("einkauf/liste").onSnapshot(function (s) { if (pending) return; if (s && s.exists) { var nl = cleanList((s.data() || {}).items); if (JSON.stringify(nl) !== JSON.stringify(list)) { list = nl; render(); } } });
       d.doc("einkauf/merk").onSnapshot(function (s) { if (mPending || mT) return; if (s && s.exists) { var o = s.data() || {}; counts = parseObj(o.counts); cats = parseObj(o.cats); Object.keys(cats).forEach(function (k) { if (cats[k] === "fleisch" && BY[k] && (BY[k].c === "wurst" || BY[k].c === "fisch")) cats[k] = BY[k].c; }); } });
       d.doc("einkauf/details").onSnapshot(function (s) { if (dPending) return; if (s && s.exists) { var nd = cleanDet((s.data() || {}).d); if (JSON.stringify(nd) !== JSON.stringify(DET)) { DET = nd; if (cur) buildChips(); } } });
-      d.doc("einkauf/preise").onSnapshot(function (s) { if (prPending) return; if (s && s.exists) { prSeeded = true; var np = cleanPr((s.data() || {}).d); if (JSON.stringify(np) !== JSON.stringify(PR)) { PR = np; prRefresh(); } } });
+      d.doc("einkauf/preise").onSnapshot(function (s) { if (prPending) return; if (s && s.exists) { prSeeded = true; var np = cleanPr((s.data() || {}).d); if (JSON.stringify(np) !== JSON.stringify(PR)) { PR = np; prRefresh(); } prOffMerge(); } });
       d.doc("einkauf/katalog").onSnapshot(function (s) { if (kPending) return; var raw = s && s.exists ? toRaw(s.data() || {}) : null, sg = JSON.stringify(raw); if (sg !== catSig) { catSig = sg; setCatalog(raw); render(); } });
       d.doc("settings/einkaufreihenfolge").onSnapshot(function (s) { if (oPending) return; if (s && s.exists) { var no = cleanOrder((s.data() || {}).order); if (no.join() !== order.join()) { order = no; renderOrder(); render(); } } });
     });
@@ -2263,6 +2263,18 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     return r;
   }
   function seedPr() { var o = {}; PR_SEED.forEach(function (s) { var it = {n: s[0], u: s[1], m: {aldi: {p: s[2], d: "2026-11-20"}}, o: {}}; o[norm(s[0])] = it; }); return cleanPr(o); }
+  var PR_OFF = [["Ananas","Stück","aldi",1.29],["Ananas","Stück","edeka",1.99],["Avocado","Stück","aldi",0.77],["Avocado","Stück","lidl",0.88],["Gurke","Stück","aldi",0.59],["Gurke","Stück","lidl",0.89],["Gurke","Stück","edeka",0.50],["Pesto","190/200 g","aldi",1.69],["Finesse","","aldi",0.79],["Weichspüler","","aldi",3.69],["Weichspüler","","edeka",1.99],["Cheestrings","4 x 20 g","aldi",1.79],["Kaki","Stück","edeka",0.50],["Paprika","500 g","edeka",1.99],["Brunch","185 g","lidl",1.29],["Brunch","185 g","edeka",1.29],["Fischstäbchen","","lidl",2.99],["Fischstäbchen","","edeka",2.79],["Zucchini","Stück","lidl",1.39],["Milch","H-Milch 1,5 %, 1 l","lidl",0.71],["Essig-Essenz","450 g","lidl",0.99]];
+  function prOffMerge() {
+    var flag = "fd:proff1"; try { if (localStorage.getItem(flag)) return; } catch (e) {}
+    var ch = false;
+    PR_OFF.forEach(function (x) {
+      var k = norm(x[0]), it = PR[k]; if (!it) { it = PR[k] = {n: x[0], u: x[1], m: {}, o: {}}; ch = true; }
+      if (!it.u && x[1]) { it.u = x[1]; ch = true; }
+      if (!it.o[x[2]]) { it.o[x[2]] = {p: x[3], b: "2026-11-28"}; ch = true; }
+    });
+    try { localStorage.setItem(flag, "1"); } catch (e) {}
+    if (ch) { PR = cleanPr(PR); prSeeded = true; savePr(); prRefresh(); }
+  }
   function savePr() { if (!db) return; prPending++; db.doc("einkauf/preise").set({d: JSON.stringify(PR)}).catch(function () {}).then(function () { prPending--; }); }
   function offerOf(it, m) { var o = it.o[m]; return o && (!o.b || o.b >= isoToday()) ? o : null; }
   function bestP(it) { var ps = MK.map(function (mk) { return it.m[mk[0]] ? it.m[mk[0]].p : null; }).filter(function (p) { return p != null; }); return ps.length > 1 ? Math.min.apply(null, ps) : null; }
