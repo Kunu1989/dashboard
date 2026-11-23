@@ -519,6 +519,18 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 }
 @media (max-width: 380px) { #ekCard .card-head h2 { font-size: 15px; } .pr-open { padding: 6px 7px; font-size: 12px; } }
 .pr-h { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); padding-top: 8px; margin-top: -4px; border-bottom: 1px solid var(--line); }
+
+/* kommende Angebote (gilt ab) */
+.pr-k { display: block; font-style: normal; margin: 4px 1px 0; padding: 2px 1px; border: 1.5px dashed #e0a35c; border-radius: 7px; background: #fffaf3; color: #9a4f00; font-size: 10px; font-weight: 800; line-height: 1.15; white-space: nowrap; }
+.pr-k s { display: block; text-decoration: none; font-size: 9px; font-weight: 500; }
+.pr-p.off .pr-k { background: #fffaf3; }
+.pr-m .pr-k { margin: 4px 0 0; padding: 3px 6px; font-size: 12px; white-space: normal; }
+.pr-m .pr-k s { font-size: 11px; }
+.pr-h4 { margin: 12px 0 0; font-size: 14px; }
+.pr-f .pr-w { grid-column: 1 / -1; }
+:root[data-theme="dark"] .pr-k, :root[data-theme="dark"] .pr-p.off .pr-k { background: #2a2010; color: #ffb86b; border-color: #a8691f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pr-k, :root:not([data-theme="light"]) .pr-p.off .pr-k { background: #2a2010; color: #ffb86b; border-color: #a8691f; } }
+@media (max-width: 380px) { .pr-k { font-size: 9px; } .pr-k s { font-size: 8.5px; } }
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 @media (max-width: 700px) {
@@ -947,7 +959,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 7.5 &middot; vom 22.11.2026, 22:39 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 7.6 &middot; vom 23.11.2026, 05:27 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -2254,36 +2266,47 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       var n = x.n.replace(/\s+/g, " ").trim().slice(0, 60), key = norm(n); if (!key || r[key]) return;
       var it = {n: n, u: typeof x.u === "string" ? x.u.replace(/\s+/g, " ").trim().slice(0, 30) : "", m: {}, o: {}}, has = false;
       MK.forEach(function (mk) {
-        var a = x.m && x.m[mk[0]], b = x.o && x.o[mk[0]], p, q, bis;
+        var a = x.m && x.m[mk[0]], b = x.o && x.o[mk[0]], p, ol = [];
         if (a && (p = numP(a.p)) && okIso(a.d)) { it.m[mk[0]] = {p: p, d: a.d}; has = true; }
-        if (b && (q = numP(b.p))) { bis = okIso(b.b) ? b.b : ""; if (!bis || bis >= today) { it.o[mk[0]] = {p: q, b: bis}; has = true; } }
+        (Array.isArray(b) ? b : b ? [b] : []).forEach(function (e) {
+          var q = e && numP(e.p), bis = e && okIso(e.b) ? e.b : "", ab = e && okIso(e.a) ? e.a : ""; if (!q || (bis && bis < today)) return;
+          if (ab && bis && ab > bis) ab = ""; ol.push({p: q, a: ab, b: bis});
+        });
+        if (ol.length) { ol.sort(function (u, v) { return (u.a || "").localeCompare(v.a || ""); }); it.o[mk[0]] = ol.slice(0, 2); has = true; }
       });
       if (has) r[key] = it;
     });
     return r;
   }
   function seedPr() { var o = {}; PR_SEED.forEach(function (s) { var it = {n: s[0], u: s[1], m: {aldi: {p: s[2], d: "2026-11-20"}}, o: {}}; o[norm(s[0])] = it; }); return cleanPr(o); }
-  var PR_OFF = [["Ananas","Stück","aldi",1.29],["Ananas","Stück","edeka",1.99],["Avocado","Stück","aldi",0.77],["Avocado","Stück","lidl",0.88],["Gurke","Stück","aldi",0.59],["Gurke","Stück","lidl",0.89],["Gurke","Stück","edeka",0.50],["Pesto","190/200 g","aldi",1.69],["Finesse","","aldi",0.79],["Weichspüler","","aldi",3.69],["Weichspüler","","edeka",1.99],["Cheestrings","4 x 20 g","aldi",1.79],["Kaki","Stück","edeka",0.50],["Paprika","500 g","edeka",1.99],["Brunch","185 g","lidl",1.29],["Brunch","185 g","edeka",1.29],["Fischstäbchen","","lidl",2.99],["Fischstäbchen","","edeka",2.79],["Zucchini","Stück","lidl",1.39],["Milch","H-Milch 1,5 %, 1 l","lidl",0.71],["Essig-Essenz","450 g","lidl",0.99]];
+  var PR_OFF = [["Ananas","Stück","aldi",1.29,"2026-11-23"],["Ananas","Stück","edeka",1.99,"2026-11-23"],["Avocado","Stück","aldi",0.77,"2026-11-23"],["Avocado","Stück","lidl",0.88,"2026-11-23"],["Gurke","Stück","aldi",0.59,"2026-11-23"],["Gurke","Stück","lidl",0.89,"2026-11-23"],["Gurke","Stück","edeka",0.50,"2026-11-23"],["Pesto","190/200 g","aldi",1.69,"2026-11-23"],["Finesse","","aldi",0.79,"2026-11-23"],["Weichspüler","","aldi",3.69,"2026-11-23"],["Weichspüler","","edeka",1.99,"2026-11-23"],["Cheestrings","4 x 20 g","aldi",1.79,"2026-11-27"],["Kaki","Stück","edeka",0.50,"2026-11-23"],["Paprika","500 g","edeka",1.99,"2026-11-23"],["Brunch","185 g","lidl",1.29,"2026-11-26"],["Brunch","185 g","edeka",1.29,"2026-11-23"],["Fischstäbchen","","lidl",2.99,"2026-11-26"],["Fischstäbchen","","edeka",2.79,"2026-11-23"],["Zucchini","Stück","lidl",1.39,"2026-11-23"],["Milch","H-Milch 1,5 %, 1 l","lidl",0.71,"2026-11-23"],["Essig-Essenz","450 g","lidl",0.99,"2026-11-23"]];
   function prOffMerge() {
-    var flag = "fd:proff1"; try { if (localStorage.getItem(flag)) return; } catch (e) {}
+    var flag = "fd:proff2"; try { if (localStorage.getItem(flag)) return; } catch (e) {}
     var ch = false;
     PR_OFF.forEach(function (x) {
       var k = norm(x[0]), it = PR[k]; if (!it) { it = PR[k] = {n: x[0], u: x[1], m: {}, o: {}}; ch = true; }
       if (!it.u && x[1]) { it.u = x[1]; ch = true; }
-      if (!it.o[x[2]]) { it.o[x[2]] = {p: x[3], b: "2026-11-28"}; ch = true; }
+      var l = offList(it, x[2]), f = null; l.forEach(function (o) { if (!f && o.p === x[3]) f = o; });
+      if (f) { if (!f.a && x[4] > "2026-11-23") { f.a = x[4]; ch = true; } } else if (!l.length) { it.o[x[2]] = [{p: x[3], a: x[4], b: "2026-11-28"}]; ch = true; }
     });
     try { localStorage.setItem(flag, "1"); } catch (e) {}
     if (ch) { PR = cleanPr(PR); prSeeded = true; savePr(); prRefresh(); }
   }
   function savePr() { if (!db) return; prPending++; db.doc("einkauf/preise").set({d: JSON.stringify(PR)}).catch(function () {}).then(function () { prPending--; }); }
-  function offerOf(it, m) { var o = it.o[m]; return o && (!o.b || o.b >= isoToday()) ? o : null; }
+  function offList(it, m) { var o = it.o[m]; return Array.isArray(o) ? o : o ? [o] : []; }
+  function offerOf(it, m) { var t = isoToday(), r = null; offList(it, m).forEach(function (o) { if (!r && (!o.a || o.a <= t) && (!o.b || o.b >= t)) r = o; }); return r; }
+  function nextOf(it, m) { var t = isoToday(), r = null; offList(it, m).forEach(function (o) { if (!r && o.a && o.a > t) r = o; }); return r; }
+  function rngD(a, b) {
+    if (a && b) { if (a.slice(0, 7) === b.slice(0, 7)) return a.slice(8, 10) + ".–" + fmtD(b); return fmtD(a) + "–" + fmtD(b); }
+    return a ? "ab " + fmtD(a) : b ? "bis " + fmtD(b) : "";
+  }
   function bestP(it) { var ps = MK.map(function (mk) { return it.m[mk[0]] ? it.m[mk[0]].p : null; }).filter(function (p) { return p != null; }); return ps.length > 1 ? Math.min.apply(null, ps) : null; }
   function prItem(k) { return PR[k] || {n: BY[k] ? BY[k].n : prNew[k] || k, u: "", m: {}, o: {}}; }
   function prRow(k, it, empty) {
     var best = bestP(it), cells = "";
     MK.forEach(function (mk) {
-      var m = it.m[mk[0]], o = offerOf(it, mk[0]), c = "pr-p" + (o ? " off" : m && best != null && m.p === best ? " best" : "") + (!m && !o ? " no" : "");
-      cells += '<span class="' + c + '">' + (m ? "<b>" + fmtP(m.p) + "</b><small>" + fmtD(m.d) + "</small>" : "<b>–</b>") + (o ? "<em>% " + fmtP(o.p) + (o.b ? "<br>bis " + fmtD(o.b) : "") + "</em>" : "") + "</span>";
+      var m = it.m[mk[0]], o = offerOf(it, mk[0]), nx = nextOf(it, mk[0]), c = "pr-p" + (o ? " off" : m && best != null && m.p === best ? " best" : "") + (!m && !o && !nx ? " no" : "");
+      cells += '<span class="' + c + '">' + (m ? "<b>" + fmtP(m.p) + "</b><small>" + fmtD(m.d) + "</small>" : "<b>–</b>") + (o ? "<em>% " + fmtP(o.p) + (o.b ? "<br>bis " + fmtD(o.b) : "") + "</em>" : "") + (nx ? '<i class="pr-k">→ ' + fmtP(nx.p) + "<s>" + rngD(nx.a, nx.b) + "</s></i>" : "") + "</span>";
     });
     return '<button type="button" class="pr-r' + (empty ? " pr-e" : "") + '" data-k="' + prEsc(k) + '"><span class="pr-n"><b>' + prEsc(it.n) + "</b>" + (it.u ? "<small>" + prEsc(it.u) + "</small>" : "") + '</span><span class="pr-c">' + cells + "</span></button>";
   }
@@ -2299,8 +2322,8 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   function prCard() {
     var it = prItem(prKey), best = bestP(it), h = "";
     MK.forEach(function (mk) {
-      var m = it.m[mk[0]], o = offerOf(it, mk[0]), c = "pr-m" + (o ? " off" : m && best != null && m.p === best ? " best" : "");
-      h += '<button type="button" class="' + c + '" data-m="' + mk[0] + '"><span class="pr-mn">' + mk[1] + "</span><b>" + (m ? fmtP(m.p) : "–") + "</b><small>" + (m ? "zuletzt " + fmtD(m.d, true) : "noch nicht eingetragen") + "</small>" + (o ? "<em>Angebot " + fmtP(o.p) + (o.b ? " bis " + fmtD(o.b, true) : "") + "</em>" : "") + "</button>";
+      var m = it.m[mk[0]], o = offerOf(it, mk[0]), nx = nextOf(it, mk[0]), c = "pr-m" + (o ? " off" : m && best != null && m.p === best ? " best" : "");
+      h += '<button type="button" class="' + c + '" data-m="' + mk[0] + '"><span class="pr-mn">' + mk[1] + "</span><b>" + (m ? fmtP(m.p) : "–") + "</b><small>" + (m ? "zuletzt " + fmtD(m.d, true) : "noch nicht eingetragen") + "</small>" + (o ? "<em>Angebot " + fmtP(o.p) + (o.b ? " bis " + fmtD(o.b, true) : "") + "</em>" : "") + (nx ? '<i class="pr-k">kommt: ' + fmtP(nx.p) + "<s>" + rngD(nx.a, nx.b) + "</s></i>" : "") + "</button>";
     });
     prEl.cardT.textContent = it.n; prEl.cardU.value = it.u; prEl.mk.innerHTML = h;
     prEl.cardU.dataset.k = prKey;
@@ -2318,17 +2341,22 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     savePr();
   }
   function prSheet(m) {
-    prMk = m; var it = prItem(prKey), x = it.m[m], o = it.o[m], nm = "";
+    prMk = m; var it = prItem(prKey), x = it.m[m], ol = offList(it, m), nm = "";
     MK.forEach(function (mk) { if (mk[0] === m) nm = mk[1]; });
     $("prShT").textContent = it.n + " bei " + nm;
     $("prP").value = x ? String(x.p).replace(".", ",") : ""; $("prD").value = x ? x.d : isoToday();
-    $("prO").value = o ? String(o.p).replace(".", ",") : ""; $("prB").value = o && o.b ? o.b : "";
+    [["prO", "prA", "prB"], ["prO2", "prA2", "prB2"]].forEach(function (f, i) { var o = ol[i]; $(f[0]).value = o ? String(o.p).replace(".", ",") : ""; $(f[1]).value = o && o.a ? o.a : ""; $(f[2]).value = o && o.b ? o.b : ""; });
     $("prSheet").hidden = false; try { $("prP").focus(); } catch (e) {}
   }
   function prSave() {
-    var it = prItem(prKey), m = prMk, p = numP($("prP").value), q = numP($("prO").value);
+    var it = prItem(prKey), m = prMk, p = numP($("prP").value), ol = [];
     if (p) { it.m[m] = {p: p, d: okIso($("prD").value) ? $("prD").value : isoToday()}; } else delete it.m[m];
-    if (q) it.o[m] = {p: q, b: okIso($("prB").value) ? $("prB").value : ""}; else delete it.o[m];
+    [["prO", "prA", "prB"], ["prO2", "prA2", "prB2"]].forEach(function (f) {
+      var q = numP($(f[0]).value), a = okIso($(f[1]).value) ? $(f[1]).value : "", b = okIso($(f[2]).value) ? $(f[2]).value : ""; if (!q) return;
+      if (a && b && a > b) a = ""; ol.push({p: q, a: a, b: b});
+    });
+    ol.sort(function (u, v) { return (u.a || "").localeCompare(v.a || ""); });
+    if (ol.length) it.o[m] = ol; else delete it.o[m];
     prCommit(prKey, it); $("prSheet").hidden = true; prCard();
   }
   function prInit() {
@@ -2350,9 +2378,10 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     var sh2 = document.createElement("div"); sh2.id = "prSheet"; sh2.className = "ek-sheet pr-sheet"; sh2.hidden = true;
     sh2.innerHTML = '<div class="pr-pn" role="dialog" aria-modal="true" aria-label="Preis eintragen"><h3 id="prShT"></h3>' +
       '<div class="pr-f"><label>Normaler Preis (€)<input id="prP" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></label><label>Datum<input id="prD" type="date"></label></div>' +
-      '<div class="pr-f"><label>Angebot (€)<input id="prO" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></label><label>gilt bis<input id="prB" type="date"></label></div>' +
+      '<h4 class="pr-h4">Angebot</h4><div class="pr-f"><label class="pr-w">Angebotspreis (€)<input id="prO" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></label><label>gilt ab<input id="prA" type="date"></label><label>gilt bis<input id="prB" type="date"></label></div>' +
+      '<h4 class="pr-h4">Zweites Angebot (z. B. nächste Woche)</h4><div class="pr-f"><label class="pr-w">Angebotspreis (€)<input id="prO2" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></label><label>gilt ab<input id="prA2" type="date"></label><label>gilt bis<input id="prB2" type="date"></label></div>' +
       '<div class="pr-bt"><button type="button" id="prOk" class="ek-add pr-ok">Speichern</button><button type="button" id="prNo" class="pr-open">Abbrechen</button></div>' +
-      '<p class="ek-hint">Preis und Angebot leer lassen und speichern löscht beide Einträge für diesen Markt.</p></div>';
+      '<p class="ek-hint">„gilt ab“ leer = gilt sofort, „gilt bis“ leer = unbegrenzt. Alles leer lassen und speichern löscht die Einträge für diesen Markt.</p></div>';
     document.body.appendChild(sh2);
     prEl = {sec: sec, listV: $("prListV"), cardV: $("prCardV"), body: $("prBody"), cardT: $("prCardT"), cardU: $("prU"), mk: $("prMk")};
     b.addEventListener("click", function () { prQ = ""; $("prSearch").value = ""; prShow("list"); try { window.scrollTo(0, 0); } catch (e) {} });
@@ -2432,7 +2461,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       return out;
     },
     offerRows: function () {
-      var out = []; Object.keys(PR).sort(function (a, b) { return PR[a].n.localeCompare(PR[b].n, "de"); }).forEach(function (k) { var it = PR[k]; MK.forEach(function (mk) { var o = it.o[mk[0]]; if (o) out.push([it.n, mk[1], o.p, fmtD(o.b, true)]); }); });
+      var out = []; Object.keys(PR).sort(function (a, b) { return PR[a].n.localeCompare(PR[b].n, "de"); }).forEach(function (k) { var it = PR[k]; MK.forEach(function (mk) { offList(it, mk[0]).forEach(function (o) { out.push([it.n, mk[1], o.p, fmtD(o.b, true), fmtD(o.a, true)]); }); }); });
       return out;
     },
     importPrices: function (pRows, oRows) {
@@ -2449,7 +2478,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       }
       if (oRows) {
         Object.keys(base).forEach(function (k) { base[k].o = {}; });
-        oRows.forEach(function (r) { var it = item(r[0]), mk = find(r[1]), p = numP(r[2]); if (!it || !mk || !p) return; it.o[mk] = {p: p, b: anyDate(r[3])}; res.o++; });
+        oRows.forEach(function (r) { var it = item(r[0]), mk = find(r[1]), p = numP(r[2]); if (!it || !mk || !p) return; (it.o[mk] = Array.isArray(it.o[mk]) ? it.o[mk] : []).push({p: p, b: anyDate(r[3]), a: anyDate(r[4])}); res.o++; });
       }
       PR = cleanPr(base); prSeeded = true; savePr(); prRefresh();
       return res;
@@ -4256,7 +4285,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
         add("Orte", ["Kürzel", "Gesprochener Name"], Object.keys(STATIONS).sort().map(function (c) { return [c, STATIONS[c]]; }), [14, 44]);
         add("Ignorieren", ["Terminanfang (wird nicht vorgelesen)"], IGN_ALL.map(function (t) { return [t]; }), [50]);
         add("Sonderwörter", ["Wort im Kalender", "Wird gelesen als", "Art"], SPEC, [22, 44, 16]);
-        if (window.__ekCatalog && window.__ekCatalog.priceRows) { add("Preise", ["Artikel", "Größe", "Markt (Aldi, Norma, Lidl, Edeka oder Netto)", "Normaler Preis in Euro (ohne Rabatt)", "Datum"], window.__ekCatalog.priceRows(), [28, 22, 22, 22, 14]); add("Angebote", ["Artikel", "Markt (Aldi, Norma, Lidl, Edeka oder Netto)", "Angebotspreis in Euro", "gilt bis (Datum, leer = unbegrenzt)"], window.__ekCatalog.offerRows(), [28, 22, 18, 22]); }
+        if (window.__ekCatalog && window.__ekCatalog.priceRows) { add("Preise", ["Artikel", "Größe", "Markt (Aldi, Norma, Lidl, Edeka oder Netto)", "Normaler Preis in Euro (ohne Rabatt)", "Datum"], window.__ekCatalog.priceRows(), [28, 22, 22, 22, 14]); add("Angebote", ["Artikel", "Markt (Aldi, Norma, Lidl, Edeka oder Netto)", "Angebotspreis in Euro", "gilt bis (Datum, leer = unbegrenzt)", "gilt ab (Datum, leer = sofort)"], window.__ekCatalog.offerRows(), [28, 22, 18, 22, 22]); }
         var d = new Date(), pad = function (n) { return (n < 10 ? "0" : "") + n; };
         var name = "Familien-Dashboard-Sicherung-" + d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + ".xlsx";
         return dl.save({filename: name, data: new Uint8Array(X.write(wb, {type: "array", bookType: "xlsx"}))}).then(function () { bmsg("Sicherung gespeichert.", "ok"); }, function (e) { bmsg(e && e.code === "declined" ? "Abgebrochen." : "Die Sicherung konnte nicht gespeichert werden.", "err"); });
