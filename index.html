@@ -1010,7 +1010,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 8.0 &middot; vom 23.11.2026, 20:52 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 8.1 &middot; vom 23.11.2026, 21:08 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1598,7 +1598,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     }
     function tick() {
       if (document.hidden || !pnl || pnl.hidden) return;
-      if (!ja || Date.now() - ja > 45000) pull(); else paint();
+      if (!ja || Date.now() - ja > 60000) pull(); else paint();
     }
     setInterval(tick, 5000); tick();
     window.addEventListener("hashchange", function () { setTimeout(tick, 100); });
@@ -1634,7 +1634,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     document.addEventListener("click", function () { setTimeout(fit, 120); }, true);
     setInterval(function () { if (doc.scrollHeight > window.innerHeight + 1 || document.querySelector(".ab-lst:not(#sbList):not([style*=max-height]), #woScroll:not([style*=max-height]), #bigcal:not([style*=max-height])")) fit(); }, 1500);
   })();
-  setInterval(function () { if (panel && !panel.hidden && !document.hidden) { var id = B[cur].id; if (!at[id] || Date.now() - at[id] > 45000) load(); else draw(); } }, 2000);
+  setInterval(function () { if (panel && !panel.hidden && !document.hidden) { var id = B[cur].id; if (!at[id] || Date.now() - at[id] > 60000) load(); else draw(); } }, 2000);
   /* ---------- Linienfarben: bearbeitbar in Optionen und per Excel (Blatt „Farben“) ---------- */
   var LNAMES = [["l43", "Linie 43 und 65"], ["l44", "Linie 44 und 45"], ["bus0", "Bus 1"], ["bus1", "Bus 2"], ["tram", "Straßenbahn"], ["sbahn", "S-Bahn"]];
   var HEXC = /^#[0-9a-f]{6}$/i, lcDb = null, lcTimer = null, lcHost = null;
@@ -1782,7 +1782,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
         .then(function () { probeOff = false; }, function () { probeOff = true; })
         .then(function () { clearTimeout(to); draw(); });
     }
-    probe(); setInterval(probe, 15000); setInterval(draw, 5000);
+    probe(); setInterval(probe, 120000); setInterval(draw, 5000);
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") { probe(); draw(); } });
     var note = document.getElementById("adBat");
     function say(t) { if (note) note.textContent = t; }
@@ -1794,7 +1794,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       }).catch(function () { say("Akku-Anzeige: Abruf fehlgeschlagen, wird erneut versucht."); });
     }
     getBat();
-    setInterval(function () { getBat(); draw(); }, 60000);
+    setInterval(function () { getBat(); draw(); }, 120000);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
@@ -1823,7 +1823,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
   window.addEventListener("fd-times", theme);
   window.addEventListener("fd-night", theme);
-  setInterval(theme, 30000); setTimeout(theme, 0); setTimeout(theme, 1500);
+  setInterval(theme, 300000); setTimeout(theme, 0); setTimeout(theme, 1500);
   /* Einmal pro Nacht um 3 Uhr die Seite neu laden: frischt alles auf und holt neue Versionen */
   function pad(n) { return (n < 10 ? "0" : "") + n; }
   setInterval(function () {
