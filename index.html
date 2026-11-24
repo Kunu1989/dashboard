@@ -589,12 +589,12 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 :root.noanim .panel { animation: none !important; }
 
 /* v8.6: Kita, vergangene Tage eingeklappt */
-.wo-past, .me-past { margin-top: 12px; }
-.wo-past > summary, .me-past > summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; color: var(--muted); padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
-.wo-past > summary::-webkit-details-marker, .me-past > summary::-webkit-details-marker { display: none; }
-.wo-past > summary::before, .me-past > summary::before { content: "▸"; font-size: 12px; }
-.wo-past[open] > summary::before, .me-past[open] > summary::before { content: "▾"; }
-.wo-past[open] > summary, .me-past[open] > summary { margin-bottom: 12px; }
+.wo-past, .me-past, .mo-past { margin-top: 12px; }
+.wo-past > summary, .me-past > summary, .mo-past > summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; color: var(--muted); padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.wo-past > summary::-webkit-details-marker, .me-past > summary::-webkit-details-marker, .mo-past > summary::-webkit-details-marker { display: none; }
+.wo-past > summary::before, .me-past > summary::before, .mo-past > summary::before { content: "▸"; font-size: 12px; }
+.wo-past[open] > summary::before, .me-past[open] > summary::before, .mo-past[open] > summary::before { content: "▾"; }
+.wo-past[open] > summary, .me-past[open] > summary, .mo-past[open] > summary { margin-bottom: 12px; }
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 @media (max-width: 700px) {
@@ -1024,7 +1024,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 8.6 &middot; vom 24.11.2026, 06:23 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 8.7 &middot; vom 24.11.2026, 06:33 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -3277,6 +3277,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       '';
   }
   $("kitaWoche").addEventListener("toggle", function (e) { if (e.target && e.target.classList && e.target.classList.contains("wo-past")) woPastOpen = e.target.open; }, true);
+  $("kitaMonat").addEventListener("toggle", function (e) { if (e.target && e.target.classList && e.target.classList.contains("mo-past")) moPastOpen = e.target.open; }, true);
   $("kitaMenu").addEventListener("toggle", function (e) { if (e.target && e.target.classList && e.target.classList.contains("me-past")) mePastOpen = e.target.open; }, true);
   $("kitaMenu").addEventListener("click", function (e) {
     var b = e.target.closest ? e.target.closest("[data-kw]") : null;
@@ -3419,12 +3420,17 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
   window.addEventListener("resize", function () { woFit(); });
   document.addEventListener("scroll", function (e) { if (e.target && e.target.id === "woScroll") woOld = e.target.scrollTop; }, true);
   if (window.ResizeObserver) new ResizeObserver(function () { var h = $("kitaWoche").offsetHeight; if (!h) { woNeed = true; woTry = 0; } else woFit(); }).observe($("kitaWoche"));
+  var moPastOpen = false;
   function renderMonat(M) {
-    var tk = ymd(today);
-    $("kitaMonat").innerHTML = !M ? "" : '<h3 class="mo-h">Monatsplan' + (M.title ? " " + esc(M.title) : "") + '</h3><ul class="mo-list">' + M.items.map(function (x) {
+    var tk = ymd(today), up = [], past = [];
+    if (M) M.items.forEach(function (x) {
       var d = parse(x[0]);
-      return '<li class="' + (x[0] === tk ? "today" : x[0] < tk ? "past" : "") + '"><span class="mo-d num">' + esc(fWdShort(d)) + " " + d.getDate() + "." + (d.getMonth() + 1) + '.</span><span>' + esc(x[1]) + '</span></li>';
-    }).join("") + '</ul>';
+      var h = '<li class="' + (x[0] === tk ? "today" : x[0] < tk ? "past" : "") + '"><span class="mo-d num">' + esc(fWdShort(d)) + " " + d.getDate() + "." + (d.getMonth() + 1) + '.</span><span>' + esc(x[1]) + '</span></li>';
+      (x[0] < tk ? past : up).push(h);
+    });
+    $("kitaMonat").innerHTML = !M ? "" : '<h3 class="mo-h">Monatsplan' + (M.title ? " " + esc(M.title) : "") + '</h3>' +
+      (up.length ? '<ul class="mo-list">' + up.join("") + '</ul>' : '<p class="menu-note">Keine weiteren Termine im Plan.</p>') +
+      (past.length ? pastBox("mo-past", past.length, '<ul class="mo-list">' + past.join("") + '</ul>', moPastOpen) : "");
   }
 
   /* Neu hochgeladene Pläne lässt die Seite von Claude (Funktion „sample“) in Text umwandeln */
