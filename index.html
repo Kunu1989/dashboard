@@ -623,6 +623,12 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
   .ab-tabbtn .ab-ic { display: none; }
   .ab-tabbtn[aria-pressed="true"] { border: 0; border-bottom: 3px solid var(--accent); background: transparent; box-shadow: none; color: var(--accent); }
 }
+/* v9.3 Handy Nür-Dutzendteich: Verkehrsmittel-Symbole in einer Zeile */
+.ab-chips.sym { flex-wrap: nowrap; gap: 18px; align-items: center; }
+.ab-chip.ab-sy { padding: 0; border: 0; background: none; border-radius: 8px; height: 32px; display: inline-flex; align-items: center; gap: 5px; color: var(--ink); font-weight: 700; font-size: 13px; flex: 0 0 auto; transition: opacity .15s, filter .15s; }
+.ab-chip.ab-sy svg { width: 30px; height: 30px; display: block; }
+.ab-chip.ab-sy[aria-pressed="true"] { background: none; color: var(--ink); border: 0; }
+.ab-chip.ab-sy[aria-pressed="false"] { filter: grayscale(1); opacity: .35; }
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 @media (max-width: 700px) {
@@ -1052,7 +1058,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 9.2 &middot; vom 24.11.2026, 19:10 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 9.3 &middot; vom 24.11.2026, 19:16 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1493,7 +1499,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   var PS = {dz: "all", ko: "all"};
   try { var ps0 = JSON.parse(localStorage.getItem("abPSel") || "null"); if (ps0) ["dz", "ko"].forEach(function (k) { if (typeof ps0[k] === "string") PS[k] = ps0[k]; }); } catch (e) {}
   var PCH = {
-    dz: [["all", "Alle"], ["hbf", "S-Bahn → Hbf"], ["s", "S-Bahn"], ["t", "Tram"], ["b", "Bus"]],
+    dz: [["hbf", "S-Bahn → Hbf"], ["s", "S-Bahn"], ["t", "Straßenbahn"], ["b", "Bus"]],
     ko: [["hbf", "Richtung Hbf"], ["oth", "Andere Richtungen"]]
   };
   function pcol(k) {
@@ -1506,9 +1512,10 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
   function phHtml(j, b) {
     var chips = PCH[cur].map(function (c) {
-      return '<button type="button" class="ab-chip" data-c="' + c[0] + '" aria-pressed="' + (PS[cur] === c[0] ? "true" : "false") + '">' + esc(c[1]) + "</button>";
+      var sym = cur === "dz", on = PS[cur] === c[0] || (sym && PS[cur] === "all");
+      return '<button type="button" class="ab-chip' + (sym ? " ab-sy" : "") + '" data-c="' + c[0] + '" aria-pressed="' + (on ? "true" : "false") + '"' + (sym ? ' aria-label="' + esc(c[1]) + '" title="' + esc(c[1]) + '"' : "") + ">" + (sym ? MSY[c[0] === "hbf" ? "s" : c[0]] + (c[0] === "hbf" ? '<span class="ab-ar">→ Hbf</span>' : "") : esc(c[1])) + "</button>";
     }).join("");
-    return '<div class="ab-ph"><div class="ab-chips" role="group" aria-label="Filter">' + chips + '</div><div class="ab-lst">' + listHtml(j, pcol(cur), b.id + (cur === "dz" ? "-1" : "-0")) + "</div></div>";
+    return '<div class="ab-ph"><div class="ab-chips' + (cur === "dz" ? " sym" : "") + '" role="group" aria-label="Filter">' + chips + '</div><div class="ab-lst">' + listHtml(j, pcol(cur), b.id + (cur === "dz" ? "-1" : "-0")) + "</div></div>";
   }
   try { var sv = localStorage.getItem("abSel"); if (B[sv]) cur = sv; } catch (e) {}
   function pad(n) { return (n < 10 ? "0" : "") + n; }
