@@ -89,9 +89,9 @@ body {
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-.shell { min-height: calc(100vh - 56px); max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 18px; align-items: start; }
-.wrap { min-width: 0; display: flex; flex-direction: column; gap: 18px; }
-.panel { display: flex; flex-direction: column; gap: 18px; }
+.shell { min-height: calc(100vh - 56px); max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 16px; align-items: start; }
+.wrap { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.panel { display: flex; flex-direction: column; gap: 16px; }
 .panel[hidden] { display: none; }
 .rail { position: sticky; top: max(20px, calc(50vh - var(--railh, 0px) / 2)); display: flex; flex-direction: column; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 8px; }
 .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 88px; padding: 10px 2px; border-radius: 12px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 600; }
@@ -222,7 +222,7 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .wb-d .pt2 { font-size: 13px; font-weight: 700; } .wb-d .pt2 .tl { color: #3a82cf; } .wb-d .pt2 .th { color: #d9531e; }
 .fsbtn.tabhide, .tabhide { display: none !important; }
 #abView.ab-board { padding: 0; background: transparent; border: 0; border-radius: 0; gap: 0; }
-#abView .ab-cols { gap: 18px; align-items: stretch; }
+#abView .ab-cols { gap: 16px; align-items: stretch; }
 #abView .ab-cols > div { min-width: 0; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(20, 40, 60, .08); }
 #abView .ab-links:empty { display: none; }
 .ab-lst { max-height: max(300px, calc(100vh - 400px)); overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 4px; }
@@ -239,7 +239,7 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 #bigcal { overflow-y: auto; align-content: start; padding: 3px; margin: -3px; -webkit-overflow-scrolling: touch; }
 .ad-fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; margin: 0; }
 .ad-fold > summary::-webkit-details-marker { display: none; }
-.ad-fold[open] > summary { margin-bottom: 12px; }
+.ad-fold[open] > summary { margin-bottom: 14px; }
 .ad-chev { width: 10px; height: 10px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); margin: 0 6px 4px 0; transition: transform .15s; }
 .ad-fold[open] .ad-chev { transform: rotate(-135deg); margin-bottom: -4px; }
 
@@ -587,10 +587,10 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .panel:not([hidden]) { animation: fdIn .22s ease-out; }
 @keyframes fdIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 :root.noanim .panel { animation: none !important; }
-.ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
-.ad-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.ad-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 @media (max-width: 700px) {
-  .ad-cols { display: flex; flex-direction: column; gap: 18px; }
+  .ad-cols { display: flex; flex-direction: column; gap: 16px; align-items: stretch; }
   .ad-col { display: contents; }
   .ad-cols [aria-labelledby="adT2"] { order: 1; } .ad-cols [aria-labelledby="adT1"] { order: 2; } .ad-cols [aria-labelledby="adTq"] { order: 3; }
   .ad-cols [aria-labelledby="adTc"] { order: 4; } .ad-cols [aria-labelledby="adTl"] { order: 6; } .ad-cols [aria-labelledby="adTd"] { order: 3; }
@@ -620,7 +620,7 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 
 /* Legende (Farben und Ein-/Ausblenden) */
 .legslot:empty { display: none; }
-.legslot { margin-bottom: 14px; }
+.legslot { margin-bottom: 0; }
 .legend { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .leg { display: inline-flex; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 2px 4px 2px 2px; gap: 2px; }
 .leg .legbtn { font: inherit; font-size: 14px; border: 0; background: transparent; color: var(--ink); display: inline-flex; align-items: center; gap: 8px; padding: 7px 8px 7px 10px; min-height: 36px; border-radius: 999px; cursor: pointer; }
@@ -832,8 +832,8 @@ label.fsbtn.busy { opacity: 0.5; pointer-events: none; }
 .legend.ro .leg input, .legend.ro .reset { display: none; }
 .legend.ro .legbtn { pointer-events: none; text-decoration: none !important; color: var(--ink) !important; }
 .legend.ro .legbtn .dot { opacity: 1 !important; }
-.panel#p-admin:not([hidden]) { display: flex; flex-direction: column; gap: 18px; }
-.ad-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
+.panel#p-admin:not([hidden]) { display: flex; flex-direction: column; gap: 16px; }
+.ad-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
 @media (max-width: 900px) { .ad-pair { grid-template-columns: minmax(0, 1fr); } }
 .ad-rows { display: flex; flex-direction: column; gap: 10px; max-width: 520px; }
 .ad-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 15px; padding: 8px 0; border-bottom: 1px solid var(--line); }
@@ -986,6 +986,16 @@ footer { font-size: 12px; color: var(--muted); }
       <p class="ad-note">Das ausführliche Handbuch mit Inhaltsverzeichnis: Bedienung, Einstellungen, Vorlesen, Technik und Fehlersuche.</p>
       <div class="ad-btns"><a class="fsbtn" id="adDoc" href="Dokumentation.pdf" download="Familien-Dashboard-Handbuch.pdf">Dokumentation herunterladen (PDF)</a> <a class="fsbtn" href="Dokumentation.html" target="_blank" rel="noopener">Im Browser öffnen</a></div>
     </details>
+<details class="card ad-fold" aria-labelledby="adTl">
+      <summary class="card-head"><h2 id="adTl">Verbindung zum Google-Script</h2><span class="ad-chev" aria-hidden="true"></span></summary>
+      <p class="muted ad-note" style="margin:0 0 12px">Das Script liefert Kalender, gemeinsame Einstellungen, Kita-Textumwandlung und Abfahrten. Link und Schlüssel stehen in der Anleitung. Die Eingabe gilt nur auf diesem Gerät. Wetter braucht nichts.</p>
+      <div class="ad-rows">
+        <label class="ad-row"><span>Link</span><input type="url" id="calUrl" class="ad-in" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>
+        <label class="ad-row"><span>Schlüssel</span><input type="text" id="calKey" class="ad-in" placeholder="Passwort aus dem Script" autocomplete="off"></label>
+      </div>
+      <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
+      <div id="calMsg" class="kita-status" role="status"></div>
+    </details>
     </div>
     <div class="ad-col">
 <section class="card" aria-labelledby="adT1">
@@ -1004,19 +1014,9 @@ footer { font-size: 12px; color: var(--muted); }
       <h3 class="lc-h" style="margin-top:0">Kalenderfarben</h3>
       <div class="legend" id="adColors"></div>
     </details>
-<details class="card ad-fold" aria-labelledby="adTl">
-      <summary class="card-head"><h2 id="adTl">Verbindung zum Google-Script</h2><span class="ad-chev" aria-hidden="true"></span></summary>
-      <p class="muted ad-note" style="margin:0 0 12px">Das Script liefert Kalender, gemeinsame Einstellungen, Kita-Textumwandlung und Abfahrten. Link und Schlüssel stehen in der Anleitung. Die Eingabe gilt nur auf diesem Gerät. Wetter braucht nichts.</p>
-      <div class="ad-rows">
-        <label class="ad-row"><span>Link</span><input type="url" id="calUrl" class="ad-in" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>
-        <label class="ad-row"><span>Schlüssel</span><input type="text" id="calKey" class="ad-in" placeholder="Passwort aus dem Script" autocomplete="off"></label>
-      </div>
-      <div class="ad-btns"><button type="button" class="fsbtn" id="calSave">Speichern</button><button type="button" class="fsbtn" id="calTest">Verbindung testen</button></div>
-      <div id="calMsg" class="kita-status" role="status"></div>
-    </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 8.3 &middot; vom 24.11.2026, 05:11 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 8.5 &middot; vom 24.11.2026, 05:32 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
