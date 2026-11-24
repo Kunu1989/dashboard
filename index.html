@@ -610,6 +610,19 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
   body:has(#p-uebersicht[hidden]) header.top { display: none; }
   body:has(#p-uebersicht[hidden]) .shell { align-content: start; }
 }
+
+/* v9.2 Handy: Abfahrten – Stationsreiter und Filterchips */
+.ab-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.ab-chip { font: inherit; font-size: 14px; font-weight: 600; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--muted); cursor: pointer; }
+.ab-chip[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+@media (max-width: 700px) {
+  #abView.ab-board { background: transparent; border: 0; padding: 0; }
+  #abView .ab-cols.ph > div { background: transparent; border: 0; box-shadow: none; padding: 0; }
+  .ab-tabs { flex-wrap: nowrap; gap: 0; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+  .ab-tabbtn { flex: 1 1 0; justify-content: center; min-width: 0; font-size: 15px; padding: 10px 4px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent; color: var(--muted); }
+  .ab-tabbtn .ab-ic { display: none; }
+  .ab-tabbtn[aria-pressed="true"] { border: 0; border-bottom: 3px solid var(--accent); background: transparent; box-shadow: none; color: var(--accent); }
+}
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 @media (max-width: 700px) {
@@ -1039,7 +1052,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 9.1 &middot; vom 24.11.2026, 14:25 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 9.2 &middot; vom 24.11.2026, 19:10 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1475,6 +1488,28 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       {title: "Andere Richtungen", filter: function (x) { return !/Hbf|Hauptbahnhof/i.test(x.r); }}], links: []}
   };
   var cur = "dz", data = {}, at = {}, busy = false;
+  var PQ = window.matchMedia ? matchMedia("(max-width: 700px)") : {matches: false};
+  var HBFRE = /Hbf|Hauptbahnhof|Schwabach|^Roth\b/, KOHBF = /Hbf|Hauptbahnhof/i;
+  var PS = {dz: "all", ko: "all"};
+  try { var ps0 = JSON.parse(localStorage.getItem("abPSel") || "null"); if (ps0) ["dz", "ko"].forEach(function (k) { if (typeof ps0[k] === "string") PS[k] = ps0[k]; }); } catch (e) {}
+  var PCH = {
+    dz: [["all", "Alle"], ["hbf", "S-Bahn → Hbf"], ["s", "S-Bahn"], ["t", "Tram"], ["b", "Bus"]],
+    ko: [["hbf", "Richtung Hbf"], ["oth", "Andere Richtungen"]]
+  };
+  function pcol(k) {
+    var sel = PS[k];
+    if (k === "dz") {
+      var kind = function (x) { return x.p === "Bus" ? "b" : /tram|stra/i.test(x.p) ? "t" : x.p === "SBahn" ? (HBFRE.test(x.r) ? "hbf" : "s") : ""; };
+      return {mins: sel === "hbf" ? 0 : 120, limit: sel === "hbf" ? 10 : 0, filter: function (x) { var t = kind(x); return !!t && (sel === "all" || sel === t); }};
+    }
+    return {filter: function (x) { var h = KOHBF.test(x.r); return sel === "all" || (sel === "hbf" ? h : !h); }};
+  }
+  function phHtml(j, b) {
+    var chips = PCH[cur].map(function (c) {
+      return '<button type="button" class="ab-chip" data-c="' + c[0] + '" aria-pressed="' + (PS[cur] === c[0] ? "true" : "false") + '">' + esc(c[1]) + "</button>";
+    }).join("");
+    return '<div class="ab-ph"><div class="ab-chips" role="group" aria-label="Filter">' + chips + '</div><div class="ab-lst">' + listHtml(j, pcol(cur), b.id + (cur === "dz" ? "-1" : "-0")) + "</div></div>";
+  }
   try { var sv = localStorage.getItem("abSel"); if (B[sv]) cur = sv; } catch (e) {}
   function pad(n) { return (n < 10 ? "0" : "") + n; }
   function hm(t) { var d = new Date(t); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
@@ -1542,9 +1577,10 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   function draw() {
     var b = B[cur], j = data[b.id];
     if (!j) return;
-    cols.className = "ab-cols" + (b.cols.length === 1 ? " one" : "");
+    var ph = PQ.matches;
+    cols.className = "ab-cols" + (ph || b.cols.length === 1 ? " one" : "") + (ph ? " ph" : "");
     if (Date.now() - (cols.__sc || 0) < 4000 && cols.__key === cur + "|" + cols.className) { showStamp(); return; }
-    var html = b.cols.map(function (c, ci) { return "<div>" + hdrHtml(c) + '<div class="ab-lst">' + listHtml(j, c, b.id + "-" + ci) + "</div>" + "</div>"; }).join("");
+    var html = ph ? phHtml(j, b) : b.cols.map(function (c, ci) { return "<div>" + hdrHtml(c) + '<div class="ab-lst">' + listHtml(j, c, b.id + "-" + ci) + "</div>" + "</div>"; }).join("");
     var key = cur + "|" + cols.className;
     if (cols.__html === html && cols.__key === key) { showStamp(); return; }
     var tops = [].map.call(cols.querySelectorAll(".ab-lst"), function (e) { return e.scrollTop; });
@@ -1579,6 +1615,13 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   if (window.ResizeObserver) new ResizeObserver(function () { clearTimeout(mqT); mqT = setTimeout(mq, 150); }).observe(cols);
   cols.addEventListener("scroll", function () { cols.__sc = Date.now(); }, true);
   cols.addEventListener("click", function (e) {
+    var ch = e.target.closest ? e.target.closest(".ab-chip") : null;
+    if (ch) {
+      var cv = ch.getAttribute("data-c");
+      PS[cur] = (PS[cur] === cv && cv !== "all") ? "all" : cv;
+      try { localStorage.setItem("abPSel", JSON.stringify(PS)); } catch (e3) {}
+      cols.__sc = 0; cols.__html = null; draw(); return;
+    }
     var bt = e.target.closest ? e.target.closest(".ab-mode") : null;
     if (!bt) return;
     var k = bt.getAttribute("data-m");
@@ -1588,6 +1631,8 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     cols.__sc = 0; cols.__html = null; draw();
   });
   cols.addEventListener("touchstart", function () { cols.__sc = Date.now(); }, true);
+  var pqf = function () { cols.__sc = 0; cols.__html = null; draw(); };
+  if (PQ.addEventListener) PQ.addEventListener("change", pqf); else if (PQ.addListener) PQ.addListener(pqf);
   function showStamp() {
     if (!stamp) return;
     var a = at[B[cur].id];
