@@ -1039,7 +1039,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 9.0 &middot; vom 24.11.2026, 14:13 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 9.1 &middot; vom 24.11.2026, 14:25 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1582,8 +1582,8 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     var bt = e.target.closest ? e.target.closest(".ab-mode") : null;
     if (!bt) return;
     var k = bt.getAttribute("data-m");
-    if (MODES[k] && MODES.s + MODES.t + MODES.b < 2) return;
-    MODES[k] = MODES[k] ? 0 : 1;
+    var only = MODES.s + MODES.t + MODES.b === 1 && MODES[k];
+    MODES = only ? {s: 1, t: 1, b: 1} : {s: k === "s" ? 1 : 0, t: k === "t" ? 1 : 0, b: k === "b" ? 1 : 0};
     try { localStorage.setItem("abModes", JSON.stringify(MODES)); } catch (e2) {}
     cols.__sc = 0; cols.__html = null; draw();
   });
