@@ -587,6 +587,14 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .panel:not([hidden]) { animation: fdIn .22s ease-out; }
 @keyframes fdIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 :root.noanim .panel { animation: none !important; }
+
+/* v8.6: Kita, vergangene Tage eingeklappt */
+.wo-past, .me-past { margin-top: 12px; }
+.wo-past > summary, .me-past > summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; color: var(--muted); padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.wo-past > summary::-webkit-details-marker, .me-past > summary::-webkit-details-marker { display: none; }
+.wo-past > summary::before, .me-past > summary::before { content: "▸"; font-size: 12px; }
+.wo-past[open] > summary::before, .me-past[open] > summary::before { content: "▾"; }
+.wo-past[open] > summary, .me-past[open] > summary { margin-bottom: 12px; }
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 @media (max-width: 700px) {
@@ -1016,7 +1024,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 8.5 &middot; vom 24.11.2026, 05:32 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 8.6 &middot; vom 24.11.2026, 06:23 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -3252,18 +3260,24 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       var hasCur = MENUS.some(function (m) { return m.days[0].d === mon; });
       note = hasCur ? "" : (w.days[0].d > mon ? "Für die aktuelle Woche (KW " + cur + ") liegt kein Speiseplan vor. Gezeigt wird der nächste: KW " + w.kw + "." : "Für die aktuelle Woche (KW " + cur + ") liegt kein Speiseplan vor. Gezeigt wird der letzte: KW " + w.kw + ".");
     }
-    var days = w.days.map(function (d) {
+    var upD = [], pastD = [];
+    w.days.forEach(function (d) {
       var dt = parse(d.d);
-      return '<div class="mday' + (d.d === tk ? " today" : d.d < tk ? " past" : "") + '"><h3>' + esc(fWdLong(dt)) + '<small>' + dt.getDate() + '.' + (dt.getMonth() + 1) + '.</small></h3><ul>' +
+      var h = '<div class="mday' + (d.d === tk ? " today" : d.d < tk ? " past" : "") + '"><h3>' + esc(fWdLong(dt)) + '<small>' + dt.getDate() + '.' + (dt.getMonth() + 1) + '.</small></h3><ul>' +
         d.i.map(function (x) {
           return '<li class="' + (x.v ? "veg" : "") + (x.x ? " x" : "") + '">' + (x.v ? '<span class="vt">Vegetarisch</span>' : "") + esc(noCodes(x.t)) + '</li>';
         }).join("") + '</ul></div>';
-    }).join("");
+      (d.d < tk ? pastD : upD).push(h);
+    });
+    var days = (upD.length ? upD.join("") : "") ;
     $("kitaMenu").innerHTML = '<div class="menu-weeks" role="group" aria-label="Kalenderwoche wählen">' + chips + '</div>' +
       (note ? '<div class="menu-note">' + esc(note) + '</div>' : "") +
-      '<div class="menu-days">' + days + '</div>' +
+      (upD.length ? '<div class="menu-days">' + days + '</div>' : '<p class="menu-note">Keine weiteren Tage in dieser Woche.</p>') +
+      (pastD.length ? pastBox("me-past", pastD.length, '<div class="menu-days">' + pastD.join("") + '</div>', mePastOpen) : "") +
       '';
   }
+  $("kitaWoche").addEventListener("toggle", function (e) { if (e.target && e.target.classList && e.target.classList.contains("wo-past")) woPastOpen = e.target.open; }, true);
+  $("kitaMenu").addEventListener("toggle", function (e) { if (e.target && e.target.classList && e.target.classList.contains("me-past")) mePastOpen = e.target.open; }, true);
   $("kitaMenu").addEventListener("click", function (e) {
     var b = e.target.closest ? e.target.closest("[data-kw]") : null;
     if (!b) return;
@@ -3346,7 +3360,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     return o;
   }
   function tageList(o) {
-    var y = ymd(addDays(today, -1));
+    var y = ymd(mondayOf(today));
     return Object.keys(o).sort().filter(function (k) { return k >= y; }).map(function (k) { return o[k]; });
   }
   function saveTage(w) {
@@ -3372,14 +3386,20 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     if (!q) q = kd === "plan" ? WOCHE0 : MONAT0;
     return Object.assign({}, q, {_prev: true});
   }
+  var woPastOpen = false, mePastOpen = false;
+  function pastBox(cls, n, inner, open) { return '<details class="' + cls + '"' + (open ? " open" : "") + '><summary>Vergangene Tage (' + n + ')</summary>' + inner + '</details>'; }
   function renderWoche(W) {
-    var tk = ymd(today);
-    $("kitaWoche").innerHTML = !W ? "" : (W.theme ? '<h3 class="mo-h mo-sub">Wochenthema: ' + esc(W.theme) + '</h3>' : "") + (W.note ? '<h3 class="mo-h mo-sub">' + esc(W.note) + '</h3>' : "") + '<div class="wo-scroll" id="woScroll"><div class="menu-days wo-days">' + W.days.map(function (d, idx) {
+    var tk = ymd(today), up = [], past = [];
+    if (W) W.days.forEach(function (d, idx) {
       var dt = d.d ? parse(d.d) : addDays(parse(W.mon), typeof d.i === "number" ? d.i : idx), k = ymd(dt);
-      return '<div class="mday' + (k === tk ? " today" : k < tk ? " past" : "") + '"><h3>' + esc(d.n) + '<small>' + dt.getDate() + '.' + (dt.getMonth() + 1) + '.</small></h3>' +
+      var h = '<div class="mday' + (k === tk ? " today" : k < tk ? " past" : "") + '"><h3>' + esc(d.n) + '<small>' + dt.getDate() + '.' + (dt.getMonth() + 1) + '.</small></h3>' +
         '<ul>' + d.am.map(function (x) { var hl = x.charAt(0) === "*"; return '<li' + (hl ? ' class="veg"' : '') + '>' + esc(hl ? x.slice(1) : x) + '</li>'; }).join("") + '</ul>' +
         (d.pm.length ? '<div class="wo-pm"><span class="vt">Nachmittag</span>' + d.pm.map(function (x) { return '<div>' + esc(x) + '</div>'; }).join("") + '</div>' : '') + '</div>';
-    }).join("") + '</div></div>';
+      (k < tk ? past : up).push(h);
+    });
+    $("kitaWoche").innerHTML = !W ? "" : (W.theme ? '<h3 class="mo-h mo-sub">Wochenthema: ' + esc(W.theme) + '</h3>' : "") + (W.note ? '<h3 class="mo-h mo-sub">' + esc(W.note) + '</h3>' : "") + '<div class="wo-scroll" id="woScroll">' +
+      (up.length ? '<div class="menu-days wo-days">' + up.join("") + '</div>' : '<p class="menu-note">Keine weiteren Tage im Plan.</p>') +
+      (past.length ? pastBox("wo-past", past.length, '<div class="menu-days wo-days">' + past.join("") + '</div>', woPastOpen) : "") + '</div>';
     woFit();
   }
   var woNeed = true, woOld = 0, woTry = 0;
