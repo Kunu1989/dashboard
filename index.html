@@ -116,14 +116,14 @@ h2 { font-size: 18px; font-weight: 600; }
 header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 24px; }
 .clock { font-family: var(--font-display); font-size: clamp(34px, 5vw, 56px); font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
 
-.col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .quote .card-head { margin-bottom: 8px; }
 .quote blockquote { margin: 0; }
 .quote blockquote p { margin: 0; font-family: var(--font-display); font-size: 22px; line-height: 1.35; font-weight: 600; text-wrap: balance; }
 .quote blockquote p.long { font-size: 18px; }
 .quote blockquote footer { margin: 8px 0 0; padding: 0; font-size: 14px; color: var(--muted); }
 .quote blockquote footer:not(:empty)::before { content: "– "; }
-.row2 { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.row2 { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 @media (max-width: 900px) { .row2 { grid-template-columns: minmax(0, 1fr); } }
 
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; min-width: 0; }
@@ -728,9 +728,9 @@ body.showing { overflow: hidden; }
 .empty { color: var(--muted); font-size: 12px; }
 
 /* Kalender-Großansicht */
-.bigcal { display: grid; grid-template-columns: 38px repeat(7, minmax(0, 1fr)); gap: 8px; }
-.kwc { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: var(--muted); }
-.kwc b { font-family: var(--font-display); font-size: 17px; color: var(--ink); letter-spacing: 0; }
+.bigcal { display: grid; grid-template-columns: 19px repeat(7, minmax(0, 1fr)); gap: 8px; }
+.kwc { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font-size: 9px; font-weight: 600; letter-spacing: 0; color: var(--muted); }
+.kwc b { font-family: var(--font-display); font-size: 14px; color: var(--ink); letter-spacing: 0; }
 .kwc.cur b { color: var(--accent); }
 .kwi { display: none; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: var(--accent); background: var(--accent-soft); border-radius: 8px; padding: 1px 6px; }
 @media (max-width: 1000px) { .bigcal { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); } .kwc { display: none; } .kwi { display: inline-block; } }
@@ -1016,7 +1016,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 8.2 &middot; vom 24.11.2026, 04:57 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 8.3 &middot; vom 24.11.2026, 05:11 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
