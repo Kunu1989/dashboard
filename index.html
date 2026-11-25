@@ -654,6 +654,10 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ab-chip.ab-sy svg { width: 30px; height: 30px; display: block; }
 .ab-chip.ab-sy[aria-pressed="true"] { background: none; color: var(--ink); border: 0; }
 .ab-chip.ab-sy[aria-pressed="false"] { filter: grayscale(1); opacity: .35; }
+.ab-chips.va { flex-wrap: nowrap; justify-content: space-between; gap: 6px; position: relative; }
+.ab-chip.va-c { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px 5px 5px; min-height: 38px; font-size: 13px; font-weight: 700; flex: 0 0 auto; white-space: nowrap; }
+.ab-chip.va-c .va-i svg { width: 26px; height: 26px; display: block; }
+@media (max-width: 360px) { .ab-chip.va-c { font-size: 12px; padding: 4px 7px 4px 4px; gap: 3px; } .ab-chip.va-c .va-i svg { width: 24px; height: 24px; } }
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 @media (max-width: 700px) {
@@ -1083,7 +1087,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 9.4 &middot; vom 25.11.2026, 05:46 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 9.5 &middot; vom 25.11.2026, 09:53 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1535,12 +1539,27 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     }
     return {filter: function (x) { var h = KOHBF.test(x.r); return sel === "all" || (sel === "hbf" ? h : !h); }};
   }
-  function phHtml(j, b) {
-    var chips = PCH[cur].map(function (c) {
-      var sym = cur === "dz", on = PS[cur] === c[0] || (sym && PS[cur] === "all");
-      return '<button type="button" class="ab-chip' + (sym ? " ab-sy" : "") + '" data-c="' + c[0] + '" aria-pressed="' + (on ? "true" : "false") + '"' + (sym ? ' aria-label="' + esc(c[1]) + '" title="' + esc(c[1]) + '"' : "") + ">" + (sym ? MSY[c[0] === "hbf" ? "s" : c[0]] + (c[0] === "hbf" ? '<span class="ab-ar">→ Hbf</span>' : "") : esc(c[1])) + "</button>";
+  /* v9.5 Handy: gleiche Chips (Symbol + Text) bei beiden Stationen; Symbol je Auswahl */
+  function chipsHtml(k) {
+    var sy = {hbf: k === "dz" ? "s" : "b", s: "s", t: "t", b: "b", oth: "b"}, tx = {hbf: "→ Hbf"}; /* nur beim Hbf-Chip Text; die anderen Symbole nennen die Art schon */
+    return PCH[k].map(function (c) {
+      var on = PS[k] === c[0] || PS[k] === "all";
+      return '<button type="button" class="ab-chip va-c" data-c="' + c[0] + '" aria-pressed="' + (on ? "true" : "false") + '" aria-label="' + esc(c[1]) + '" title="' + esc(c[1]) + '"><span class="va-i">' + MSY[sy[c[0]]] + "</span>" + (tx[c[0]] ? "<span>" + tx[c[0]] + "</span>" : "") + "</button>";
     }).join("");
-    return '<div class="ab-ph"><div class="ab-chips' + (cur === "dz" ? " sym" : "") + '" role="group" aria-label="Filter">' + chips + '</div><div class="ab-lst">' + listHtml(j, pcol(cur), b.id + (cur === "dz" ? "-1" : "-0")) + "</div></div>";
+  }
+  function phHtml(j, b) {
+    return '<div class="ab-ph"><div class="ab-chips va" role="group" aria-label="Filter">' + chipsHtml(cur) + '</div><div class="ab-lst">' + listHtml(j, pcol(cur), b.id + (cur === "dz" ? "-1" : "-0")) + "</div></div>";
+  }
+  /* Nür-Dutzendteich: Chips über die ganze Breite verteilt (CSS). Komotauer Str.: gleicher Abstand wie dort, linksbündig */
+  function fitChips() {
+    var row = cols.querySelector(".ab-chips.va"); if (!row) return;
+    if (cur === "dz") { row.style.gap = ""; row.style.justifyContent = ""; return; }
+    var W = row.clientWidth; if (!W) return;
+    var m = document.createElement("div"); m.className = "ab-chips va"; m.style.cssText = "position:absolute;visibility:hidden;left:0;top:0;margin:0;gap:0;justify-content:flex-start;width:" + W + "px";
+    m.innerHTML = chipsHtml("dz"); row.parentNode.appendChild(m);
+    var sum = 0, n = m.children.length; [].forEach.call(m.children, function (c) { sum += c.offsetWidth; });
+    row.parentNode.removeChild(m);
+    row.style.gap = (n > 1 ? Math.max(4, (W - sum) / (n - 1)) : 8).toFixed(1) + "px"; row.style.justifyContent = "flex-start";
   }
   try { var sv = localStorage.getItem("abSel"); if (B[sv]) cur = sv; } catch (e) {}
   function pad(n) { return (n < 10 ? "0" : "") + n; }
@@ -1626,6 +1645,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
   /* Zu lange Richtungsnamen laufen hin und her, statt abgeschnitten zu werden */
   function mq() {
+    fitChips();
     [].forEach.call(cols.querySelectorAll(".ab-dir"), function (e) {
       var t = e.__t || (e.__t = e.textContent);
       if (!e.clientWidth) return;
