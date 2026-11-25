@@ -1128,7 +1128,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 10.2 &middot; vom 25.11.2026, 20:47 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.3 &middot; vom 25.11.2026, 20:53 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -4612,6 +4612,44 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     function fit() { document.documentElement.style.setProperty("--railh", r.offsetHeight + "px"); }
     fit(); window.addEventListener("resize", fit); window.addEventListener("load", fit);
     if (window.ResizeObserver) new ResizeObserver(fit).observe(r);
+  })();
+
+
+  /* Easter Egg: 5x schnell auf „Übersicht“ tippen – die Reiterleiste fällt um und steht kurz darauf wieder */
+  (function () {
+    var r = document.querySelector(".rail"), t = document.getElementById("tab-uebersicht"), hits = [], lock = 0;
+    if (!r || !t || !r.animate) return;
+    t.addEventListener("click", function () {
+      var now = Date.now(); hits = hits.filter(function (x) { return now - x < 2000; }); hits.push(now);
+      if (hits.length < 5 || now < lock) return;
+      if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      hits = []; lock = now + 17000;
+      var b = r.getBoundingClientRect(), ph = window.matchMedia && matchMedia("(max-width: 700px)").matches, d = Math.max(0, window.innerHeight - b.bottom), kf, dur;
+      if (ph) {
+        dur = 4200; r.style.transformOrigin = "0 100%";
+        kf = [
+          {transform: "none", offset: 0}, {transform: "rotate(-1.5deg)", offset: .05}, {transform: "rotate(1.5deg)", offset: .1}, {transform: "rotate(-2deg)", offset: .15},
+          {transform: "translateY(130%) rotate(9deg)", offset: .35, easing: "cubic-bezier(.5,0,.9,.6)"},
+          {transform: "translateY(130%) rotate(9deg)", opacity: 1, offset: .82}, {transform: "translateY(130%) rotate(9deg)", opacity: 0, offset: .83},
+          {transform: "none", opacity: 0, offset: .84}, {transform: "none", opacity: 1, offset: 1}
+        ];
+      } else {
+        dur = 6000; r.style.transformOrigin = "100% 100%";
+        var T = function (y, a) { return "translateY(" + y + "px) rotate(" + a + "deg)"; };
+        kf = [
+          {transform: T(0, 0), offset: 0}, {transform: T(0, -2), offset: .04}, {transform: T(0, 2), offset: .08}, {transform: T(0, -3), offset: .12},
+          {transform: T(d, 0), offset: .27, easing: "cubic-bezier(.55,0,.95,.5)"},
+          {transform: T(d - 16, -2), offset: .31, easing: "ease-out"}, {transform: T(d, 0), offset: .35, easing: "ease-in"},
+          {transform: T(d, 98), offset: .47, easing: "ease-in"}, {transform: T(d, 87), offset: .51, easing: "ease-out"}, {transform: T(d, 90), offset: .54},
+          {transform: T(d, 90), opacity: 1, offset: .84}, {transform: T(d, 90), opacity: 0, offset: .85},
+          {transform: T(0, 0), opacity: 0, offset: .86}, {transform: T(0, 0), opacity: 1, offset: 1}
+        ];
+      }
+      var oz = r.style.zIndex, op = r.style.pointerEvents; r.style.zIndex = "70"; r.style.pointerEvents = "none";
+      var a = r.animate(kf, {duration: dur, easing: "linear"});
+      function done() { r.style.zIndex = oz; r.style.pointerEvents = op; r.style.transformOrigin = ""; }
+      a.onfinish = done; a.oncancel = done;
+    });
   })();
 
   /* ---------- Administration ---------- */
