@@ -457,7 +457,7 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ek-shop.on { background: var(--accent); color: #fff; }
 #ekShC { display: none; }
 
-.ek-bar { justify-content: flex-end; pointer-events: none; }
+.ek-bar { justify-content: flex-end; pointer-events: none; left: 16px; width: calc(100% - 32px); }
 .ek-bar .ek-add { pointer-events: auto; width: 64px; height: 56px; }
 /* breite Bildschirme / Querformat: Eingabe oben im Dialog, damit die Bildschirmtastatur sie nicht verdeckt */
 @media (min-width: 700px), (orientation: landscape) {
@@ -643,6 +643,9 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 /* v8.2: sanfter Reiterwechsel */
 .panel:not([hidden]) { animation: fdIn .22s ease-out; }
 @keyframes fdIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* Einkauf: nur einblenden, ohne Verschiebung – sonst springt das feste Plus (Transform macht das Panel zum Bezugspunkt für fixed) */
+#p-einkauf:not([hidden]) { animation: fdInO .22s ease-out; }
+@keyframes fdInO { from { opacity: 0; } to { opacity: 1; } }
 :root.noanim .panel { animation: none !important; }
 
 /* v8.6: Kita, vergangene Tage eingeklappt */
@@ -1128,7 +1131,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 10.3 &middot; vom 25.11.2026, 20:53 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.4 &middot; vom 25.11.2026, 21:01 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
