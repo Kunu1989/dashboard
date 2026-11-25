@@ -302,23 +302,25 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ab-z, .ab-mm { display: none; }
 @media (max-width: 700px) {
   #abView .ab-hd, #sbOv .ab-hd { display: none; }
-  #abView .ab-r:not(.ab-hd), #sbOv .ab-r:not(.ab-hd) { grid-template-columns: 50px minmax(0, 1fr) auto; grid-template-areas: "l d m" "l z m"; column-gap: 12px; row-gap: 3px; padding: 11px 0; }
+  #abView .ab-r:not(.ab-hd), #sbOv .ab-r:not(.ab-hd) { grid-template-columns: 50px minmax(0, 1fr) auto; grid-template-areas: "l d m" "l z m"; column-gap: 10px; row-gap: 3px; padding: 11px 0; }
   #abView .ab-r .ab-l, #sbOv .ab-r .ab-l { grid-area: l; align-self: center; font-size: 17px; padding: 5px 8px; border-radius: 8px; }
   #abView .ab-r .ab-dir, #sbOv .ab-r .ab-dir { grid-area: d; font-weight: 700; font-size: 17px; }
   #abView .ab-r .ab-c, #sbOv .ab-r .ab-c { display: none; }
   /* v10.0 Handy: Soll durchgestrichen + Ist groß (links), „in … Min.“ groß (rechts) */
-  #abView .ab-r .ab-z, #sbOv .ab-r .ab-z { grid-area: z; display: flex; gap: 8px; align-items: baseline; min-width: 0; white-space: nowrap; }
-  .ab-z s { font-size: 15px; color: var(--muted); }
-  .ab-z b { font-size: 21px; font-weight: 800; }
+  #abView .ab-r .ab-z, #sbOv .ab-r .ab-z { grid-area: z; display: flex; gap: 6px; align-items: baseline; min-width: 0; white-space: nowrap; }
+  .ab-z s { font-size: 13px; color: var(--muted); }
+  .ab-z b { font-size: 19px; font-weight: 800; }
   .ab-z b.late { color: #e0222d; }
-  .ab-pl { align-self: center; font-size: 12px; font-weight: 800; color: #fff; background: #e0222d; border-radius: 999px; padding: 1px 7px; }
-  #abView .ab-r .ab-mm, #sbOv .ab-r .ab-mm { grid-area: m; display: flex; align-items: baseline; justify-content: flex-end; gap: 4px; white-space: nowrap; align-self: center; text-align: right; }
-  .ab-mm i { font-style: normal; font-size: 15px; font-weight: 600; color: var(--muted); }
-  .ab-mm small { font-size: 15px; font-weight: 700; color: var(--muted); }
-  .ab-mm .mn { font-size: 34px; font-weight: 800; line-height: 1; }
+  .ab-pl { align-self: center; font-size: 12px; font-weight: 800; color: #fff; background: #e0222d; border-radius: 999px; padding: 1px 6px; flex: none; }
+  #abView .ab-r .ab-mm, #sbOv .ab-r .ab-mm { grid-area: m; display: flex; align-items: baseline; justify-content: flex-end; gap: 4px; white-space: nowrap; align-self: center; text-align: right; margin-left: 6px; }
+  .ab-mm i { font-style: normal; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .ab-mm small { font-size: 13px; font-weight: 700; color: var(--muted); }
+  .ab-mm .mn { font-size: 30px; font-weight: 800; line-height: 1; }
   .ab-mm .mj { font-size: 26px; font-weight: 800; }
-  .ab-mm .ml { font-size: 17px; font-weight: 800; }
+  .ab-mm .ml { font-size: 26px; font-weight: 800; }
   .ab-mm .red { color: #e0222d; }
+  @media (max-width: 370px) { #abView .ab-r:not(.ab-hd), #sbOv .ab-r:not(.ab-hd) { grid-template-columns: 44px minmax(0, 1fr) auto; column-gap: 8px; } .ab-z { gap: 4px !important; } .ab-z s { font-size: 12px; } .ab-z b { font-size: 17px; } .ab-pl { font-size: 11px; padding: 1px 5px; } .ab-mm .mn, .ab-mm .ml { font-size: 25px; } .ab-mm i, .ab-mm small { font-size: 12px; } .ab-mm { gap: 3px !important; margin-left: 2px !important; } }
+  @media (max-width: 340px) { .ab-z s { font-size: 11px; } .ab-z b { font-size: 16px; } .ab-mm .mn, .ab-mm .ml { font-size: 22px; } .ab-mm .ml { font-size: 20px; } }
 }
 
 .ab-dir.mq-on { text-overflow: clip; }
@@ -1106,7 +1108,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 10.0 &middot; vom 25.11.2026, 15:03 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.1 &middot; vom 25.11.2026, 20:24 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1621,7 +1623,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
         '<span class="ab-c"><b class="num' + ic + '">' + hm(r.ist) + '</b></span>' +
         '<span class="ab-c ab-rt ab-min' + (min <= 10 ? " soon" : "") + '">' + (min <= 0 ? "jetzt" : "in " + (min >= 60 ? Math.floor(min / 60) + " Std " + (min % 60) + " Min." : min + " Min.")) + '</span>' +
         '<span class="ab-z">' + (dl > 0 ? '<s class="num">' + hm(r.plan) + '</s><b class="num late">' + hm(r.ist) + '</b><span class="ab-pl">+' + dl + '</span>' : '<b class="num ok">' + hm(r.ist) + '</b>') + '</span>' +
-        '<span class="ab-mm">' + (min <= 0 ? '<b class="mj red">jetzt</b>' : min >= 60 ? '<i>in</i><b class="ml">' + Math.floor(min / 60) + ' Std ' + (min % 60) + ' Min.</b>' : '<i>in</i><b class="mn' + (min < 10 ? " red" : "") + '">' + min + '</b><small>Min.</small>') + '</span></div>';
+        '<span class="ab-mm">' + (min <= 0 ? '<b class="mj red">jetzt</b>' : min >= 60 ? '<i>in</i><b class="ml">' + Math.floor(min / 60) + ':' + ('0' + (min % 60)).slice(-2) + '</b><small>Std.</small>' : '<i>in</i><b class="mn' + (min < 10 ? " red" : "") + '">' + min + '</b><small>Min.</small>') + '</span></div>';
     }).join("");
   }
   var MSY = {
