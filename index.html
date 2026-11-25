@@ -196,14 +196,14 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .wb-hr .pm { height: 70px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 2px; }
 .wb-hr .pm i { width: 16px; background: #1a6fc4; border-radius: 3px 3px 0 0; }
 .wb-tabs .fsbtn[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; font-weight: 700; }
-.wb-d { display: grid; grid-template-columns: 150px repeat(3, minmax(0, 1fr)); gap: 12px; align-items: center; padding: 8px 4px; border-bottom: 1px solid var(--line); }
+.wb-d { display: grid; grid-template-columns: 200px repeat(3, minmax(0, 1fr)); gap: 12px; align-items: center; padding: 8px 4px; border-bottom: 1px solid var(--line); }
 .wb-d:last-child { border-bottom: 0; }
 .wb-dh { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 4px; }
 .wb-dh .lg { display: flex; flex-direction: column; gap: 1px; text-transform: none; letter-spacing: 0; }
 .wb-dh .l1, .l1 { color: #5b95d1; } .wb-dh .l2 { color: #1a6fc4; }
 .wb-d .dn small { display: block; color: var(--muted); font-size: 12px; }
-.wb-d .pt { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.wb-d .pt svg.wi { flex: 0 0 38px; width: 38px; height: 30px; margin: 0; }
+.wb-d .pt { display: grid; grid-template-columns: 50px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 10px; row-gap: 2px; align-items: center; min-width: 0; padding: 8px 12px; border-radius: 12px; background: var(--surface-2); }
+.wb-d .pt svg.wi { grid-row: 1 / 3; width: 50px; height: 40px; margin: 0; }
 .wb-d .pq { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
 .wb-d .ptx { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
 .wb-d .pp { font-size: 14px; font-weight: 700; color: var(--w-blue); }
@@ -213,13 +213,22 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .wb-d .tr { position: relative; height: 8px; border-radius: 4px; background: var(--w-grid); overflow: hidden; }
 .wb-d .tr i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; }
 .wb-d .tr i.p { background: #7fb4ea; } .wb-d .tr i.m { background: #1a6fc4; }
-@media (max-width: 900px) { .wb-d { grid-template-columns: 100px repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .wb-d { grid-template-columns: 130px repeat(3, minmax(0, 1fr)); gap: 8px; } .wb-d .pt { grid-template-columns: 38px minmax(0, 1fr) auto; column-gap: 6px; padding: 6px 8px; } .wb-d .pt svg.wi { width: 38px; height: 30px; } .wb-d .tt { font-size: 22px; gap: 8px; } .wb-d .rg b { font-size: 19px; } .wb-d .rg span { font-size: 15px; } .wb-d .tx { font-size: 13px; } .wb-d .sp { font-size: 26px; } }
 .wb-dh small { display: block; text-transform: none; letter-spacing: 0; font-weight: 500; font-size: 12px; }
 .wb-stk { position: sticky; left: 0; flex: 0 0 0; width: 0; z-index: 2; }
 .wb-stk .lb { position: absolute; left: 4px; white-space: nowrap; font-size: 12px; font-weight: 700; line-height: 16px; padding: 0 6px; border-radius: 8px; background: var(--surface-2); }
 .wb-stk .lp { top: 108px; color: #4d8bc8; } .wb-stk .lm { top: 212px; color: #1a6fc4; }
 .wb-hr .gp { display: block; height: 16px; flex: 0 0 16px; }
 .wb-d .pt2 { font-size: 13px; font-weight: 700; } .wb-d .pt2 .tl { color: #3a82cf; } .wb-d .pt2 .th { color: #d9531e; }
+/* v9.4 7-Tage-Wetter: Höchst-/Tiefstwert gleich groß, Niederschlag rechts */
+.wb-d .th { color: #d9531e; } .wb-d .tl { color: #3a82cf; }
+.wb-d .sp { display: flex; gap: 14px; font-size: 34px; font-weight: 800; line-height: 1.05; margin-top: 2px; }
+.wb-d .dn strong { font-size: 19px; }
+.wb-d .tt { display: flex; gap: 12px; font-size: 30px; font-weight: 800; line-height: 1; align-self: end; }
+.wb-d .tx { font-size: 16px; font-weight: 600; color: var(--muted); line-height: 1.1; align-self: start; overflow-wrap: anywhere; }
+.wb-d .rg { grid-row: 1 / 3; grid-column: 3; text-align: right; line-height: 1.1; }
+.wb-d .rg b { display: block; font-size: 26px; font-weight: 800; color: var(--w-blue); }
+.wb-d .rg span { display: block; font-size: 20px; font-weight: 700; color: var(--w-blue); opacity: .85; }
 .fsbtn.tabhide, .tabhide { display: none !important; }
 #abView.ab-board { padding: 0; background: transparent; border: 0; border-radius: 0; gap: 0; }
 #abView .ab-cols { gap: 16px; align-items: stretch; }
@@ -268,12 +277,16 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
   .wb-d .dn { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
   .wb-d .dn strong { font-size: 18px; }
   .wb-d .dn small { display: inline; font-size: 13px; }
-  .wb-d .pt { display: grid; grid-template-columns: 76px 38px minmax(0, 1fr); gap: 8px; align-items: center; padding: 8px 10px; border-radius: 12px; background: var(--surface-2); }
-  .wb-d .pt.none { grid-template-columns: 76px minmax(0, 1fr); }
-  .wb-d .plb { display: flex; flex-direction: column; line-height: 1.25; }
+  .wb-d .dn .sp { margin: 0 0 0 auto; font-size: 24px; gap: 10px; }
+  .wb-d .pt { grid-template-columns: 66px 38px minmax(0, 1fr) auto; column-gap: 8px; padding: 8px 10px; }
+  .wb-d .pt svg.wi { grid-row: 1 / 3; grid-column: 2; width: 38px; height: 30px; }
+  .wb-d .pt.none { grid-template-columns: 66px minmax(0, 1fr); }
+  .wb-d .tt { grid-column: 3; grid-row: 1; font-size: 22px; gap: 8px; }
+  .wb-d .tx { grid-column: 3; grid-row: 2; font-size: 13px; }
+  .wb-d .rg { grid-column: 4; } .wb-d .rg b { font-size: 18px; } .wb-d .rg span { font-size: 14px; }
+  .wb-d .plb { grid-row: 1 / 3; grid-column: 1; display: flex; flex-direction: column; line-height: 1.25; }
   .wb-d .plb b { font-size: 14px; }
   .wb-d .plb small { display: block; font-size: 12px; color: var(--muted); font-weight: 500; }
-  .wb-d .ptx { font-size: 13px; }
 }
 
 .clk { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
@@ -548,6 +561,18 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .pr-ui { margin: 4px 0 8px; }
 .pr-var { margin: 12px 0 4px; }
 @media (max-width: 380px) { .pr-p .pr-g { font-size: 9px; } }
+
+/* v9.4 Gruppenkarte: gleiche Artikelnamen (z. B. Eier) mit eingerückten Varianten, nach Grundpreis sortiert */
+.pr-grp { margin: 10px 0; padding: 4px 10px 2px 12px; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 12px; background: var(--surface); }
+.pr-gh { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; padding: 6px 0 4px; }
+.pr-gh b { font-size: 17px; }
+.pr-gh small { font-size: 12px; color: var(--muted); }
+.pr-grp .pr-r { border-top: 1px solid var(--line); }
+.pr-grp .pr-n b { font-size: 16px; }
+.pr-bd { display: inline-block; font-size: 11px; font-weight: 800; color: #17703c; background: #E1F3E8; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+:root[data-theme="dark"] .pr-bd { background: #173a28; color: #7fdba3; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pr-bd { background: #173a28; color: #7fdba3; } }
+@media (max-width: 480px) { .pr-grp { padding-left: 8px; padding-right: 6px; } }
 
 /* Entfernen-Knopf, Rückfrage, Eingabeblöcke, Rücksprung */
 .pr-trash { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: 0 0 auto; margin-left: auto; padding: 0; border-radius: 50%; border: 1.5px solid #c9453b; background: var(--surface); color: #c9453b; cursor: pointer; }
@@ -1058,7 +1083,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 9.3 &middot; vom 24.11.2026, 19:16 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 9.4 &middot; vom 25.11.2026, 05:46 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -2478,17 +2503,46 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
   function bestP(it) { var ps = MK.map(function (mk) { return it.m[mk[0]] ? it.m[mk[0]].p : null; }).filter(function (p) { return p != null; }); return ps.length > 1 ? Math.min.apply(null, ps) : null; }
   function prItem(k) { return PR[k] || {n: BY[k] ? BY[k].n : prNew[k] || k, u: prNewU[k] || "", m: {}, o: {}}; }
-  function prRow(k, it, empty) {
+  /* Größe vorn ("10 Stück") und Rest ("Bodenhaltung") getrennt anzeigen */
+  function prUnitSplit(u) {
+    var parts = String(u).split(/,\s+/), hi = -1;
+    parts.forEach(function (x, i) { if (packOf(x)) hi = i; });
+    if (hi < 0) hi = 0;
+    return {h: parts[hi], r: parts.filter(function (x, i) { return i !== hi; }).join(", ")};
+  }
+  function prUnitHead(u) { return prUnitSplit(u).h; }
+  function prUnitRest(u) { return prUnitSplit(u).r; }
+  /* niedrigster Grundpreis einer Variante über alle Märkte (Angebot zählt, wenn gültig); null ohne Packungsgröße */
+  function prBestG(it) {
+    var pk = packOf(it.u), b = null; if (!pk) return null;
+    MK.forEach(function (mk) { var m = it.m[mk[0]], o = offerOf(it, mk[0]), v = o ? o.p : m ? m.p : null; if (v != null && (b == null || v / pk.q < b)) b = v / pk.q; });
+    return b;
+  }
+  function prRow(k, it, empty, grp, badge) {
     var best = bestSet(it), cells = "";
     MK.forEach(function (mk) {
       var m = it.m[mk[0]], o = offerOf(it, mk[0]), nx = nextOf(it, mk[0]), c = "pr-p" + (o ? " off" : m && best[mk[0]] ? " best" : "") + (!m && !o && !nx ? " no" : ""), gp = o ? fmtG(o.p, it.u) : m ? fmtG(m.p, it.u) : "";
       cells += '<span class="' + c + '">' + (m ? "<b>" + fmtP(m.p) + "</b><small>" + fmtD(m.d) + "</small>" : "<b>–</b>") + (o ? "<em>% " + fmtP(o.p) + (o.b ? "<br>bis " + fmtD(o.b) : "") + "</em>" : "") + (gp ? '<span class="pr-g">' + gp + "</span>" : "") + (nx ? '<i class="pr-k">→ ' + fmtP(nx.p) + "<s>" + rngD(nx.a, nx.b) + "</s></i>" : "") + "</span>";
     });
-    return '<button type="button" class="pr-r' + (empty ? " pr-e" : "") + '" data-k="' + prEsc(k) + '"><span class="pr-n"><b>' + prEsc(it.n) + "</b>" + (it.u ? "<small>" + prEsc(it.u) + "</small>" : "") + '</span><span class="pr-c">' + cells + "</span></button>";
+    var ttl = grp ? (it.u ? prUnitHead(it.u) : "ohne Größe") : it.n, sub = grp ? (it.u ? prUnitRest(it.u) : "") : it.u;
+    return '<button type="button" class="pr-r' + (empty ? " pr-e" : "") + '" data-k="' + prEsc(k) + '"><span class="pr-n"><b>' + prEsc(ttl) + "</b>" + (sub ? "<small>" + prEsc(sub) + "</small>" : "") + (badge ? '<span class="pr-bd">günstigster</span>' : "") + '</span><span class="pr-c">' + cells + "</span></button>";
   }
   function prList() {
     var q = norm(prQ), keys = Object.keys(PR).filter(function (k) { return !q || norm(PR[k].n + " " + PR[k].u).indexOf(q) >= 0; }).sort(function (a, b) { return PR[a].n.localeCompare(PR[b].n, "de") || PR[a].u.localeCompare(PR[b].u, "de"); }), h = "";
-    keys.forEach(function (k) { h += prRow(k, PR[k], false); });
+    for (var gi = 0; gi < keys.length;) {
+      var gn = norm(PR[keys[gi]].n), gj = gi + 1;
+      while (gj < keys.length && norm(PR[keys[gj]].n) === gn) gj++;
+      if (gj - gi < 2) { h += prRow(keys[gi], PR[keys[gi]], false); gi = gj; continue; }
+      var gk = keys.slice(gi, gj).sort(function (a, b) {
+        var x = prBestG(PR[a]), y = prBestG(PR[b]);
+        if (x == null && y == null) return PR[a].u.localeCompare(PR[b].u, "de");
+        if (x == null) return 1; if (y == null) return -1; return x - y || PR[a].u.localeCompare(PR[b].u, "de");
+      });
+      var withG = gk.filter(function (k) { return prBestG(PR[k]) != null; }).length;
+      h += '<div class="pr-grp"><div class="pr-gh"><b>' + prEsc(PR[gk[0]].n) + '</b><small>' + gk.length + ' Varianten' + (withG > 0 ? ' · nach Grundpreis sortiert' : '') + '</small></div>';
+      gk.forEach(function (k, n) { h += prRow(k, PR[k], false, true, n === 0 && withG > 1); });
+      h += "</div>"; gi = gj;
+    }
     if (q) {
       var n = 0; CAT_LIST.forEach(function (x) { if (n < 12 && x.k.indexOf(q) >= 0 && !byName(x.n).length) { n++; h += prRow(x.k, {n: x.n, u: "", m: {}, o: {}}, true); } });
       var same = byName(prQ).length > 0, nm0 = prQ.trim().slice(0, 60);
@@ -3179,9 +3233,9 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
         var c = q && q.parts[k];
         var lb = '<span class="plb"><b>' + ["Morgens", "Mittags", "Abends"][k] + '</b><small>' + ["6–12 Uhr", "12–18 Uhr", "18–22 Uhr"][k] + '</small></span>';
         if (!c) return '<span class="pt none">' + lb + '<span>–</span></span>';
-        return '<span class="pt">' + lb + wxIcon(iconKind(c.ic, c.p, null, c.ph), c.ph) + '<span class="pq"><span class="ptx">' + esc(c.ph) + '</span><span class="pp num">' + c.p + ' % · ' + comma(c.mm) + ' mm</span>' + (c.lo != null ? '<span class="pt2 num"><span class="tl">↓ ' + c.lo + '°</span> <span class="th">↑ ' + c.hi + '°</span></span>' : "") + '</span></span>';
+        return '<span class="pt">' + lb + wxIcon(iconKind(c.ic, c.p, null, c.ph), c.ph) + '<span class="tt num">' + (c.lo != null ? '<span class="th">' + c.hi + '°</span><span class="tl">' + c.lo + '°</span>' : "") + '</span><span class="tx">' + esc(c.ph) + '</span><span class="rg num"><b>' + c.p + ' %</b><span>' + comma(c.mm) + ' mm</span></span></span>';
       }).join("");
-      return '<div class="wb-d"><div class="dn"><strong>' + esc(label) + '</strong><small class="num">' + esc(fShort(dt)) + '</small></div>' + cells + '</div>';
+      return '<div class="wb-d"><div class="dn"><strong>' + esc(label) + '</strong><small class="num">' + esc(fShort(dt)) + '</small><div class="sp num"><span class="th">' + Math.round(w.hi) + '°</span><span class="tl">' + Math.round(w.lo) + '°</span></div></div>' + cells + '</div>';
     }).join("") + '</div>';
     var tabs = '<div class="wb-tabs" role="group" aria-label="Ansicht"><button type="button" class="fsbtn" data-wv="h" aria-pressed="' + (wbView === "h") + '">24 Std</button><button type="button" class="fsbtn" data-wv="d" aria-pressed="' + (wbView === "d") + '">7 Tage</button></div>';
     return tabs + (wbView === "d" ? dd : hero + hh);
