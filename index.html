@@ -299,21 +299,26 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ad-ver { margin: 14px 4px 0; font-size: 12px; color: var(--muted); text-align: center; }
 
 /* Abfahrten: Handy-Zeile (Zeiten gestapelt), am Tablet/Notebook versteckt */
-.ab-z { display: none; }
+.ab-z, .ab-mm { display: none; }
 @media (max-width: 700px) {
   #abView .ab-hd, #sbOv .ab-hd { display: none; }
-  #abView .ab-r:not(.ab-hd), #sbOv .ab-r:not(.ab-hd) { grid-template-columns: 50px minmax(0, 1fr) auto; grid-template-areas: "l d m" "l z i"; column-gap: 12px; row-gap: 2px; padding: 10px 0; }
+  #abView .ab-r:not(.ab-hd), #sbOv .ab-r:not(.ab-hd) { grid-template-columns: 50px minmax(0, 1fr) auto; grid-template-areas: "l d m" "l z m"; column-gap: 12px; row-gap: 3px; padding: 11px 0; }
   #abView .ab-r .ab-l, #sbOv .ab-r .ab-l { grid-area: l; align-self: center; font-size: 17px; padding: 5px 8px; border-radius: 8px; }
   #abView .ab-r .ab-dir, #sbOv .ab-r .ab-dir { grid-area: d; font-weight: 700; font-size: 17px; }
-  #abView .ab-r .ab-c:not(.ab-rt), #sbOv .ab-r .ab-c:not(.ab-rt) { display: none; }
-  #abView .ab-r .ab-rt, #sbOv .ab-r .ab-rt { grid-area: z; justify-self: start; text-align: left; font-size: 15px; white-space: nowrap; }
-  #abView .ab-r .ab-z, #sbOv .ab-r .ab-z { display: contents; }
-  #abView .ab-z > span:first-child, #sbOv .ab-z > span:first-child { grid-area: m; justify-self: end; white-space: nowrap; align-self: center; }
-  #abView .ab-z > span:last-child, #sbOv .ab-z > span:last-child { grid-area: i; justify-self: end; white-space: nowrap; align-self: center; }
-  #abView .ab-z i, #sbOv .ab-z i { font-style: normal; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-  #abView .ab-z b, #sbOv .ab-z b { font-size: 17px; font-weight: 800; }
-  #abView .ab-z .ab-dl, #sbOv .ab-z .ab-dl { font-size: 14px; }
-  #abView .ab-z b.late, #sbOv .ab-z b.late { color: #e0222d; }
+  #abView .ab-r .ab-c, #sbOv .ab-r .ab-c { display: none; }
+  /* v10.0 Handy: Soll durchgestrichen + Ist groß (links), „in … Min.“ groß (rechts) */
+  #abView .ab-r .ab-z, #sbOv .ab-r .ab-z { grid-area: z; display: flex; gap: 8px; align-items: baseline; min-width: 0; white-space: nowrap; }
+  .ab-z s { font-size: 15px; color: var(--muted); }
+  .ab-z b { font-size: 21px; font-weight: 800; }
+  .ab-z b.late { color: #e0222d; }
+  .ab-pl { align-self: center; font-size: 12px; font-weight: 800; color: #fff; background: #e0222d; border-radius: 999px; padding: 1px 7px; }
+  #abView .ab-r .ab-mm, #sbOv .ab-r .ab-mm { grid-area: m; display: flex; align-items: baseline; justify-content: flex-end; gap: 4px; white-space: nowrap; align-self: center; text-align: right; }
+  .ab-mm i { font-style: normal; font-size: 15px; font-weight: 600; color: var(--muted); }
+  .ab-mm small { font-size: 15px; font-weight: 700; color: var(--muted); }
+  .ab-mm .mn { font-size: 34px; font-weight: 800; line-height: 1; }
+  .ab-mm .mj { font-size: 26px; font-weight: 800; }
+  .ab-mm .ml { font-size: 17px; font-weight: 800; }
+  .ab-mm .red { color: #e0222d; }
 }
 
 .ab-dir.mq-on { text-overflow: clip; }
@@ -1101,7 +1106,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 9.9 &middot; vom 25.11.2026, 10:46 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.0 &middot; vom 25.11.2026, 15:03 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1615,7 +1620,8 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
         '<span class="ab-c"><b class="num">' + hm(r.plan) + '</b>' + dtx + '</span>' +
         '<span class="ab-c"><b class="num' + ic + '">' + hm(r.ist) + '</b></span>' +
         '<span class="ab-c ab-rt ab-min' + (min <= 10 ? " soon" : "") + '">' + (min <= 0 ? "jetzt" : "in " + (min >= 60 ? Math.floor(min / 60) + " Std " + (min % 60) + " Min." : min + " Min.")) + '</span>' +
-        '<span class="ab-z"><span><i>Soll</i> <b class="num">' + hm(r.plan) + '</b></span><span>' + dtx.replace(" (", "(") + ' <i>Ist</i> <b class="num' + ic + '">' + hm(r.ist) + '</b></span></span></div>';
+        '<span class="ab-z">' + (dl > 0 ? '<s class="num">' + hm(r.plan) + '</s><b class="num late">' + hm(r.ist) + '</b><span class="ab-pl">+' + dl + '</span>' : '<b class="num ok">' + hm(r.ist) + '</b>') + '</span>' +
+        '<span class="ab-mm">' + (min <= 0 ? '<b class="mj red">jetzt</b>' : min >= 60 ? '<i>in</i><b class="ml">' + Math.floor(min / 60) + ' Std ' + (min % 60) + ' Min.</b>' : '<i>in</i><b class="mn' + (min < 10 ? " red" : "") + '">' + min + '</b><small>Min.</small>') + '</span></div>';
     }).join("");
   }
   var MSY = {
