@@ -155,6 +155,9 @@ header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-cont
 .ab-r:not(.ab-hd) .ab-c b { font-size: 17px; }
 .ab-dl { font-size: 14px; font-weight: 700; color: #e0222d; }
 .ab-r b.late { color: #e0222d; }
+.ab-r b.ok { color: #1a8a46; }
+:root[data-theme="dark"] .ab-r b.ok, :root[data-theme="dark"] #abView .ab-z b.ok { color: #5fd08a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ab-r b.ok { color: #5fd08a; } }
 .ab-r .ab-min { font-size: 15px; font-weight: 600; color: var(--muted); }
 .ab-r .ab-min.soon { color: #e0222d; font-weight: 700; }
 .ab-sub { font-size: 13px; font-weight: 500; color: var(--muted); }
@@ -299,15 +302,15 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ab-z { display: none; }
 @media (max-width: 700px) {
   #abView .ab-hd, #sbOv .ab-hd { display: none; }
-  #abView .ab-r:not(.ab-hd), #sbOv .ab-r:not(.ab-hd) { grid-template-columns: 50px minmax(0, 1fr) auto; grid-template-areas: "l d z" "l m z"; column-gap: 12px; row-gap: 2px; padding: 10px 0; }
+  #abView .ab-r:not(.ab-hd), #sbOv .ab-r:not(.ab-hd) { grid-template-columns: 50px minmax(0, 1fr) auto; grid-template-areas: "l d m" "l z z"; column-gap: 12px; row-gap: 2px; padding: 10px 0; }
   #abView .ab-r .ab-l, #sbOv .ab-r .ab-l { grid-area: l; align-self: center; font-size: 17px; padding: 5px 8px; border-radius: 8px; }
   #abView .ab-r .ab-dir, #sbOv .ab-r .ab-dir { grid-area: d; font-weight: 700; font-size: 17px; }
   #abView .ab-r .ab-c:not(.ab-rt), #sbOv .ab-r .ab-c:not(.ab-rt) { display: none; }
-  #abView .ab-r .ab-rt, #sbOv .ab-r .ab-rt { grid-area: m; text-align: left; font-size: 14px; }
-  #abView .ab-r .ab-z, #sbOv .ab-r .ab-z { grid-area: z; display: grid; grid-template-columns: auto auto; gap: 2px 8px; align-items: baseline; justify-items: end; align-self: center; }
+  #abView .ab-r .ab-rt, #sbOv .ab-r .ab-rt { grid-area: m; justify-self: end; text-align: right; font-size: 15px; white-space: nowrap; }
+  #abView .ab-r .ab-z, #sbOv .ab-r .ab-z { grid-area: z; display: flex; flex-wrap: wrap; gap: 2px 14px; align-items: baseline; justify-content: flex-start; align-self: center; }
   #abView .ab-z i, #sbOv .ab-z i { font-style: normal; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-  #abView .ab-z b, #sbOv .ab-z b { font-size: 19px; font-weight: 800; }
-  #abView .ab-z b.one, #sbOv .ab-z b.one { grid-column: 1 / -1; }
+  #abView .ab-z b, #sbOv .ab-z b { font-size: 17px; font-weight: 800; }
+  #abView .ab-z .ab-dl, #sbOv .ab-z .ab-dl { font-size: 14px; }
   #abView .ab-z b.late, #sbOv .ab-z b.late { color: #e0222d; }
 }
 
@@ -654,10 +657,12 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .ab-chip.ab-sy svg { width: 30px; height: 30px; display: block; }
 .ab-chip.ab-sy[aria-pressed="true"] { background: none; color: var(--ink); border: 0; }
 .ab-chip.ab-sy[aria-pressed="false"] { filter: grayscale(1); opacity: .35; }
-.ab-chips.va { flex-wrap: nowrap; justify-content: space-between; gap: 6px; position: relative; }
-.ab-chip.va-c { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px 5px 5px; min-height: 38px; font-size: 13px; font-weight: 700; flex: 0 0 auto; white-space: nowrap; }
-.ab-chip.va-c .va-i svg { width: 26px; height: 26px; display: block; }
-@media (max-width: 360px) { .ab-chip.va-c { font-size: 12px; padding: 4px 7px 4px 4px; gap: 3px; } .ab-chip.va-c .va-i svg { width: 24px; height: 24px; } }
+.ab-chips.va { flex-wrap: nowrap; justify-content: flex-start; gap: 6px; }
+.ab-chip.va-c { display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex: 0 0 calc((100% - 18px) / 4); min-width: 0; height: 40px; padding: 0 2px; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; }
+.ab-chip.va-c .va-i { display: inline-flex; flex: 0 0 auto; }
+.ab-chip.va-c .va-i svg { width: 22px; height: 22px; display: block; }
+@media (max-width: 360px) { .ab-chip.va-c { font-size: 11px; gap: 3px; } .ab-chip.va-c .va-i svg { width: 19px; height: 19px; } }
+@media (max-width: 340px) { .ab-chip.va-c { font-size: 9.5px; gap: 1px; padding: 0; } .ab-chip.va-c .va-i svg { width: 15px; height: 15px; } }
 .ad-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 .ad-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 @media (max-width: 700px) {
@@ -1087,7 +1092,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 9.5 &middot; vom 25.11.2026, 09:53 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 9.6 &middot; vom 25.11.2026, 10:08 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1541,7 +1546,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
   /* v9.5 Handy: gleiche Chips (Symbol + Text) bei beiden Stationen; Symbol je Auswahl */
   function chipsHtml(k) {
-    var sy = {hbf: k === "dz" ? "s" : "b", s: "s", t: "t", b: "b", oth: "b"}, tx = {hbf: "→ Hbf"}; /* nur beim Hbf-Chip Text; die anderen Symbole nennen die Art schon */
+    var sy = {hbf: k === "dz" ? "s" : "b", s: "s", t: "t", b: "b", oth: "b"}, tx = {hbf: "→ Hbf", s: "S-Bahn", t: "Tram", b: "Bus", oth: "Bus"};
     return PCH[k].map(function (c) {
       var on = PS[k] === c[0] || PS[k] === "all";
       return '<button type="button" class="ab-chip va-c" data-c="' + c[0] + '" aria-pressed="' + (on ? "true" : "false") + '" aria-label="' + esc(c[1]) + '" title="' + esc(c[1]) + '"><span class="va-i">' + MSY[sy[c[0]]] + "</span>" + (tx[c[0]] ? "<span>" + tx[c[0]] + "</span>" : "") + "</button>";
@@ -1549,17 +1554,6 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
   function phHtml(j, b) {
     return '<div class="ab-ph"><div class="ab-chips va" role="group" aria-label="Filter">' + chipsHtml(cur) + '</div><div class="ab-lst">' + listHtml(j, pcol(cur), b.id + (cur === "dz" ? "-1" : "-0")) + "</div></div>";
-  }
-  /* Nür-Dutzendteich: Chips über die ganze Breite verteilt (CSS). Komotauer Str.: gleicher Abstand wie dort, linksbündig */
-  function fitChips() {
-    var row = cols.querySelector(".ab-chips.va"); if (!row) return;
-    if (cur === "dz") { row.style.gap = ""; row.style.justifyContent = ""; return; }
-    var W = row.clientWidth; if (!W) return;
-    var m = document.createElement("div"); m.className = "ab-chips va"; m.style.cssText = "position:absolute;visibility:hidden;left:0;top:0;margin:0;gap:0;justify-content:flex-start;width:" + W + "px";
-    m.innerHTML = chipsHtml("dz"); row.parentNode.appendChild(m);
-    var sum = 0, n = m.children.length; [].forEach.call(m.children, function (c) { sum += c.offsetWidth; });
-    row.parentNode.removeChild(m);
-    row.style.gap = (n > 1 ? Math.max(4, (W - sum) / (n - 1)) : 8).toFixed(1) + "px"; row.style.justifyContent = "flex-start";
   }
   try { var sv = localStorage.getItem("abSel"); if (B[sv]) cur = sv; } catch (e) {}
   function pad(n) { return (n < 10 ? "0" : "") + n; }
@@ -1604,13 +1598,14 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     if (!rows.length) return '<p class="muted ab-none">' + (col.none || "Keine Abfahrten gefunden.") + "</p>";
     var head = '<div class="ab-r ab-hd"><span>Linie</span><span>Richtung</span><span class="ab-c">Soll</span><span class="ab-c">Ist</span><span class="ab-c ab-rt">In Minuten</span></div>';
     return head + rows.map(function (r) {
-      var delay = Math.round((r.ist - r.plan) / 60000), cls = r.p === "Bus" ? " bus" : r.p === "SBahn" ? " sb" : /tram|stra/i.test(r.p) ? " tram" : "";
-      var min = Math.round((r.ist - Date.now()) / 60000);
+      /* Verspätung von +1 Minute wird ignoriert (Unruhe); ab +2 rot mit (+n), sonst Ist-Zeit grün */
+      var delay = Math.round((r.ist - r.plan) / 60000), dl = delay > 1 ? delay : 0, cls = r.p === "Bus" ? " bus" : r.p === "SBahn" ? " sb" : /tram|stra/i.test(r.p) ? " tram" : "";
+      var min = Math.round((r.ist - Date.now()) / 60000), ic = dl > 0 ? " late" : " ok", dtx = dl > 0 ? '<span class="ab-dl"> (+' + dl + ')</span>' : "";
       return '<div class="ab-r"><span class="ab-l' + cls + '"' + ' style="background:' + (r.p === "Bus" ? colorOf(r.l) : r.p === "SBahn" ? (/^s[1-6]$/i.test(r.l) ? LC[String(r.l).toLowerCase()] : LC.sbahn) : /tram|stra/i.test(r.p) ? LC.tram : "") + '"' + '>' + esc(r.l) + '</span><span class="ab-dir">' + esc(r.r) + '</span>' +
-        '<span class="ab-c"><b class="num">' + hm(r.plan) + '</b>' + (delay > 0 ? '<span class="ab-dl"> (+' + delay + ')</span>' : "") + '</span>' +
-        '<span class="ab-c"><b class="num' + (delay > 0 ? " late" : "") + '">' + hm(r.ist) + '</b></span>' +
+        '<span class="ab-c"><b class="num">' + hm(r.plan) + '</b>' + dtx + '</span>' +
+        '<span class="ab-c"><b class="num' + ic + '">' + hm(r.ist) + '</b></span>' +
         '<span class="ab-c ab-rt ab-min' + (min <= 10 ? " soon" : "") + '">' + (min <= 0 ? "jetzt" : "in " + (min >= 60 ? Math.floor(min / 60) + " Std " + (min % 60) + " Min." : min + " Min.")) + '</span>' +
-        '<span class="ab-z">' + (hm(r.plan) === hm(r.ist) ? '<b class="num one">' + hm(r.plan) + '</b>' : '<i>soll</i><b class="num">' + hm(r.plan) + '</b><i>ist</i><b class="num' + (delay > 0 ? " late" : "") + '">' + hm(r.ist) + '</b>') + '</span></div>';
+        '<span class="ab-z"><span><i>Soll</i> <b class="num">' + hm(r.plan) + '</b>' + dtx + '</span><span><i>Ist</i> <b class="num' + ic + '">' + hm(r.ist) + '</b></span></span></div>';
     }).join("");
   }
   var MSY = {
@@ -1645,7 +1640,6 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
   /* Zu lange Richtungsnamen laufen hin und her, statt abgeschnitten zu werden */
   function mq() {
-    fitChips();
     [].forEach.call(cols.querySelectorAll(".ab-dir"), function (e) {
       var t = e.__t || (e.__t = e.textContent);
       if (!e.clientWidth) return;
