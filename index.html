@@ -363,7 +363,7 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
   body .ek-bar { bottom: calc(var(--railh, 72px) + 12px + env(safe-area-inset-bottom, 0px)); }
   body .ek-toast { bottom: calc(var(--railh, 72px) + 86px + env(safe-area-inset-bottom, 0px)); }
 }
-html:has(#p-abfahrten:not([hidden])) { overscroll-behavior-y: contain; }
+html { overscroll-behavior-y: contain; }
 .ab-ptr { position: fixed; left: 50%; top: 10px; z-index: 60; transform: translate(-50%, -70px); opacity: 0; pointer-events: none; display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink); font-size: 14px; font-weight: 600; box-shadow: 0 6px 18px rgba(0, 0, 0, .25); white-space: nowrap; }
 .ab-ptr i { font-style: normal; display: inline-block; transition: transform .15s; font-size: 16px; }
 .ab-ptr.rdy i { transform: rotate(180deg); }
@@ -1153,7 +1153,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 10.7 &middot; vom 26.11.2026, 05:02 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.8 &middot; vom 26.11.2026, 05:06 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1787,9 +1787,14 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     document.body.appendChild(ptr);
     var tx = null, ty = 0, t0 = 0, pull = 0, mode = "", ptrBusy = false;
     function ph() { return window.matchMedia && matchMedia("(max-width: 700px)").matches; }
+    function inView(t) { return !!(t && view.contains(t) && view.offsetParent !== null); }
+    /* oben angekommen? Seite und jeder scrollbare Elternteil müssen ganz oben stehen; in Dialogen, Eingaben und beim Sortieren kein Ziehen */
     function atTop(t) {
-      var l = t && t.closest ? t.closest(".ab-lst") : null;
-      return (window.pageYOffset || 0) <= 0 && (!l || l.scrollTop <= 0);
+      if ((window.pageYOffset || 0) > 0) return false;
+      if (!t || !t.closest) return true;
+      if (t.closest("input, textarea, select, [role=dialog], .ek-sheet, .pr-sh, .ek-sorting, #lb, .lightbox")) return false;
+      for (var n = t; n && n !== document.body; n = n.parentElement) { if (n.scrollTop > 0) return false; }
+      return true;
     }
     function setPtr(d) {
       var y = Math.min(d, 90);
@@ -1803,31 +1808,32 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       if (ptrBusy) return; ptrBusy = true;
       ptr.classList.remove("rdy"); ptr.classList.add("run"); ptr.lastChild.textContent = "Aktualisiere …";
       ptr.style.transition = "transform .2s, opacity .2s"; ptr.style.opacity = "1"; ptr.style.transform = "translate(-50%, 10px)";
+      if (!inView(document.querySelector("#abView"))) { setTimeout(function () { try { location.reload(); } catch (x) {} }, 500); return; }
       at[B[cur].id] = 0; var n = 0;
       (function go() { if (busy && n < 40) { n++; return setTimeout(go, 150); } busy = false; load(); var w = 0; (function wt() { if (busy && w < 60) { w++; return setTimeout(wt, 150); } ptr.classList.remove("run"); ptr.lastChild.textContent = "Aktualisiert"; setTimeout(function () { hidePtr(); ptrBusy = false; }, 600); })(); })();
     }
-    view.addEventListener("touchstart", function (e) {
+    document.addEventListener("touchstart", function (e) {
       if (e.touches.length !== 1 || ptrBusy) { tx = null; return; }
       tx = e.touches[0].clientX; ty = e.touches[0].clientY; t0 = Date.now(); pull = 0; mode = atTop(e.target) ? "" : "x";
     }, {passive: true});
-    view.addEventListener("touchmove", function (e) {
+    document.addEventListener("touchmove", function (e) {
       if (tx === null) return;
       var dx = e.touches[0].clientX - tx, dy = e.touches[0].clientY - ty;
       if (mode === "") { if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) mode = dy > 0 ? "pull" : "x"; else if (Math.abs(dx) > 10) mode = "x"; }
       if (mode === "pull") { pull = Math.max(0, dy * 0.55); setPtr(pull); if (e.cancelable) e.preventDefault(); }
     }, {passive: false});
-    view.addEventListener("touchend", function (e) {
+    document.addEventListener("touchend", function (e) {
       if (tx === null) return;
       var t = e.changedTouches[0], dx = t.clientX - tx, dy = t.clientY - ty, m = mode; tx = null;
       if (m === "pull") { if (pull >= 70) refresh(); else hidePtr(); return; }
-      if (ph() && Math.abs(dx) >= 60 && Math.abs(dx) > Math.abs(dy) * 1.6 && Date.now() - t0 < 700) {
+      if (ph() && inView(t.target) && Math.abs(dx) >= 60 && Math.abs(dx) > Math.abs(dy) * 1.6 && Date.now() - t0 < 700) {
         var i = ORDER.indexOf(cur), n = dx < 0 ? i + 1 : i - 1;
         if (n < 0 || n >= ORDER.length) return;
         select(ORDER[n]);
         cols.style.setProperty("--sw", dx < 0 ? "1" : "-1"); cols.classList.remove("sw"); void cols.offsetWidth; cols.classList.add("sw");
       }
     }, {passive: true});
-    view.addEventListener("touchcancel", function () { if (mode === "pull") hidePtr(); tx = null; }, {passive: true});
+    document.addEventListener("touchcancel", function () { if (mode === "pull") hidePtr(); tx = null; }, {passive: true});
   })();
 
   /* ---------- Übersicht: nächste S-Bahnen Richtung Hbf (mindestens 7 Minuten Vorlauf) ---------- */
