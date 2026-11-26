@@ -1167,7 +1167,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 10.11 &middot; vom 26.11.2026, 14:10 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.12 &middot; vom 26.11.2026, 19:15 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -2037,6 +2037,9 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     var c = on ? "currentColor" : "#c62828";
     return '<svg viewBox="0 0 24 18" width="22" height="16" aria-hidden="true"><g fill="none" stroke="' + c + '" stroke-width="2" stroke-linecap="round"><path d="M2 6.5a14 14 0 0 1 20 0"/><path d="M5.5 10.2a9 9 0 0 1 13 0"/><path d="M9 13.8a4 4 0 0 1 6 0"/></g><circle cx="12" cy="16" r="1.6" fill="' + c + '"/>' + (on ? "" : '<path d="M3 2l18 15" stroke="#c62828" stroke-width="2" stroke-linecap="round"/>') + '</svg>';
   }
+  function svgMobile() {
+    return '<svg viewBox="0 0 24 18" width="22" height="16" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16V3"/><path d="M4 7l4-4 4 4"/><path d="M16 2v13"/><path d="M12 11l4 4 4-4"/></g></svg>';
+  }
   function draw() {
     if (!box) return;
     var parts = [], c = navigator.connection || null;
@@ -2046,8 +2049,10 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     }
     var typ = c && c.type ? c.type : "";
     var on = navigator.onLine !== false && !probeOff && typ !== "none";
-    var txt = !on ? "Offline" : typ === "cellular" ? "Mobil" : typ === "wifi" ? "WLAN" : "?";
-    parts.push('<span class="ds' + (on ? "" : " off") + '" title="Netzwerk">' + svgWifi(on) + '<span>' + txt + '</span></span>');
+    /* WLAN / Mobil / Offline anzeigen; meldet der Browser die Art nicht, bleibt die Netzwerkanzeige weg */
+    if (!on) parts.push('<span class="ds off" title="Netzwerk">' + svgWifi(false) + '<span>Offline</span></span>');
+    else if (typ === "cellular") parts.push('<span class="ds" title="Netzwerk">' + svgMobile() + '<span>Mobil</span></span>');
+    else if (typ === "wifi") parts.push('<span class="ds" title="Netzwerk">' + svgWifi(true) + '<span>WLAN</span></span>');
     var h = parts.join("");
     if (box.__h !== h) { box.__h = h; box.innerHTML = h; }
     box.hidden = !parts.length;
