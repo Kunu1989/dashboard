@@ -360,16 +360,15 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
   .rail { position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 40; border-radius: 16px 16px 0 0; border-bottom: 0; padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -6px 18px rgba(0, 0, 0, .18); overflow: visible; }
   body:has(input:focus, textarea:focus, select:focus) .rail { display: none; }
   .shell { min-height: 0; }
-  html:has(#p-abfahrten:not([hidden])) { overscroll-behavior-y: contain; }
   body .ek-bar { bottom: calc(var(--railh, 72px) + 12px + env(safe-area-inset-bottom, 0px)); }
   body .ek-toast { bottom: calc(var(--railh, 72px) + 86px + env(safe-area-inset-bottom, 0px)); }
 }
-.ab-ptr { position: fixed; left: 50%; top: 10px; z-index: 60; transform: translate(-50%, -70px); opacity: 0; pointer-events: none; display: none; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink); font-size: 14px; font-weight: 600; box-shadow: 0 6px 18px rgba(0, 0, 0, .25); white-space: nowrap; }
+html:has(#p-abfahrten:not([hidden])) { overscroll-behavior-y: contain; }
+.ab-ptr { position: fixed; left: 50%; top: 10px; z-index: 60; transform: translate(-50%, -70px); opacity: 0; pointer-events: none; display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink); font-size: 14px; font-weight: 600; box-shadow: 0 6px 18px rgba(0, 0, 0, .25); white-space: nowrap; }
 .ab-ptr i { font-style: normal; display: inline-block; transition: transform .15s; font-size: 16px; }
 .ab-ptr.rdy i { transform: rotate(180deg); }
 .ab-ptr.run i { animation: abspin .8s linear infinite; }
 @keyframes abspin { to { transform: rotate(360deg); } }
-@media (max-width: 700px) { .ab-ptr { display: flex; } }
 @keyframes absl { from { opacity: 0; transform: translateX(calc(var(--sw, 1) * 28px)); } to { opacity: 1; transform: none; } }
 #abView .ab-cols.sw { animation: absl .22s ease-out; }
 
@@ -510,6 +509,27 @@ html .panel#p-abfahrten:not([hidden]) { min-height: 0; justify-content: flex-sta
 .pr-n b { font-size: 15px; }
 .pr-n small { font-size: 12px; color: var(--muted); }
 .pr-p { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 8px; padding: 5px 2px; background: var(--surface-2); min-height: 44px; min-width: 0; }
+
+/* Preisliste: Filter-Chips (Tablet im Kopf, Handy unter der Suche) */
+.pr-fl { display: flex; gap: 8px; align-items: center; }
+.pr-fl.sr { display: none; margin: 2px 0 6px; }
+.pr-fc { font: inherit; font-size: 14px; font-weight: 700; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--muted); display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; cursor: pointer; }
+.pr-fc i { font-style: normal; font-size: 12px; font-weight: 800; border-radius: 999px; padding: 1px 7px; background: rgba(127, 127, 127, .2); }
+.pr-fc.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.pr-fc.of.on { border-color: #B25E00; background: #FDEBD3; color: #9a4f00; }
+:root[data-theme="dark"] .pr-fc.of.on { border-color: #e08a1e; background: #3b2a14; color: #ffb86b; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pr-fc.of.on { border-color: #e08a1e; background: #3b2a14; color: #ffb86b; } }
+.pr-info { font-size: 12px; color: var(--muted); margin: 0 2px 6px; }
+.pr-info:empty { display: none; }
+.pr-miss { margin-top: 12px; padding: 10px 12px; border: 1.5px dashed var(--line); border-radius: 12px; font-size: 13px; color: var(--muted); }
+.pr-miss b { color: var(--ink); }
+.pr-miss div { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.pr-miss .pr-ms { border: 1px solid var(--accent); border-radius: 999px; padding: 5px 11px; background: none; font-size: 13px; }
+@media (max-width: 700px) {
+  .pr-fl.hd { display: none; }
+  .pr-fl.sr { display: flex; }
+  .pr-leg { display: none; }
+}
 .pr-p b { font-size: 12px; font-weight: 700; white-space: nowrap; }
 .pr-p small { font-size: 10px; color: var(--muted); }
 .pr-p em { font-style: normal; font-size: 10px; font-weight: 800; line-height: 1.2; margin-top: 2px; }
@@ -1133,7 +1153,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 10.6 &middot; vom 25.11.2026, 22:16 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.7 &middot; vom 26.11.2026, 05:02 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1787,20 +1807,20 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       (function go() { if (busy && n < 40) { n++; return setTimeout(go, 150); } busy = false; load(); var w = 0; (function wt() { if (busy && w < 60) { w++; return setTimeout(wt, 150); } ptr.classList.remove("run"); ptr.lastChild.textContent = "Aktualisiert"; setTimeout(function () { hidePtr(); ptrBusy = false; }, 600); })(); })();
     }
     view.addEventListener("touchstart", function (e) {
-      if (!ph() || e.touches.length !== 1 || ptrBusy) { tx = null; return; }
+      if (e.touches.length !== 1 || ptrBusy) { tx = null; return; }
       tx = e.touches[0].clientX; ty = e.touches[0].clientY; t0 = Date.now(); pull = 0; mode = atTop(e.target) ? "" : "x";
     }, {passive: true});
     view.addEventListener("touchmove", function (e) {
-      if (tx === null || !ph()) return;
+      if (tx === null) return;
       var dx = e.touches[0].clientX - tx, dy = e.touches[0].clientY - ty;
       if (mode === "") { if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) mode = dy > 0 ? "pull" : "x"; else if (Math.abs(dx) > 10) mode = "x"; }
       if (mode === "pull") { pull = Math.max(0, dy * 0.55); setPtr(pull); if (e.cancelable) e.preventDefault(); }
     }, {passive: false});
     view.addEventListener("touchend", function (e) {
-      if (tx === null || !ph()) return;
+      if (tx === null) return;
       var t = e.changedTouches[0], dx = t.clientX - tx, dy = t.clientY - ty, m = mode; tx = null;
       if (m === "pull") { if (pull >= 70) refresh(); else hidePtr(); return; }
-      if (Math.abs(dx) >= 60 && Math.abs(dx) > Math.abs(dy) * 1.6 && Date.now() - t0 < 700) {
+      if (ph() && Math.abs(dx) >= 60 && Math.abs(dx) > Math.abs(dy) * 1.6 && Date.now() - t0 < 700) {
         var i = ORDER.indexOf(cur), n = dx < 0 ? i + 1 : i - 1;
         if (n < 0 || n >= ORDER.length) return;
         select(ORDER[n]);
@@ -2644,8 +2664,19 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     var ttl = grp ? (it.u ? prUnitHead(it.u) : "ohne Größe") : it.n, sub = grp ? (it.u ? prUnitRest(it.u) : "") : it.u;
     return '<button type="button" class="pr-r' + (empty ? " pr-e" : "") + '" data-k="' + prEsc(k) + '"><span class="pr-n"><b>' + prEsc(ttl) + "</b>" + (sub ? "<small>" + prEsc(sub) + "</small>" : "") + (badge ? '<span class="pr-bd">günstigster</span>' : "") + '</span><span class="pr-c">' + cells + "</span></button>";
   }
+  /* Filter: nur Artikel von der Einkaufsliste / nur Artikel mit gültigem Angebot (pro Gerät gemerkt) */
+  var prF = {l: false, o: false};
+  try { var fv = localStorage.getItem("fd:prFl") || ""; prF.l = fv.indexOf("l") >= 0; prF.o = fv.indexOf("o") >= 0; } catch (e) {}
+  function prHasOffer(it) { return MK.some(function (mk) { return !!offerOf(it, mk[0]); }); }
+  function prListHit(nm) { var n = norm(nm); if (!n) return false; return list.some(function (x) { var l = norm(x.n); return l && (l === n || (n.length >= 4 && l.indexOf(n) >= 0) || (l.length >= 4 && n.indexOf(l) >= 0)); }); }
+  function prFlRender(nOff) {
+    var h = '<button type="button" class="pr-fc' + (prF.l ? " on" : "") + '" data-f="l" aria-pressed="' + prF.l + '">🛒 Meine Liste <i>' + list.length + '</i></button>' +
+      '<button type="button" class="pr-fc of' + (prF.o ? " on" : "") + '" data-f="o" aria-pressed="' + prF.o + '">% Im Angebot <i>' + nOff + '</i></button>';
+    [].forEach.call(prEl.sec.querySelectorAll(".pr-fl"), function (e) { e.innerHTML = h; });
+  }
   function prList() {
-    var q = norm(prQ), keys = Object.keys(PR).filter(function (k) { return !q || norm(PR[k].n + " " + PR[k].u).indexOf(q) >= 0; }).sort(function (a, b) { return PR[a].n.localeCompare(PR[b].n, "de") || PR[a].u.localeCompare(PR[b].u, "de"); }), h = "";
+    var q = norm(prQ), base = Object.keys(PR).filter(function (k) { return !q || norm(PR[k].n + " " + PR[k].u).indexOf(q) >= 0; }), nOff = base.filter(function (k) { return (!prF.l || prListHit(PR[k].n)) && prHasOffer(PR[k]); }).length,
+      keys = base.filter(function (k) { return (!prF.l || prListHit(PR[k].n)) && (!prF.o || prHasOffer(PR[k])); }).sort(function (a, b) { return PR[a].n.localeCompare(PR[b].n, "de") || PR[a].u.localeCompare(PR[b].u, "de"); }), h = "";
     for (var gi = 0; gi < keys.length;) {
       var gn = norm(PR[keys[gi]].n), gj = gi + 1;
       while (gj < keys.length && norm(PR[keys[gj]].n) === gn) gj++;
@@ -2666,7 +2697,15 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       if (!same && !BY[q]) h += '<button type="button" class="pr-new" data-n="' + prEsc(nm0) + '">„' + prEsc(nm0) + '“ neu anlegen</button>';
       else if (same || BY[q]) h += '<button type="button" class="pr-new" data-v="1" data-n="' + prEsc(nm0) + '">„' + prEsc(nm0) + '“ als weitere Packung / weiteren Hersteller anlegen</button>';
     }
-    prEl.body.innerHTML = h || '<p class="ek-empty">Noch keine Preise. Suche oben einen Artikel und trage Preise ein, oder lade Kassenbons hoch.</p>';
+    var fl = prF.l || prF.o;
+    if (fl && !q && prF.l && !prF.o) {
+      var seen = {}, miss = list.filter(function (x) { var k = norm(x.n); if (!k || seen[k]) return false; seen[k] = 1; return !Object.keys(PR).some(function (pk) { return prListHit(PR[pk].n) && (norm(PR[pk].n) === k || k.indexOf(norm(PR[pk].n)) >= 0 || norm(PR[pk].n).indexOf(k) >= 0); }); });
+      if (miss.length) h += '<div class="pr-miss"><b>Auf der Liste, aber noch ohne Preis</b><div>' + miss.slice(0, 30).map(function (x) { return '<button type="button" class="pr-new pr-ms" data-n="' + prEsc(x.n) + '">' + prEsc(x.n) + ' ＋</button>'; }).join("") + "</div></div>";
+    }
+    prFlRender(nOff);
+    var inf = prEl.sec.querySelector(".pr-info");
+    if (inf) inf.textContent = !fl ? "" : (prF.l && prF.o ? "Von deiner Liste im Angebot" : prF.l ? "Nur Artikel von deiner Einkaufsliste" : "Alle Artikel im Angebot") + " · " + keys.length + " von " + (prF.l ? base.filter(function (k) { return prListHit(PR[k].n); }).length : base.length);
+    prEl.body.innerHTML = h || (fl && !q ? '<p class="ek-empty">' + (prF.o ? "Dazu gibt es gerade kein Angebot." : "Von deiner Einkaufsliste ist noch nichts in der Preisliste.") + "</p>" : '<p class="ek-empty">Noch keine Preise. Suche oben einen Artikel und trage Preise ein, oder lade Kassenbons hoch.</p>');
   }
   function prCard() {
     var it = prItem(prKey), best = bestSet(it), h = "";
@@ -2728,8 +2767,8 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     var b = document.createElement("button"); b.type = "button"; b.id = "prOpen"; b.className = "pr-open"; b.textContent = "€ Preise";
     if (head) head.insertBefore(b, sh || null);
     var sec = document.createElement("section"); sec.className = "card"; sec.id = "prCard"; sec.hidden = true; sec.setAttribute("aria-labelledby", "prTitle");
-    sec.innerHTML = '<div id="prListV"><div class="card-head"><h2 id="prTitle">Preise</h2><button type="button" id="prBack" class="pr-open">← Liste</button></div>' +
-      '<input id="prSearch" class="pr-search" type="search" placeholder="Artikel suchen oder anlegen …" autocomplete="off" enterkeyhint="search" aria-label="Artikel suchen">' +
+    sec.innerHTML = '<div id="prListV"><div class="card-head"><h2 id="prTitle">Preise</h2><div class="pr-fl hd"></div><button type="button" id="prBack" class="pr-open">← Liste</button></div>' +
+      '<input id="prSearch" class="pr-search" type="search" placeholder="Artikel suchen oder anlegen …" autocomplete="off" enterkeyhint="search" aria-label="Artikel suchen"><div class="pr-fl sr"></div><div class="pr-info"></div>' +
       '<div class="pr-leg"><span><i class="g"></i>günstigster (Grundpreis)</span><span><i class="o"></i>im Angebot (%)</span><span>kleine Zahl = Datum</span></div>' +
       '<div class="pr-h"><span class="pr-hn"></span><span class="pr-hc">' + MK.map(function (m) { return "<span>" + m[1] + "</span>"; }).join("") + '</span></div><div id="prBody" class="pr-body"></div>' +
       '<p class="ek-hint">Tippe auf einen Artikel, um Preise und Angebote einzutragen. Die Preise stammen aus deinen Kassenbons und deiner Eingabe, die Angebote aus den Prospekten oder deiner Eingabe.</p></div>' +
@@ -2752,6 +2791,12 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     $("prBack").addEventListener("click", function () { prShow("off"); });
     $("prBack2").addEventListener("click", function () { prShow("list"); });
     $("prSearch").addEventListener("input", function () { prQ = this.value; prList(); });
+    sec.addEventListener("click", function (e) {
+      var f = e.target.closest(".pr-fc"); if (!f) return;
+      var k = f.getAttribute("data-f"); prF[k] = !prF[k];
+      try { localStorage.setItem("fd:prFl", (prF.l ? "l" : "") + (prF.o ? "o" : "")); } catch (x) {}
+      prList();
+    });
     prEl.body.addEventListener("click", function (e) {
       var n = e.target.closest(".pr-new"); if (n) { var nm = n.getAttribute("data-n"); prKey = norm(nm); if (n.getAttribute("data-v") && (PR[prKey] || byName(nm).length)) prKey = newVarKey(nm); if (!PR[prKey]) prNew[prKey] = nm; prShow("card"); return; }
       var r = e.target.closest(".pr-r"); if (r) { prKey = r.getAttribute("data-k"); prShow("card"); }
