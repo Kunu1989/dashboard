@@ -672,7 +672,6 @@ html { overscroll-behavior-y: contain; }
 /* Einkauf: nur einblenden, ohne Verschiebung – sonst springt das feste Plus (Transform macht das Panel zum Bezugspunkt für fixed) */
 #p-einkauf:not([hidden]) { animation: fdInO .22s ease-out; }
 @keyframes fdInO { from { opacity: 0; } to { opacity: 1; } }
-:root.noanim .panel { animation: none !important; }
 
 /* v8.6: Kita, vergangene Tage eingeklappt */
 .wo-past, .me-past, .mo-past { margin-top: 12px; }
@@ -1002,6 +1001,18 @@ label.fsbtn.busy { opacity: 0.5; pointer-events: none; }
 .kita-view .fsbtn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
 footer { font-size: 12px; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+@media (max-width: 700px) {
+  .wb-hero { grid-template-columns: auto 1fr; gap: 4px 12px; padding: 10px 14px; }
+  .wb-ico { width: 52px; height: 52px; }
+  .wb-ico svg { width: 40px; height: 30px; }
+  .wb-t { font-size: 46px; }
+  .wb-lbl { font-size: 13px; }
+  .wb-side { line-height: 1.35; }
+  .wb-sum { font-size: 13px; margin-bottom: 2px; }
+  .wb-side b { font-size: 15px; display: inline; }
+  .wb-side > div:last-child { display: inline; font-size: 14px; }
+  .wb-side > div:last-child::before { content: " \00b7  "; }
+}
 </style>
 
 <div class="shell">
@@ -1145,7 +1156,6 @@ footer { font-size: 12px; color: var(--muted); }
         <label class="ad-row"><span>Diashow: Wechsel alle</span><select id="adSec" aria-label="Sekunden pro Bild"></select></label>
         <label class="ad-row"><span>Zurück zur Übersicht nach</span><select id="adIdle" aria-label="Minuten bis zur Übersicht"></select></label>
         <label class="ad-row"><span>Nachtmodus (nur dieses Gerät)</span><select id="adNight" aria-label="Nachtmodus"><option value="3">Aus</option><option value="2">Ein</option><option value="0">Systemeinstellung</option><option value="1">Von Sonnenunter- bis aufgang</option></select></label>
-        <label class="ad-row"><span>Weiche Übergänge (nur dieses Gerät)</span><select id="adAnim" aria-label="Weiche Übergänge"><option value="1">Ein</option><option value="0">Aus</option></select></label>
         <label class="ad-row"><span>Startseite (nur dieses Gerät)</span><select id="adStart" aria-label="Startseite dieses Geräts"></select></label>
       </div>
       <p class="muted ad-note">Diese Zeiten gelten für alle Geräte, nur Nachtmodus und Startseite gelten allein für dieses Gerät.</p>
@@ -1157,7 +1167,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 10.10 &middot; vom 26.11.2026, 05:35 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.11 &middot; vom 26.11.2026, 14:10 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -2946,17 +2956,6 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       n++;
       if (n >= 5) { n = 0; try { window.open("https://www.lieferando.de/", "_blank", "noopener"); } catch (x) {} }
     }, true);
-  })();
-  /* Weiche Übergänge beim Reiterwechsel: pro Gerät abschaltbar (fd:anim = "0") */
-  (function () {
-    function on() { try { return localStorage.getItem("fd:anim") !== "0"; } catch (e) { return true; } }
-    function apply() { document.documentElement.classList.toggle("noanim", !on()); }
-    apply();
-    var sel = document.getElementById("adAnim");
-    if (sel) {
-      sel.value = on() ? "1" : "0";
-      sel.addEventListener("change", function () { try { localStorage.setItem("fd:anim", sel.value === "1" ? "1" : "0"); } catch (e) {} apply(); });
-    }
   })();
 </script>
 <script>
