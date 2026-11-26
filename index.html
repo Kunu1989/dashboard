@@ -1157,7 +1157,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 10.9 &middot; vom 26.11.2026, 05:25 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.10 &middot; vom 26.11.2026, 05:35 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1595,8 +1595,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   var cur = "dz", data = {}, at = {}, busy = false;
   var PQ = window.matchMedia ? matchMedia("(max-width: 700px)") : {matches: false};
   var HBFRE = /Hbf|Hauptbahnhof|Schwabach|^Roth\b/, KOHBF = /Hbf|Hauptbahnhof/i;
-  var PS = {dz: "all", ko: "all"};
-  try { var ps0 = JSON.parse(localStorage.getItem("abPSel") || "null"); if (ps0) ["dz", "ko"].forEach(function (k) { if (typeof ps0[k] === "string") PS[k] = ps0[k]; }); } catch (e) {}
+  var PS = {dz: "hbf", ko: "hbf"}; /* Start immer „S-Bahn → Hbf“ bzw. „→ Hbf“ (Handy), nichts wird zwischen Besuchen gemerkt */
   var PCH = {
     dz: [["hbf", "S-Bahn → Hbf"], ["s", "S-Bahn"], ["t", "Straßenbahn"], ["b", "Bus"]],
     ko: [["hbf", "Richtung Hbf"], ["oth", "Andere Richtungen"]]
@@ -1620,7 +1619,6 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   function phHtml(j, b) {
     return '<div class="ab-ph"><div class="ab-chips va" role="group" aria-label="Filter">' + chipsHtml(cur) + '</div><div class="ab-lst">' + listHtml(j, pcol(cur), b.id + (cur === "dz" ? "-1" : "-0")) + "</div></div>";
   }
-  try { var sv = localStorage.getItem("abSel"); if (B[sv]) cur = sv; } catch (e) {}
   function pad(n) { return (n < 10 ? "0" : "") + n; }
   function hm(t) { var d = new Date(t); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]; }); }
@@ -1732,7 +1730,6 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     if (ch) {
       var cv = ch.getAttribute("data-c");
       PS[cur] = (PS[cur] === cv && cv !== "all") ? "all" : cv;
-      try { localStorage.setItem("abPSel", JSON.stringify(PS)); } catch (e3) {}
       cols.__sc = 0; cols.__html = null; draw(); return;
     }
     var bt = e.target.closest ? e.target.closest(".ab-mode") : null;
@@ -1974,7 +1971,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   });
 
   window.addEventListener("fd-config", function () { at = {}; });
-  window.addEventListener("hashchange", function () { if (location.hash === "#abfahrten") select("dz"); });
+  window.addEventListener("hashchange", function () { if (location.hash === "#abfahrten") { PS.dz = "hbf"; PS.ko = "hbf"; cols.__html = null; select("dz"); } });
 })();
 
 /* Zeiten (Diashow, Rücksprung zur Übersicht): global über db, lokal zwischengespeichert. Nachtmodus: nur dieses Gerät (fd:night) */
