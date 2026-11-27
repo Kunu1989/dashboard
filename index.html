@@ -1023,6 +1023,24 @@ footer { font-size: 12px; color: var(--muted); }
   .wb-stk .lm { top: 176px; }
   .wb-hero { grid-template-columns: auto 1fr; gap: 0 12px; padding: 10px 14px; }
 }
+.evd[data-ev], .ev[data-ev] { cursor: pointer; }
+.ev-bg { position: fixed; inset: 0; z-index: 90; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+.ev-bg[hidden] { display: none; }
+.ev-card { background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 16px; padding: 20px; width: 100%; max-width: 420px; max-height: 100%; overflow: auto; box-shadow: 0 12px 40px rgba(0,0,0,.35); box-sizing: border-box; }
+.ev-card h3 { margin: 0 0 4px; font-size: 20px; line-height: 1.25; overflow-wrap: anywhere; }
+.ev-sub { color: var(--muted); font-size: 14px; margin-bottom: 14px; }
+.ev-row { display: flex; gap: 10px; margin: 8px 0; font-size: 15px; line-height: 1.35; }
+.ev-row b { flex: 0 0 72px; font-weight: 600; color: var(--muted); }
+.ev-row span { min-width: 0; overflow-wrap: anywhere; }
+.ev-row .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+.ev-msg { margin-top: 14px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); font-size: 14px; line-height: 1.35; }
+.ev-msg.warn { background: rgba(229,100,91,.15); }
+.ev-msg.err { background: rgba(229,100,91,.15); color: var(--w-red); }
+.ev-btns { display: flex; gap: 10px; margin-top: 18px; }
+.ev-btns button { flex: 1; font: inherit; font-size: 15px; font-weight: 600; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: transparent; color: inherit; cursor: pointer; }
+.ev-btns button.del { border-color: #e5645b; color: #d64a41; }
+.ev-btns button.red { background: #d64a41; border-color: #d64a41; color: #fff; }
+.ev-btns button:disabled { opacity: .6; }
 </style>
 
 <div class="shell">
@@ -1177,7 +1195,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 10.13 &middot; vom 27.11.2026, 05:24 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.14 &middot; vom 27.11.2026, 11:01 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1566,7 +1584,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     }
   };
 
-  window.__fd = {api: api, cfg: cfg, remoteOn: remoteOn, fetchJson: fetchJson};
+  window.__fd = {api: api, post: post, cfg: cfg, remoteOn: remoteOn, fetchJson: fetchJson};
   var CAPS = {db: db, assets: assets, downloads: downloads, mcp: mcp, sample: sample};
   window.claude = {use: function (name) { return ready.then(function () { return name === "sample" && !remoteOn() ? null : (CAPS[name] || null); }); }};
 
@@ -3179,11 +3197,12 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   function tipOf(e) { return e.title + (e.loc ? " · " + e.loc : "") + " (" + CALS[e.cal].name + ")"; }
 
   /* Große Ansicht für heute und morgen */
+  function evKey(e) { return e.cal + "|" + (LIVE[e.cal] ? LIVE[e.cal].indexOf(e) : -1); }
+  function evAttr(e) { return ' data-ev="' + esc(evKey(e)) + '" role="button" tabindex="0"'; }
   function evDetail(e, gap) {
     var col = colOf(e), g = gap ? " gap" : "";
-    var loc = e.loc ? '<span class="loc">' + esc(e.loc) + '</span>' : "";
-    if (!e.t) return '<div class="evd' + g + '" title="' + esc(tipOf(e)) + '" style="background:' + col + ';color:' + textOn(col) + '">' + esc(e.title) + loc + '</div>';
-    return '<div class="evd timed' + g + '" title="' + esc(tipOf(e)) + '"><span class="tm num">' + esc(e.t) + '</span><span><i class="dot" style="background:' + col + '"></i>' + esc(e.title) + loc + '</span></div>';
+    if (!e.t) return '<div class="evd' + g + '"' + evAttr(e) + ' title="' + esc(tipOf(e)) + '" style="background:' + col + ';color:' + textOn(col) + '">' + esc(e.title) + '</div>';
+    return '<div class="evd timed' + g + '"' + evAttr(e) + ' title="' + esc(tipOf(e)) + '"><span class="tm num">' + esc(e.t) + '</span><span><i class="dot" style="background:' + col + '"></i>' + esc(e.title) + '</span></div>';
   }
   function renderTwoDays() {
     var html = "";
@@ -3198,8 +3217,8 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   /* Kompakte Ansicht für die 7-Tage-Vorschau */
   function evHtml(e) {
     var col = colOf(e);
-    if (!e.t) return '<div class="ev" title="' + esc(tipOf(e)) + '" style="background:' + col + ';color:' + textOn(col) + '">' + esc(e.title) + '</div>';
-    return '<div class="ev timed" title="' + esc(tipOf(e)) + '"><i class="dot" style="background:' + col + '"></i><span><span class="tm num">' + esc(e.t) + '</span> ' + esc(e.title) + '</span></div>';
+    if (!e.t) return '<div class="ev"' + evAttr(e) + ' title="' + esc(tipOf(e)) + '" style="background:' + col + ';color:' + textOn(col) + '">' + esc(e.title) + '</div>';
+    return '<div class="ev timed"' + evAttr(e) + ' title="' + esc(tipOf(e)) + '"><i class="dot" style="background:' + col + '"></i><span><span class="tm num">' + esc(e.t) + '</span> ' + esc(e.title) + '</span></div>';
   }
   function renderCal() { renderBigCal(); }
 
@@ -3225,6 +3244,82 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     document.getElementById("bigRange").textContent = fDay(start) + " bis " + fFull(end).replace(/^[^,]+, /, "");
     calNote();
   }
+
+  /* ---------- Termin antippen: Pop-up mit Details, Löschen mit Rückfrage ---------- */
+  var READONLY = {bday: 1, hol: 1}, evPop = null, evCur = null, evTimer = null;
+  function evBuild() {
+    if (evPop) return evPop;
+    evPop = document.createElement("div");
+    evPop.className = "ev-bg"; evPop.hidden = true;
+    evPop.innerHTML = '<div class="ev-card" role="dialog" aria-modal="true" aria-labelledby="evpT"><h3 id="evpT"></h3><div class="ev-sub" id="evpS"></div><div id="evpR"></div><div class="ev-msg" id="evpM" hidden></div><div class="ev-btns" id="evpB"></div></div>';
+    document.body.appendChild(evPop);
+    evPop.addEventListener("click", function (ev) { if (ev.target === evPop) evClose(); });
+    evPop.addEventListener("pointerdown", evArm, {passive: true});
+    document.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && evPop && !evPop.hidden) evClose(); });
+    return evPop;
+  }
+  function evArm() { clearTimeout(evTimer); evTimer = setTimeout(evClose, 60000); }
+  function evClose() { clearTimeout(evTimer); if (evPop) evPop.hidden = true; evCur = null; }
+  function evWhen(e) {
+    var d = parse(e.d), s = fWdLong(d) + ", " + fDay(d);
+    if (e.e && e.e > e.d) s += " bis " + fWdLong(parse(e.e)) + ", " + fDay(parse(e.e));
+    return s;
+  }
+  function evBtn(txt, cls, fn) {
+    var b = document.createElement("button"); b.type = "button"; b.className = cls || ""; b.textContent = txt;
+    b.addEventListener("click", fn); return b;
+  }
+  function evShow(mode, errText) {
+    var e = evCur; if (!e) return;
+    var $$ = function (i) { return document.getElementById(i); }, col = colOf(e);
+    $$("evpT").textContent = e.title;
+    $$("evpS").textContent = evWhen(e);
+    var rows = [["Zeit", e.t ? e.t + (e.et ? "–" + e.et : "") + " Uhr" : "Ganztägig"]];
+    if (e.loc) rows.push(["Ort", e.loc]);
+    var h = rows.map(function (r) { return '<div class="ev-row"><b>' + esc(r[0]) + '</b><span>' + esc(r[1]) + '</span></div>'; }).join("");
+    h += '<div class="ev-row"><b>Kalender</b><span><i class="dot" style="background:' + col + '"></i>' + esc(CALS[e.cal].name) + '</span></div>';
+    $$("evpR").innerHTML = h;
+    var m = $$("evpM"), bt = $$("evpB"); bt.textContent = "";
+    m.hidden = true; m.className = "ev-msg";
+    if (errText) { m.hidden = false; m.className = "ev-msg err"; m.textContent = errText; }
+    if (mode === "confirm" || mode === "busy") {
+      m.hidden = false; m.className = "ev-msg warn";
+      m.innerHTML = "<b>Termin wirklich löschen?</b><br>Er wird auch aus dem Google-Kalender entfernt und lässt sich hier nicht zurückholen." + (e.rec ? " Bei Serienterminen wird nur dieser eine Termin gelöscht." : "");
+      var no = evBtn("Abbrechen", "", function () { evShow("view"); }), yes = evBtn(mode === "busy" ? "Wird gelöscht …" : "Ja, löschen", "red", evDelete);
+      if (mode === "busy") { no.disabled = true; yes.disabled = true; }
+      bt.appendChild(no); bt.appendChild(yes);
+      return;
+    }
+    if (READONLY[e.cal]) { m.hidden = false; m.textContent = "Geburtstage und Feiertage lassen sich hier nicht löschen."; }
+    else if (!e.id) { m.hidden = false; m.textContent = "Löschen ist erst möglich, wenn das Google-Script aktualisiert ist (siehe Anleitung zur Version 10.14)."; }
+    else bt.appendChild(evBtn("Termin löschen", "del", function () { evShow("confirm"); }));
+    bt.appendChild(evBtn("Schließen", "", evClose));
+  }
+  function evOpen(e) {
+    evBuild(); evCur = e; evShow("view"); evPop.hidden = false; evArm();
+    var c = evPop.querySelector("button"); if (c) try { c.focus({preventScroll: true}); } catch (x) {}
+  }
+  function evDelete() {
+    var e = evCur; if (!e || !e.id) return;
+    evShow("busy"); evArm();
+    window.__fd.post({action: "deleteEvent", calId: CAL_IDS[e.cal], eventId: e.id}, 30000).then(function () {
+      var list = LIVE[e.cal] || [], i = list.indexOf(e);
+      if (i >= 0) list.splice(i, 1);
+      evClose(); renderTwoDays(); renderCal();
+    }, function (err) {
+      var t = err && err.code === "no_config" ? "Kein Link zum Script eingetragen (Optionen, Verbindung)." : "Löschen hat nicht geklappt" + (err && err.message ? ": " + String(err.message).slice(0, 120) : "") + ".";
+      evShow("view", t);
+    });
+  }
+  document.addEventListener("click", function (ev) {
+    var t = ev.target && ev.target.closest ? ev.target.closest("[data-ev]") : null;
+    if (!t) return;
+    var k = String(t.getAttribute("data-ev")).split("|"), e = LIVE[k[0]] && LIVE[k[0]][Number(k[1])];
+    if (e) evOpen(e);
+  });
+  document.addEventListener("keydown", function (ev) {
+    if ((ev.key === "Enter" || ev.key === " ") && ev.target && ev.target.getAttribute && ev.target.getAttribute("data-ev")) { ev.preventDefault(); ev.target.click(); }
+  });
 
   /* ---------- Legende ---------- */
   function renderLegend() {
@@ -4083,7 +4178,9 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     (Array.isArray(items) ? items : []).forEach(function (it) {
       if (!it || it.status === "cancelled" || !it.start) return;
       var title = String(it.summary || "").trim() || "(ohne Titel)", e = {cal: cal, title: title.slice(0, 200)};
-      if (it.location) e.loc = String(it.location).replace(/\s+/g, " ").slice(0, 80);
+      if (it.location) e.loc = String(it.location).replace(/\s+/g, " ").slice(0, 300);
+      if (it.id) e.id = String(it.id);
+      if (it.recurring) e.rec = true;
       if (it.colorId) e.c = String(it.colorId);
       if (it.start.date) {
         e.d = it.start.date;
@@ -4091,6 +4188,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
         if (last > e.d) e.e = last;
       } else if (it.start.dateTime) {
         var b = berlin(it.start.dateTime); e.d = b.d; e.t = b.t;
+        if (it.end && it.end.dateTime) { var b2 = berlin(it.end.dateTime); if (b2.d === b.d && b2.t !== b.t) e.et = b2.t; }
       } else return;
       if (cal === "bday") {
         var m = /^(.*?)\s*\((\d{4})\)\s*(.*)$/.exec(e.title);
