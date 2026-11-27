@@ -1195,7 +1195,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 10.17 &middot; vom 27.11.2026, 20:24 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.18 &middot; vom 27.11.2026, 20:42 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1875,7 +1875,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     document.addEventListener("touchcancel", function () { if (mode === "pull") hidePtr(); tx = null; }, {passive: true});
   })();
 
-  /* v10.16 Handy: Wischen zwischen den Reitern in Kita (Wochen-/Monats-/Speiseplan) und Wetter (24 Std / 7 Tage) */
+  /* v10.16/10.18 Handy: Wischen zwischen den Reitern in Kita (Wochen-/Monats-/Speiseplan) und Wetter (24 Std / 7 Tage) */
   (function () {
     var sx = null, sy = 0, st = 0, host = null;
     function ph() { return window.matchMedia && matchMedia("(max-width: 700px)").matches; }
@@ -1888,8 +1888,12 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     document.addEventListener("touchstart", function (e) {
       sx = null; host = null;
       if (e.touches.length !== 1 || !ph() || !e.target.closest) return;
-      var p = e.target.closest("#p-kita, #p-wetter");
-      if (!p || p.offsetParent === null || e.target.closest("input, textarea, select, [role=dialog], #lb, .lightbox") || sideScroll(e.target, p)) return;
+      /* v10.18: ganze Fläche zwischen Kopf und Reiterleiste, auch unterhalb der Karte */
+      var p = document.getElementById("p-kita"); if (!p || p.offsetParent === null) p = document.getElementById("p-wetter");
+      if (!p || p.offsetParent === null) return;
+      var inP = p.contains(e.target);
+      if (!inP && e.target.closest(".rail, [id^=p-]")) return;
+      if (e.target.closest("input, textarea, select, [role=dialog], #lb, .lightbox, .ev-bg") || sideScroll(e.target, inP ? p : null)) return;
       host = p; sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now();
     }, {passive: true});
     document.addEventListener("touchend", function (e) {
@@ -2256,7 +2260,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
   }
   setCatalog(null);
   /* Eigene Symbole gelten auch für Artikel, die schon in einem gespeicherten Katalog stehen */
-  function special(n) { var k = norm(n); if (k === "kaki" || k === "kakis") return "@ka"; if (k.indexOf("brunch") === 0) return "@br"; if (k.indexOf("fleischwurst") === 0) return "@fw"; if (k.indexOf("eiersalat") === 0) return "@es"; if (/^(wurstchen|wiener|kasekrainer|krainer)/.test(k)) return "@wu"; if (/^skyr/.test(k)) return "@sk"; if (/^(zucker|wurfelzucker|haushaltszucker)$/.test(k)) return "@zu"; if (/^(weizen|dinkel|roggen|vollkorn)?mehl/.test(k)) return "@me"; if (/^banan(en)?chips/.test(k)) return "@bc"; if (/salami(brezel|brezn)|brezel(salami|wurst)/.test(k)) return "@sb"; if (/demoine|girolle|kaserosette/.test(k)) return "@tm"; return null; }
+  function special(n) { var k = norm(n); if (k === "kaki" || k === "kakis") return "@ka"; if (k.indexOf("brunch") === 0) return "@br"; if (k.indexOf("fleischwurst") === 0) return "@fw"; if (k.indexOf("eiersalat") === 0) return "@es"; if (/^(wurstchen|wiener|kasekrainer|krainer)/.test(k)) return "@wu"; if (/^skyr/.test(k)) return "@sk"; if (/^(zucker|wurfelzucker|haushaltszucker)$/.test(k)) return "@zu"; if (/^(weizen|dinkel|roggen|vollkorn)?mehl/.test(k)) return "@me"; if (/^banan(en)?chips/.test(k)) return "@bc"; if (/salami(brezel|brezn)|brezel(salami|wurst)/.test(k)) return "@sb"; if (/^tete|^tte(de|du)|demoine|girolle|kaserosette/.test(k)) return "@tm"; return null; }
   function iconOf(it) { var sp = special(it.n); if (sp) return sp; var c = BY[norm(it.n)]; return c ? c.e : (it.e || "🛒"); }
   function lev(a, b) {
     var m = a.length, n = b.length, d = [], i, j;
