@@ -1013,6 +1013,16 @@ footer { font-size: 12px; color: var(--muted); }
   .wb-side > div:last-child { display: inline; font-size: 14px; }
   .wb-side > div:last-child::before { content: " \00b7  "; }
 }
+@media (max-width: 700px) {
+  .wb-hr { padding: 8px 0; gap: 4px; }
+  .wb-hr .gp { height: 8px; flex-basis: 8px; }
+  .wb-hr .pr { height: 50px; }
+  .wb-hr .pm { height: 44px; }
+  .wb-hr .pr i { max-height: 30px; }
+  .wb-stk .lp { top: 112px; }
+  .wb-stk .lm { top: 176px; }
+  .wb-hero { grid-template-columns: auto 1fr; gap: 0 12px; padding: 10px 14px; }
+}
 </style>
 
 <div class="shell">
@@ -1167,7 +1177,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 10.12 &middot; vom 26.11.2026, 19:15 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.13 &middot; vom 27.11.2026, 05:24 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -3397,7 +3407,7 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
         return '<div class="wb-hr' + (nowH === x.h && !nd ? " now" : "") + '"><span class="tm num">' + (nd && x.wd ? esc(x.wd) + " " : "") + pad(x.h) + ' Uhr</span>' + wxIcon(iconKind(x.ic, x.p, x.h, x.ph), x.ph) + '<b class="num">' + x.t + '°</b>' +
           '<span class="gp"></span><span class="pr"><i style="height:' + Math.max(2, Math.round(x.p * 0.58)) + 'px"></i><span class="num">' + x.p + ' %</span></span>' +
           '<span class="gp"></span><span class="pm"><i style="height:' + (x.mm > 0 ? Math.max(3, Math.round(x.mm / mmMax * 52)) : 2) + 'px"></i><span class="mm num' + (x.mm > 0 ? " wet" : "") + '">' + (x.mm != null ? comma(x.mm) + " mm" : "") + '</span></span></div>';
-      }).join("") + '</div></div>' + (HOURLY.src ? '<div class="wt-note">Stundenwerte: ' + esc(HOURLY.src) + '.</div>' : "");
+      }).join("") + '</div></div>';
     } else hh = '<div class="wt-note">Für heute gibt es keine Stundenwerte mehr.</div>';
     var rows = DAYS.slice(o.base, o.base + 8).filter(function (w) { return diffDays(parse(w.d), today) > 0; }).slice(0, 7), PA = window.__wxParts || {};
     var dd = '<div class="wb-days"><div class="wb-d wb-dh"><span>Tag</span><span>Morgens <small>6–12 Uhr</small></span><span>Mittags <small>12–18 Uhr</small></span><span>Abends <small>18–22 Uhr</small></span></div>' + rows.map(function (w) {
@@ -3460,7 +3470,6 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
         var nd = x.day && x.day !== key;
         return '<div class="hr' + (nowH === x.h && !nd ? " now" : "") + (nd ? " nd" : "") + '"><span class="tm num">' + (nd && x.wd ? esc(x.wd) + " " : "") + pad(x.h) + ' Uhr</span>' + wxIcon(iconKind(x.ic, x.p, x.h, x.ph), x.ph) + '<span class="t num">' + x.t + '°</span><span class="r num">' + x.p + ' %</span></div>';
       }).join("") + '</div>';
-      if (big) tl += '<div class="wt-note">Stundenwerte: ' + esc(HOURLY.src) + '.</div>';
     } else if (big) {
       tl = '<div class="wt-note">' + "Für heute gibt es keine Stundenwerte mehr." + '</div>';
     }
@@ -4182,7 +4191,7 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
   function renderStamps() {
     var m = {
       cal: stampText(liveAtMs, 15, mcp ? "wird geladen …" : "nicht verfügbar"),
-      wx: stampText(wxAtMs, 75, mcp ? "wird geladen …" : "nicht verfügbar")
+      wx: stampText(wxAtMs, 30, mcp ? "wird geladen …" : "nicht verfügbar")
     };
     if (!liveAtMs && liveDone) m.cal = {t: "nicht verfügbar", old: true};
     if (!wxAtMs && wxTry && !wxBusy) m.wx = {t: "nicht verfügbar", old: true};
@@ -4191,6 +4200,8 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
       var x = m[el.getAttribute("data-st")];
       if (el.textContent !== x.t) el.textContent = x.t;
       el.classList.toggle("old", x.old);
+      /* Wetter: Aktualisierungszeit nur zeigen, wenn die Daten älter als 30 Minuten sind oder fehlen */
+      if (el.getAttribute("data-st") === "wx") el.hidden = !(x.old || (!wxAtMs && wxTry && !wxBusy));
     });
   }
   function setWx(msg, showBtn) { $("wxNote").textContent = msg; $("wxBtn").hidden = !showBtn; }
