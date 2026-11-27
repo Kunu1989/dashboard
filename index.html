@@ -1032,6 +1032,14 @@ footer { font-size: 12px; color: var(--muted); }
 .ev-btns button.del { border-color: #e5645b; color: #d64a41; }
 .ev-btns button.red { background: #d64a41; border-color: #d64a41; color: #fff; }
 .ev-btns button:disabled { opacity: .6; }
+@media (max-width: 700px) {
+  /* v10.16 Kita und Wetter: Kopfzeile weg, Reiter wie bei den Abfahrten */
+  #p-kita .card-head > h2, #p-kita #kitaMeta, #p-wetter .card-head > h2, #p-wetter #wNoteBig { display: none !important; }
+  #p-kita .card-head:not(:has(.fsbtn:not([hidden]))), #p-wetter .card-head:not(:has(.stamp:not([hidden]))) { display: none !important; }
+  .kita-view, .wb-tabs { display: flex !important; gap: 0 !important; border-bottom: 1px solid var(--line); margin: 0 0 14px !important; }
+  .kita-view .fsbtn, .wb-tabs .fsbtn { flex: 1 1 0; min-width: 0; font-size: 15px; font-weight: 600; padding: 10px 4px; border: 0 !important; border-bottom: 3px solid transparent !important; border-radius: 0; background: transparent !important; color: var(--muted) !important; box-shadow: none !important; }
+  .kita-view .fsbtn[aria-pressed="true"], .wb-tabs .fsbtn[aria-pressed="true"] { color: var(--accent) !important; border-bottom-color: var(--accent) !important; }
+}
 </style>
 
 <div class="shell">
@@ -1186,7 +1194,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 10.15 &middot; vom 27.11.2026, 11:50 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.16 &middot; vom 27.11.2026, 15:27 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -1864,6 +1872,35 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
       }
     }, {passive: true});
     document.addEventListener("touchcancel", function () { if (mode === "pull") hidePtr(); tx = null; }, {passive: true});
+  })();
+
+  /* v10.16 Handy: Wischen zwischen den Reitern in Kita (Wochen-/Monats-/Speiseplan) und Wetter (24 Std / 7 Tage) */
+  (function () {
+    var sx = null, sy = 0, st = 0, host = null;
+    function ph() { return window.matchMedia && matchMedia("(max-width: 700px)").matches; }
+    function sideScroll(t, stop) {
+      for (var n = t; n && n !== stop && n !== document.body; n = n.parentElement) {
+        if (n.scrollWidth > n.clientWidth + 2) { var o = getComputedStyle(n).overflowX; if (o === "auto" || o === "scroll") return true; }
+      }
+      return false;
+    }
+    document.addEventListener("touchstart", function (e) {
+      sx = null; host = null;
+      if (e.touches.length !== 1 || !ph() || !e.target.closest) return;
+      var p = e.target.closest("#p-kita, #p-wetter");
+      if (!p || p.offsetParent === null || e.target.closest("input, textarea, select, [role=dialog], #lb, .lightbox") || sideScroll(e.target, p)) return;
+      host = p; sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now();
+    }, {passive: true});
+    document.addEventListener("touchend", function (e) {
+      if (sx === null || !host) return;
+      var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy, h = host; sx = null; host = null;
+      if (Math.abs(dx) < 60 || Math.abs(dx) <= Math.abs(dy) * 1.6 || Date.now() - st > 700) return;
+      var bar = h.querySelector(h.id === "p-kita" ? ".kita-view" : ".wb-tabs"); if (!bar) return;
+      var b = Array.prototype.filter.call(bar.querySelectorAll(".fsbtn"), function (x) { return x.offsetParent !== null; });
+      var i = b.findIndex(function (x) { return x.getAttribute("aria-pressed") === "true"; }), n = dx < 0 ? i + 1 : i - 1;
+      if (i < 0 || n < 0 || n >= b.length) return;
+      b[n].click();
+    }, {passive: true});
   })();
 
   /* ---------- Übersicht: nächste S-Bahnen Richtung Hbf (mindestens 7 Minuten Vorlauf) ---------- */
@@ -3428,9 +3465,10 @@ try { var __st = localStorage.getItem("fd:start"); if (__st && !location.hash) h
     var rainy = hrs.filter(function (x) { return x.p >= 50; });
     var mm = Math.round(hrs.reduce(function (a, x) { return a + x.mm; }, 0) * 10) / 10;
     var first = hrs[0].h, last = hrs[hrs.length - 1].h;
+    var win = hrs.length >= 23 ? "in den nächsten 24 Std" : "zwischen " + first + " und " + (last + 1) + " Uhr";
     var txt = rainy.length
       ? "Regen ist von " + rainy[0].h + " bis " + (rainy[rainy.length - 1].h + 1) + " Uhr wahrscheinlich (bis zu " + maxP + " %), aber mit nur etwa " + comma(mm) + " mm."
-      : (maxP < 5 ? "Trocken: zwischen " + first + " und " + (last + 1) + " Uhr ist kein Regen zu erwarten." : "Kaum Regen zwischen " + first + " und " + (last + 1) + " Uhr, die höchste Chance liegt bei " + maxP + " %.");
+      : (maxP < 5 ? "Trocken: " + (hrs.length >= 23 ? "In den nächsten 24 Std" : "Zwischen " + first + " und " + (last + 1) + " Uhr") + " ist kein Regen zu erwarten." : "Kaum Regen " + win + ", die höchste Chance liegt bei " + maxP + " %.");
     return {txt: txt, maxP: maxP};
   }
 
