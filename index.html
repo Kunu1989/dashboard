@@ -1016,6 +1016,7 @@ footer { font-size: 12px; color: var(--muted); }
 }
 }
 .evd[data-ev], .ev[data-ev] { cursor: pointer; }
+html.tz body { background: var(--tz-g), var(--bg); background-attachment: fixed; }
 .ev-bg { position: fixed; inset: 0; z-index: 90; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
 .ev-bg[hidden] { display: none; }
 .ev-card { background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 16px; padding: 20px; width: 100%; max-width: 420px; max-height: 100%; overflow: auto; box-shadow: 0 12px 40px rgba(0,0,0,.35); box-sizing: border-box; }
@@ -1184,9 +1185,10 @@ footer { font-size: 12px; color: var(--muted); }
         <label class="ad-row"><span>Diashow: Wechsel alle</span><select id="adSec" aria-label="Sekunden pro Bild"></select></label>
         <label class="ad-row"><span>Zurück zur Übersicht nach</span><select id="adIdle" aria-label="Minuten bis zur Übersicht"></select></label>
         <label class="ad-row"><span>Nachtmodus (nur dieses Gerät)</span><select id="adNight" aria-label="Nachtmodus"><option value="3">Aus</option><option value="2">Ein</option><option value="0">Systemeinstellung</option><option value="1">Von Sonnenunter- bis aufgang</option></select></label>
+        <label class="ad-row"><span>Tageszeit-Farbverlauf (nur dieses Gerät)</span><select id="adTz" aria-label="Tageszeit-Farbverlauf"><option value="0">Aus</option><option value="1">Nur Hintergrund</option><option value="2">Alles getönt</option></select></label>
         <label class="ad-row"><span>Startseite (nur dieses Gerät)</span><select id="adStart" aria-label="Startseite dieses Geräts"></select></label>
       </div>
-      <p class="muted ad-note">Diese Zeiten gelten für alle Geräte, nur Nachtmodus und Startseite gelten allein für dieses Gerät.</p>
+      <p class="muted ad-note">Diese Zeiten gelten für alle Geräte, nur Nachtmodus, Farbverlauf und Startseite gelten allein für dieses Gerät. Der Farbverlauf läuft 2 Stunden nach Sonnenaufgang und 2 Stunden vor Sonnenuntergang und ist im Nachtmodus aus.</p>
     </section>
 <details class="card ad-fold" aria-labelledby="adTc">
       <summary class="card-head"><h2 id="adTc">Farben</h2><span class="ad-chev" aria-hidden="true"></span></summary>
@@ -1195,7 +1197,7 @@ footer { font-size: 12px; color: var(--muted); }
     </details>
     </div>
     </div>
-    <p class="ad-ver" id="adVer">Version 10.20 &middot; vom 27.11.2026, 21:03 Uhr</p>
+    <p class="ad-ver" id="adVer">Version 10.21 &middot; vom 28.11.2026, 06:19 Uhr</p>
   </div>
 
   <div class="panel" id="p-einkauf" hidden>
@@ -4821,6 +4823,36 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
   })();
 
 
+  /* Tageszeit-Farbverlauf (pro Gerät, Standard aus): 2 Std. nach Sonnenaufgang (warm, nimmt ab) und 2 Std. vor Sonnenuntergang (nimmt zu), nur im hellen Modus.
+     Stellung 1: nur Hintergrund, Stellung 2: auch Kästen, Reiterleiste und Linien getönt */
+  (function () {
+    var R = document.documentElement, KEY = "fd:tz", H = 2 * 3600000, VARS = ["--surface", "--surface-2", "--line", "--tz-g"];
+    function mode() { try { var v = localStorage.getItem(KEY); return v === "1" || v === "2" ? Number(v) : 0; } catch (e) { return 0; } }
+    function dark() { var t = R.getAttribute("data-theme"); return t === "dark" || (!t && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches); }
+    function mx(a, b, t) { return a.map(function (v, i) { return Math.round(v + (b[i] - v) * t); }).join(","); }
+    function clear() { R.classList.remove("tz"); VARS.forEach(function (p) { R.style.removeProperty(p); }); }
+    function apply() {
+      var m = mode(); if (!m || dark() || !window.__sunTimes) { clear(); return; }
+      var n = Date.now(), s = window.__sunTimes(new Date()), I = 0, k = "";
+      if (n >= s.rise && n < s.rise + H) { I = 1 - (n - s.rise) / H; k = "m"; }
+      else if (n >= s.set - H && n < s.set) { I = (n - (s.set - H)) / H; k = "e"; }
+      if (I < 0.005) { clear(); return; }
+      var top = k === "m" ? [246, 222, 196] : [244, 208, 186], mid = k === "m" ? [247, 236, 222] : [236, 222, 228];
+      R.style.setProperty("--tz-g", "linear-gradient(180deg,rgba(" + top + "," + I.toFixed(3) + ") 0%,rgba(" + mid + "," + (I * 0.85).toFixed(3) + ") 50%,rgba(" + mid + "," + (I * 0.75).toFixed(3) + ") 100%)");
+      R.classList.add("tz");
+      if (m === 2) {
+        R.style.setProperty("--surface", "rgb(" + mx([255, 255, 255], top, .55 * I) + ")");
+        R.style.setProperty("--surface-2", "rgb(" + mx([243, 246, 248], top, .55 * I) + ")");
+        R.style.setProperty("--line", "rgb(" + mx([217, 223, 230], [225, 190, 160], .6 * I) + ")");
+      } else { ["--surface", "--surface-2", "--line"].forEach(function (p) { R.style.removeProperty(p); }); }
+    }
+    window.addEventListener("fd-tz", apply); window.addEventListener("fd-night", apply);
+    try { new MutationObserver(apply).observe(R, {attributes: true, attributeFilter: ["data-theme"]}); } catch (e) {}
+    try { var mq = matchMedia("(prefers-color-scheme: dark)"); (mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply)); } catch (e) {}
+    setInterval(apply, 60000); setTimeout(apply, 0); setTimeout(apply, 1500);
+    window.__applyTz = apply;
+  })();
+
   /* Easter Egg: 5x schnell auf „Abfahrten“ tippen – ein ICE fährt von links nach rechts über die beiden Kästen (Tablet) bzw. den Haltestellen-Reiter (Handy) */
   (function () {
     var t = document.getElementById("tab-abfahrten"), hits = [], lock = 0;
@@ -4901,6 +4933,8 @@ var MENUS_ALL = [{"kw":47,"days":[{"d":"2026-11-16","i":[{"t":"Spinatspätzle-Pf
     var si = $("adIdle"), IDLES = [[1, "1 Minute"], [2, "2 Minuten"], [5, "5 Minuten"], [10, "10 Minuten"], [15, "15 Minuten"], [30, "30 Minuten"], [0, "Nie"]];
     IDLES.forEach(function (x) { var o = document.createElement("option"); o.value = x[0]; o.textContent = x[1]; si.appendChild(o); });
     var sn = $("adNight");
+    var tzs = $("adTz");
+    if (tzs) { try { tzs.value = localStorage.getItem("fd:tz") || "0"; } catch (e) {} tzs.addEventListener("change", function () { try { if (tzs.value === "0") localStorage.removeItem("fd:tz"); else localStorage.setItem("fd:tz", tzs.value); } catch (e) {} window.dispatchEvent(new Event("fd-tz")); }); }
     var ss = $("adStart"), STARTS = [["uebersicht", "Übersicht"], ["kalender", "Kalender"], ["wetter", "Wetter"], ["kita", "Kita"], ["abfahrten", "Abfahrten"], ["einkauf", "Einkauf"], ["bilder", "Bilder"]];
     STARTS.forEach(function (x) { if (x[0] === "bilder" && window.matchMedia && matchMedia("(max-width: 700px)").matches) return; var o = document.createElement("option"); o.value = x[0]; o.textContent = x[1]; ss.appendChild(o); });
     try { ss.value = localStorage.getItem("fd:start") || "uebersicht"; } catch (e) {}
